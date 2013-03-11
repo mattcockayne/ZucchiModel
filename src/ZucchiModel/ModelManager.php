@@ -61,6 +61,7 @@ class ModelManager implements EventManagerAwareInterface
     protected $registeredAnnotations = array(
         'ZucchiModel\Annotation\Field',
         'ZucchiModel\Annotation\Relationship',
+        'ZucchiModel\Annotation\DataSource',
     );
 
     /**
@@ -170,19 +171,18 @@ class ModelManager implements EventManagerAwareInterface
             $model = new Metadata\Model();
             $fields = new Metadata\Fields();
 
-            if ($annotation = $reflection->getAnnotations($am)) {
+            if ($annotations = $reflection->getAnnotations($am)) {
                 $event = new Event();
-                $event->setName('configureModel');
+                $event->setName('prepareModelMetadata');
                 $event->setTarget($model);
-                $event->setParam('annotation', $annotation);
+                $event->setParam('annotations', $annotations);
                 $em->trigger($event);
             }
 
             if ($properties = $reflection->getProperties()) {
                 $event = new Event();
-                $event->setName('configureModelFields');
+                $event->setName('prepareFieldMetadata');
                 $event->setTarget($fields);
-
                 foreach ($properties as $property) {
                     if ($annotation = $property->getAnnotations($am)) {
                         $event->setParam('property',$property->getName());
@@ -192,13 +192,17 @@ class ModelManager implements EventManagerAwareInterface
                 }
             }
 
-
+            if (isset($model['dataSource']) && !empty($model['dataSource'])){
+                // populate datasource details
+                $dbMeta = new \Zend\Db\Metadata\Metadata($this->adapter);
+                $sourceMeta = $dbMeta->getTable($model['dataSource']);
+            }
 
             $this->modelMetadata[$class] = array(
                 'model' => $model,
                 'fields' => $fields,
+                'dataSource' => $sourceMeta,
             );
-            var_dump($this->modelMetadata);
         }
 
         return $this->modelMetadata[$class];

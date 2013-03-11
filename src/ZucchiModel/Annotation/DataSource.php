@@ -12,18 +12,20 @@ namespace ZucchiModel\Annotation;
 use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
 
 /**
- * Relationship annotation
+ * Table annotation
+ *
+ * Use this annotation to specify the database table to use
  *
  * @Annotation
  */
-class Relationship extends AbstractArrayOrStringAnnotation
+class DataSource extends AbstractArrayOrStringAnnotation
 {
     /**
      * Retrieve the class type
      *
      * @return null|string
      */
-    public function getRelationship()
+    public function getDataSource()
     {
         return $this->value;
     }

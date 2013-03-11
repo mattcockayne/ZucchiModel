@@ -2,8 +2,9 @@
 namespace ZucchiModel\Annotation;
 
 use Zend\EventManager\Event;
-
 use Zend\EventManager\EventManagerInterface;
+
+use ZucchiModel\Annotation;
 /**
  * Created by JetBrains PhpStorm.
  * User: matt
@@ -23,8 +24,8 @@ class MetadataListener
     public function attach(EventManagerInterface $events)
     {
         $this->listeners = array(
-            $events->attach('configureModel', array($this, 'configureModelRelationships')),
-            $events->attach('configureModelFields', array($this, 'configureModelFields')),
+            $events->attach('prepareModelMetadata', array($this, 'prepareModelMetadata')),
+            $events->attach('prepareFieldMetadata', array($this, 'prepareFieldMetadata')),
         );
     }
 
@@ -38,23 +39,31 @@ class MetadataListener
         $this->listeners = array();
     }
 
-    public function configureModelRelationships(Event $event)
+    public function prepareModelMetadata(Event $event)
     {
         $metadata = $event->getTarget();
         $relationships = array();
-        $annotations = $event->getParam('annotation');
+        $dataSource = '';
+        $annotations = $event->getParam('annotations');
+
         foreach ($annotations as $annotation) {
-            if ($annotation instanceof \ZucchiModel\Annotation\Relationship) {
+            if ($annotation instanceof Annotation\Relationship) {
                 $rel = $annotation->getRelationship();
                 $relationships[$rel['name']] = $rel;
+            }
+
+            if ($annotation instanceof Annotation\DataSource) {
+                $dataSource = $annotation->getDataSource();
             }
         }
 
         $metadata['relationships'] = $relationships;
+        $metadata['dataSource'] = $dataSource;
+
 
     }
 
-    public function configureModelFields(Event $event)
+    public function prepareFieldMetadata(Event $event)
     {
         $metadata = $event->getTarget();
         $property = $event->getParam('property');
