@@ -20,6 +20,8 @@ use Zend\EventManager\EventManagerAwareTrait;
 use ZucchiModel\Metadata;
 use ZucchiModel\Annotation\MetadataListener;
 
+use Zend\Db\Sql\Sql;
+
 /**
  * Object Manager for
  *
@@ -209,16 +211,6 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * helper to find objects by criteria
-     * @param $criteria
-     * @return ObjectManager
-     */
-    public function find($criteria)
-    {
-        return $this;
-    }
-
-    /**
      * Get Relationships
      *
      * @param $model
@@ -242,5 +234,28 @@ class ModelManager implements EventManagerAwareInterface
     {
 
     }
+
+    /**
+     * create a new Query
+     *
+     * @todo: requires consideration of NoSQL queries
+     * @return \Zend\Db\Sql\Sql
+     */
+    public function createQuery()
+    {
+        $query = new Sql($this->getAdapter());
+        return $query;
+    }
+
+    /**
+     * execute query
+     * @param $criteria
+     * @return ResultSet?
+     */
+    public function query(Sql $query)
+    {
+
+    }
+
 }
 
