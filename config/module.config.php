@@ -1,8 +1,18 @@
 <?php
 return array(
     'service_manager' => array(
-        'invokables' => array(
-            'zucchimodel.modelmanager' => 'ZucchiModel\ModelManager',
+        'factories' => array(
+            'zucchimodel.modelmanager' => function ($sm) {
+                $manager = new ZucchiModel\ModelManager();
+                // set adapter
+
+                // add additional listeners
+
+                //etc
+
+
+                return $manager;
+            },
         ),
     ),
 );
