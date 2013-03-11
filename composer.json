@@ -1,0 +1,30 @@
+{
+    "name": "zucchi/model",
+    "description": "Zucchi Model tools layered on top of Zend\Db",
+    "type": "library",
+    "keywords": [
+        "database",
+        "extensions",
+        "library",
+        "zf2"
+    ],
+    "homepage": "https://github.com/zucchi/ZucchiModel",
+    "authors" : [{
+        "name": "Matt Cockayne",
+        "email" : "matt@zucchi.co.uk",
+        "homepage" : "http://devincharge.com/"
+    }],
+    "license": "BSD-3-Clause",
+    "require": {
+        "php": ">=5.4.1",
+        "zucchi/zucchi": "dev-master",
+    },
+    "autoload": {
+        "psr-0": {
+            "ZucchiModel": "src/"
+        },
+        "classmap": [
+            "./Module.php"
+        ]
+    }
+}
