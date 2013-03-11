@@ -183,9 +183,7 @@ class ModelManager implements EventManagerAwareInterface
 
     public function getRelationship($model, $nameOfRelationship)
     {
-        if (isset($this->modelMetadata[get_class($model)]) &&
-            in_array($this->modelMetadata[get_class($model)]['relationships'], $nameOfRelationship)
-        ) {
+        if (isset($this->modelMetadata[get_class($model)]['relationships'][$nameOfRelationship])) {
             // lookup and return relationship;
 
         }
