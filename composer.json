@@ -1,6 +1,6 @@
 {
     "name": "zucchi/model",
-    "description": "Zucchi Model tools layered on top of Zend\Db",
+    "description": "Zucchi Model tools layered on top of Zend Db",
     "type": "library",
     "keywords": [
         "database",
