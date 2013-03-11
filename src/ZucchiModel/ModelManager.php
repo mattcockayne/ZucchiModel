@@ -24,20 +24,20 @@ use ZucchiModel\Annotation\MetadataListener;
  * Object Manager for
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage ModelManager
  * @category
  */
 class ModelManager implements EventManagerAwareInterface
 {
-
     /**
      * @var \Zend\Db\Adapter\AdapterInterface
      */
     protected $adapter;
 
     /**
-     * @var
+     * @var EventManager
      */
     protected $eventManager;
 
@@ -48,10 +48,16 @@ class ModelManager implements EventManagerAwareInterface
 
     /**
      * Mapping data for loaded models
+     *
      * @var array
      */
     protected $modelMetadata = array();
 
+    /**
+     * Collection of know Annotations related to ModelManager
+     *
+     * @var array
+     */
     protected $registeredAnnotations = array(
         'ZucchiModel\Annotation\Field',
         'ZucchiModel\Annotation\Relationship',
@@ -62,11 +68,22 @@ class ModelManager implements EventManagerAwareInterface
         if ($adapter) $this->setAdapter($adapter);
     }
 
+    /**
+     * Get Zend Db Adapter
+     *
+     * @return \Zend\Db\Adapter\AdapterInterface
+     */
     public function getAdapter()
     {
         return $this->adapter;
     }
 
+    /**
+     * Set Zend Db Adapter
+     *
+     * @param \Zend\Db\Adapter\AdapterInterface $adapter
+     * @return ModelManager
+     */
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
@@ -104,6 +121,11 @@ class ModelManager implements EventManagerAwareInterface
         return $this;
     }
 
+    /**
+     * Get Annotation Manager
+     *
+     * @return \Zend\Code\Annotation\AnnotationManager
+     */
     public function getAnnotationManager()
     {
         if (!$this->annotationManager) {
@@ -117,11 +139,22 @@ class ModelManager implements EventManagerAwareInterface
         return $this->annotationManager;
     }
 
+    /**
+     * Set Annotation Manager
+     *
+     * @param \Zend\Code\Annotation\AnnotationManager $annotationManager
+     */
     public function setAnnotationManager(AnnotationManager $annotationManager)
     {
         $this->annotationManager = $annotationManager;
     }
 
+    /**
+     * Get Metadata
+     *
+     * @param $class
+     * @return mixed
+     */
     public function getMetadata($class)
     {
         if (!array_key_exists($class, $this->modelMetadata)) {
@@ -176,6 +209,12 @@ class ModelManager implements EventManagerAwareInterface
         return $this;
     }
 
+    /**
+     * Get Relationships
+     *
+     * @param $model
+     * @param $nameOfRelationship
+     */
     public function getRelationship($model, $nameOfRelationship)
     {
         if (isset($this->modelMetadata[get_class($model)]['relationships'][$nameOfRelationship])) {
@@ -184,6 +223,12 @@ class ModelManager implements EventManagerAwareInterface
         }
     }
 
+    /**
+     * Release stored model
+     *
+     * @param $model
+     * @param bool $releaseRelationships
+     */
     public function release($model, $releaseRelationships = true)
     {
 
