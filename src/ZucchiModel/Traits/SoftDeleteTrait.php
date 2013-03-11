@@ -6,29 +6,21 @@
  * @copyright Copyright (c) 2005-2012 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-namespace ZucchiModel\Model;
-
-
+namespace ZucchiModel\Traits;
 
 /**
- * Object Manager for
+ * Soft Delete Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Model
  * @category
  */
-class ModelTrait
+class SoftDeleteTrait
 {
-    protected $originalData;
-
-    public function setOriginalData($data)
-    {
-
-    }
-
-    public function getOriginalData()
-    {
-
-    }
+    /**
+     * @var datetime;
+     * @Model\Type({"type" : "datetime"})
+     */
+    public $id;
 }

@@ -156,7 +156,7 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * Get Metadata
+     * Get Metadata for a specified class
      *
      * @param $class
      * @return mixed
@@ -203,6 +203,8 @@ class ModelManager implements EventManagerAwareInterface
                 'fields' => $fields,
                 'dataSource' => $sourceMeta,
             );
+
+            var_dump($this->modelMetadata[$class]);
         }
 
         return $this->modelMetadata[$class];
