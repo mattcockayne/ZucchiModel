@@ -203,8 +203,6 @@ class ModelManager implements EventManagerAwareInterface
                 'fields' => $fields,
                 'dataSource' => $sourceMeta,
             );
-
-            var_dump($this->modelMetadata[$class]);
         }
 
         return $this->modelMetadata[$class];
