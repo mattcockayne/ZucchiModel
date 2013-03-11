@@ -63,9 +63,14 @@ class ModelManager implements EventManagerAwareInterface
         'ZucchiModel\Annotation\Relationship',
     );
 
-    public function __construct(AdapterInterface $adapter = null)
+    /**
+     * Construct ModelManager with supplied Zend Db Adapter
+     *
+     * @param \Zend\Db\Adapter\AdapterInterface $adapter
+     */
+    public function __construct(AdapterInterface $adapter)
     {
-        if ($adapter) $this->setAdapter($adapter);
+        $this->setAdapter($adapter);
     }
 
     /**
