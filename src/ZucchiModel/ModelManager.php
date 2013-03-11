@@ -52,11 +52,6 @@ class ModelManager implements EventManagerAwareInterface
      */
     protected $modelMetadata = array();
 
-    /**
-     * @var array
-     */
-    protected $modelRelationships = array();
-
     protected $registeredAnnotations = array(
         'ZucchiModel\Annotation\Field',
         'ZucchiModel\Annotation\Relationship',
