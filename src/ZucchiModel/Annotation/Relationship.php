@@ -35,7 +35,6 @@ class Relationship extends AbstractArrayAnnotation
 
     public function __construct(array $data)
     {
-        var_dump($data);
         parent::__construct($data);
 
         $foundKeys = array_keys($this->value);
