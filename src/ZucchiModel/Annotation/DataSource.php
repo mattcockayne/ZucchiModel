@@ -9,7 +9,7 @@
 
 namespace ZucchiModel\Annotation;
 
-use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
+use Zend\Form\Annotation\AbstractStringAnnotation;
 
 /**
  * Table annotation
@@ -22,7 +22,7 @@ use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
  * @package ZucchiModel
  * @subpackage Annotation
  */
-class DataSource extends AbstractArrayOrStringAnnotation
+class DataSource extends AbstractStringAnnotation
 {
     /**
      * Retrieve the class type
