@@ -29,6 +29,8 @@ class Field extends AbstractArrayOrStringAnnotation
      */
     private $allowedTypes = array(
         'string',
+        'integer',
+        'binary',
         'boolean',
         'float',
         'date',
