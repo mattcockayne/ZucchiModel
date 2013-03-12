@@ -17,6 +17,10 @@ use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
  * Use this annotation to specify the database table to use
  *
  * @Annotation
+ * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
+ * @package ZucchiModel
+ * @subpackage Annotation
  */
 class DataSource extends AbstractArrayOrStringAnnotation
 {

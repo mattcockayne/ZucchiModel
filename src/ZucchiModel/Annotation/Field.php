@@ -15,6 +15,10 @@ use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
  * Field annotation
  *
  * @Annotation
+ * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
+ * @package ZucchiModel
+ * @subpackage Annotation
  */
 class Field extends AbstractArrayOrStringAnnotation
 {

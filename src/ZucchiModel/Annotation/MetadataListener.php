@@ -5,12 +5,13 @@ use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 
 use ZucchiModel\Annotation;
+
 /**
- * Created by JetBrains PhpStorm.
- * User: matt
- * Date: 11/03/13
- * Time: 13:44
- * To change this template use File | Settings | File Templates.
+ * Metadata Listener
+ *
+ * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @package ZucchiModel
+ * @subpackage Annotation
  */
 class MetadataListener
 {

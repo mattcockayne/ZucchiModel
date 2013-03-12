@@ -15,6 +15,9 @@ use Zend\Form\Annotation\AbstractArrayAnnotation;
  * Relationship annotation
  *
  * @Annotation
+ * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @package ZucchiModel
+ * @subpackage Annotation
  */
 class Relationship extends AbstractArrayAnnotation
 {
