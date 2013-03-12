@@ -22,15 +22,38 @@ class Relationship extends AbstractArrayAnnotation
         'name','model','type','mappedKey','mappedBy',
     );
 
+    protected $validTypes = array(
+        'toOne','toMany',
+    );
+
+    protected $requiredKeys = array(
+        'name','model','type','mappedKey','mappedBy',
+    );
+
     public function __construct(array $data)
     {
+        var_dump($data);
         parent::__construct($data);
 
-        foreach (array_keys($this->value) as $key) {
+        $foundKeys = array_keys($this->value);
+
+        $missingKeys = array_diff($this->requiredKeys, $foundKeys);
+
+        if (!empty($missingKeys)) {
+            throw new \RuntimeException('Required data for "' . (implode(',',$missingKeys)) . '" missing from  Relationship annotation');
+        }
+
+        foreach ($foundKeys as $key) {
             if (!in_array($key, $this->validKeys)) {
-                throw new \RuntimeException('Invalid definition of "' . $key . '" in Relationship Annotation');
+                throw new \RuntimeException('Invalid definition of "' . $key . '" in Relationship annotation');
             }
         }
+
+        if (!in_array($this->value['type'], $this->validTypes)) {
+            throw new \RuntimeException('Invalid type of relationship  ("' . $this->value['type'] . '") defined in Relationship annotation');
+        }
+
+
     }
 
     /**
