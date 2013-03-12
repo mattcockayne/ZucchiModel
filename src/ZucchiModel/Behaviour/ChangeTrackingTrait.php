@@ -18,7 +18,7 @@ namespace ZucchiModel\Behaviour;
  * @subpackage Behaviour
  * @category
  */
-class ChangeTrackingTrait
+trait ChangeTrackingTrait
 {
     /**
      * @var array

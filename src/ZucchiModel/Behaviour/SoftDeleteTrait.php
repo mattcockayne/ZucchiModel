@@ -16,7 +16,7 @@ namespace ZucchiModel\Behaviour;
  * @subpackage Behaviour
  * @category
  */
-class SoftDeleteTrait
+trait SoftDeleteTrait
 {
     /**
      * @var datetime;

@@ -18,7 +18,7 @@ use ZucchiModel\Annotation as Model;
  * @subpackage Behaviour
  * @category
  */
-class TimestampTrait
+trait TimestampTrait
 {
     /**
      * @var datetime;

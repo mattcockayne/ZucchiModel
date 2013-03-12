@@ -16,7 +16,7 @@ namespace ZucchiModel\Behaviour;
  * @subpackage Model
  * @category
  */
-class VersionTrait
+trait VersionTrait
 {
     /**
      * @var integer

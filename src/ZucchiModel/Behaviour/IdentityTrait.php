@@ -16,7 +16,7 @@ namespace ZucchiModel\Behaviour;
  * @subpackage Behaviour
  * @category
  */
-class IdentityTrait
+trait IdentityTrait
 {
     /**
      * @var integer

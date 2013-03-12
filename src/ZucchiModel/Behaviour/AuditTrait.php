@@ -16,6 +16,6 @@ namespace ZucchiModel\Behaviour;
  * @subpackage Behaviour
  * @category
  */
-class AuditTrait
+trait AuditTrait
 {
 }
