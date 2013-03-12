@@ -11,11 +11,11 @@ namespace ZucchiModel\Behaviour;
 
 
 /**
- * Object Manager for
+ * Change Tracking Behaviour Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
- * @subpackage Model
+ * @subpackage Behaviour
  * @category
  */
 class ChangeTrackingTrait

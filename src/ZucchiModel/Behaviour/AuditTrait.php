@@ -9,11 +9,11 @@
 namespace ZucchiModel\Behaviour;
 
 /**
- * Object Manager for
+ * Audit Behaviour Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
- * @subpackage Model
+ * @subpackage Behaviour
  * @category
  */
 class AuditTrait

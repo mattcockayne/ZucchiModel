@@ -13,7 +13,7 @@ namespace ZucchiModel\Behaviour;
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
- * @subpackage Model
+ * @subpackage Behaviour
  * @category
  */
 class IdentityTrait

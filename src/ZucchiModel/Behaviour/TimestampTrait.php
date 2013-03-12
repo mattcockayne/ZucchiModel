@@ -11,11 +11,11 @@ namespace ZucchiModel\Behaviour;
 use ZucchiModel\Annotation as Model;
 
 /**
- * Timestamp
+ * Timestamp Behaviour Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
- * @subpackage Model
+ * @subpackage Behaviour
  * @category
  */
 class TimestampTrait

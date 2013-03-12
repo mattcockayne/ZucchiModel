@@ -13,9 +13,9 @@ use Zend\Stdlib\AbstractOptions;
 /**
  * 
  * @author Matt Cockayne <matt@zucchi.co.uk>
- * @package ZucchiSecurity 
- * @subpackage Auth 
- * @category Plugin/Options
+ * @package ZucchiModel
+ * @subpackage Opions
+ * @category
  */
 class ModelManagerOptions extends AbstractOptions
 {

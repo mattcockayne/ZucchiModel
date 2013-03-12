@@ -6,21 +6,19 @@
  * @copyright Copyright (c) 2005-2012 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-namespace ZucchiModel\Behaviour;
+namespace ZucchiModel\ResultSet;
+
+use Zend\Db\ResultSet\AbstractResultSet;
 
 /**
- * Version Behaviour Trait
+ * Model ResultSet
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
- * @subpackage Model
+ * @subpackage ResultSet
  * @category
  */
-class VersionTrait
+class ModelResultSet extends AbstractResultSet
 {
-    /**
-     * @var integer
-     * @Model\Type({"type" : "integer"})
-     */
-    public $version;
+
 }
