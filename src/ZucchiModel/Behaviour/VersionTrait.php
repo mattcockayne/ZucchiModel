@@ -6,16 +6,21 @@
  * @copyright Copyright (c) 2005-2012 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-namespace ZucchiModel\Traits;
+namespace ZucchiModel\Behaviour;
 
 /**
- * Object Manager for
+ * Version Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Model
  * @category
  */
-class AuditTrait
+class VersionTrait
 {
+    /**
+     * @var integer
+     * @Model\Type({"type" : "integer"})
+     */
+    public $version;
 }

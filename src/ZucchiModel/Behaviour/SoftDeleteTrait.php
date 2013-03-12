@@ -6,21 +6,21 @@
  * @copyright Copyright (c) 2005-2012 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-namespace ZucchiModel\Traits;
+namespace ZucchiModel\Behaviour;
 
 /**
- * Identity Trait
+ * Soft Delete Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Model
  * @category
  */
-class IdentityTrait
+class SoftDeleteTrait
 {
     /**
-     * @var integer
-     * @Model({"type" : "integer"})
+     * @var datetime;
+     * @Model\Type({"type" : "datetime"})
      */
-    public $id = null;
+    public $id;
 }

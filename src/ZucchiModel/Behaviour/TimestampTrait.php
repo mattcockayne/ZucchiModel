@@ -6,21 +6,29 @@
  * @copyright Copyright (c) 2005-2012 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-namespace ZucchiModel\Traits;
+namespace ZucchiModel\Behaviour;
+
+use ZucchiModel\Annotation as Model;
 
 /**
- * Version Trait
+ * Timestamp
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Model
  * @category
  */
-class VersionTrait
+class TimestampTrait
 {
     /**
-     * @var integer
-     * @Model\Type({"type" : "integer"})
+     * @var datetime;
+     * @Model\Type({"type" : "datetime"})
      */
-    public $version;
+    public $createdAt;
+
+    /**
+     * @var datetime
+     * @Model\Type({"type" : "datetime"})
+     */
+    public $updatedAt;
 }
