@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * ZucchiSecurity (http://zucchi.co.uk/)
+ *
+ * @link      http://github.com/zucchi/ZucchiSecurity for the canonical source repository
+ * @copyright Copyright (c) 2005-2012 Zucchi Limited (http://zucchi.co.uk)
+ * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
+ */
 namespace ZucchiModel;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
@@ -8,6 +14,13 @@ use Zend\ModuleManager\Feature\ServiceProviderInterface;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\DBAL\Types\Type;
 
+/**
+ *
+ * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @package ZucchiModel
+ * @subpackage Opions
+ * @category
+ */
 class Module implements 
     AutoloaderProviderInterface,
     ConfigProviderInterface

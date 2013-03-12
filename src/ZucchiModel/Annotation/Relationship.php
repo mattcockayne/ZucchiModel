@@ -9,15 +9,30 @@
 
 namespace ZucchiModel\Annotation;
 
-use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
+use Zend\Form\Annotation\AbstractArrayAnnotation;
 
 /**
  * Relationship annotation
  *
  * @Annotation
  */
-class Relationship extends AbstractArrayOrStringAnnotation
+class Relationship extends AbstractArrayAnnotation
 {
+    protected $validKeys = array(
+        'name','model','type','mappedKey','mappedBy',
+    );
+
+    public function __construct(array $data)
+    {
+        parent::__construct($data);
+
+        foreach (array_keys($this->value) as $key) {
+            if (!in_array($key, $this->validKeys)) {
+                throw new \RuntimeException('Invalid definition of "' . $key . '" in Relationship Annotation');
+            }
+        }
+    }
+
     /**
      * Retrieve the class type
      *
