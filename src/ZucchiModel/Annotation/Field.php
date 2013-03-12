@@ -19,7 +19,40 @@ use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
 class Field extends AbstractArrayOrStringAnnotation
 {
     /**
-     * Retrieve the class type
+     * Allowed types for fields
+     *
+     * @var array
+     */
+    private $allowedTypes = array(
+        'string',
+        'boolean',
+        'float',
+        'date',
+        'time',
+        'datetime',
+        'json'
+    );
+
+    /**
+     * Constructor
+     *
+     * @param array $data
+     * @throws \RuntimeException if no valid type is given in annotation
+     */
+    public function __construct(array $data) {
+        parent::__construct($data);
+        $type = $this->getField();
+
+        // Test the given type is a valid allowed type
+        // If not throw
+        if (!in_array($type, $this->allowedTypes)) {
+            throw new \RuntimeException(sprintf('%s is not an allowed type of Field"', var_export($type, true)));
+        }
+    }
+
+    /**
+     * Retrieve the annotation field value,
+     * should be the type
      *
      * @return null|string
      */
