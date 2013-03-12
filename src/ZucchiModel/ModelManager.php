@@ -21,6 +21,8 @@ use ZucchiModel\Metadata;
 use ZucchiModel\Annotation\MetadataListener;
 
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\AbstractSql;
+
 
 /**
  * Object Manager for
@@ -248,14 +250,40 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * execute query
+     * execute query and return mapped results
      * @param $criteria
      * @return ResultSet?
      */
-    public function query(Sql $query)
+    public function query(AbstractSql $query)
     {
+        // detect if aggregation, group by or function present.
+        // if present throw exception as not mapable results
+
+        // detect tables being accessed
+
+        // update query to return ALL columns
+
+        // pass results to mapToModel method
+
+        // if array of results needs to use custom ResultSet that
+        // will use model manager for hydrating on iteration.
+
+        // return primary entity or resultset from query
+
 
     }
+
+    public function mapToModel($data, $modelOrModelNameToMapTo)
+    {
+        // map data to Model
+
+        // cache model in memory?
+
+        // return model
+
+    }
+
+
 
 }
 
