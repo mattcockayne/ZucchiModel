@@ -1,4 +1,11 @@
 <?php
+/**
+ * ZucchiModel (http://zucchi.co.uk)
+ *
+ * @link      http://github.com/zucchi/ZucchiModel for the canonical source repository
+ * @copyright Copyright (c) 2005-2013 Zucchi Limited. (http://zucchi.co.uk)
+ * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
+ */
 namespace ZucchiModel\Annotation;
 
 use Zend\EventManager\Event;
@@ -10,6 +17,7 @@ use ZucchiModel\Annotation;
  * Metadata Listener
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Annotation
  */
@@ -60,8 +68,6 @@ class MetadataListener
 
         $metadata['relationships'] = $relationships;
         $metadata['dataSource'] = $dataSource;
-
-
     }
 
     public function prepareFieldMetadata(Event $event)
@@ -73,8 +79,6 @@ class MetadataListener
             if ($annotation instanceof \ZucchiModel\Annotation\Field) {
                 $metadata[$property] = $annotation->getField();
             }
-
-
         }
     }
 }
