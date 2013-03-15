@@ -27,7 +27,7 @@ class DataSource extends AbstractArrayAnnotation
     /**
      * Retrieve the class type
      *
-     * @return null|string
+     * @return null|array
      */
     public function getDataSource()
     {
