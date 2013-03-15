@@ -164,12 +164,17 @@ class ModelManager implements EventManagerAwareInterface
     /**
      * Get Metadata for a specified class
      *
-     * @param $class
+     * @param string $class
      * @return mixed
+     * @throws \RuntimeException
      */
     public function getMetadata($class)
     {
         if (!array_key_exists($class, $this->modelMetadata)) {
+            // Add class to cache
+            $this->modelMetadata[$class] = array();
+
+            // Get the Model's Annotations
             $reflection  = new ClassReflection($class);
             $am = $this->getAnnotationManager();
             $em = $this->getEventManager();
@@ -177,6 +182,7 @@ class ModelManager implements EventManagerAwareInterface
             $model = new Metadata\Model();
             $fields = new Metadata\Fields();
 
+            // Find all the Model Metadata
             if ($annotations = $reflection->getAnnotations($am)) {
                 $event = new Event();
                 $event->setName('prepareModelMetadata');
@@ -185,6 +191,10 @@ class ModelManager implements EventManagerAwareInterface
                 $em->trigger($event);
             }
 
+            // Cache Model Metadata
+            $this->modelMetadata[$class]['model'] = $model;
+
+            // Find all the Fields Metadata
             if ($properties = $reflection->getProperties()) {
                 $event = new Event();
                 $event->setName('prepareFieldMetadata');
@@ -198,17 +208,25 @@ class ModelManager implements EventManagerAwareInterface
                 }
             }
 
-            if (isset($model['dataSource']) && !empty($model['dataSource'])){
-                // populate datasource details
-                $dbMeta = new \Zend\Db\Metadata\Metadata($this->adapter);
-                $sourceMeta = $dbMeta->getTable($model['dataSource']);
-            }
+            // Cache Fields Metadata
+            $this->modelMetadata[$class]['fields'] = $fields;
 
-            $this->modelMetadata[$class] = array(
-                'model' => $model,
-                'fields' => $fields,
-                'dataSource' => $sourceMeta,
-            );
+            // Check for Data Sources and get their Table Name
+            if (isset($model['dataSource']) && !empty($model['dataSource'])){
+                $dbMeta = new \Zend\Db\Metadata\Metadata($this->getAdapter());
+                $sourceMeta = array();
+                // populate datasource details
+                foreach ($model['dataSource'] as $dataSource) {
+                    $sourceMeta[$dataSource] = $dbMeta->getTable($dataSource);
+                }
+
+                // Check we have matched the given dataSource to a Table Name
+                if (!empty($sourceMeta)) {
+                    $this->modelMetadata[$class]['dataSource'] = $sourceMeta;
+                } else {
+                    throw new \RuntimeException(sprintf('Data Source mapping not found for %s.', var_export($model['dataSource'], true)));
+                }
+            }
         }
 
         return $this->modelMetadata[$class];
