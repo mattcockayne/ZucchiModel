@@ -52,7 +52,7 @@ class MetadataListener
     {
         $metadata = $event->getTarget();
         $relationships = array();
-        $dataSource = '';
+        $dataSource = array();
         $annotations = $event->getParam('annotations');
 
         foreach ($annotations as $annotation) {
