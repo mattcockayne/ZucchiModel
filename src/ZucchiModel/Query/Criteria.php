@@ -22,10 +22,10 @@ use Zend\Db\Sql\Where;
 class Criteria extends AbstractOptions
 {
     /**
-     * Collection of Model names
-     * @var array|string
+     * Model name
+     * @var string
      */
-    protected $models;
+    protected $model;
 
     /**
      * Where object
@@ -56,14 +56,13 @@ class Criteria extends AbstractOptions
     protected $orderBy = null;
 
     /**
-     * Get Models - either a collection of
-     * models or a single model.
+     * Get Models - a single model.
      *
      * @return string|array|null
      */
-    public function getModels()
+    public function getModel()
     {
-        return $this->models;
+        return $this->model;
     }
 
     /**
@@ -107,19 +106,19 @@ class Criteria extends AbstractOptions
     }
 
     /**
-     * Set Models with given string or array.
+     * Set Model with a given string.
      *
-     * @param $models
+     * @param $model
      * @throws \RuntimeException
      */
-    public function setModels($models)
+    public function setModel($model)
     {
-        if ((is_string($models) || is_array($models)) && !empty($models)) {
-            $this->models = $models;
+        if (is_string($model) && $model != '') {
+            $this->model = $model;
         } else {
-            $type = gettype($models);
-            $type = ($type != 'object')?: get_class($models);
-            throw new \RuntimeException(sprintf('Models must be a string or an array and can not be empty. %s given.', $type));
+            $type = gettype($model);
+            $type = ($type != 'object')?: get_class($model);
+            throw new \RuntimeException(sprintf('Model must be a string and can not be blank. %s given.', $type));
         }
     }
 
