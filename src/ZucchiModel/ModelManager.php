@@ -17,15 +17,15 @@ use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
-use ZucchiModel\Metadata;
 use ZucchiModel\Annotation\MetadataListener;
+use ZucchiModel\Metadata;
 
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\AbstractSql;
 
 
 /**
- * Object Manager for
+ * Model Manager for ORM
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
@@ -36,6 +36,8 @@ use Zend\Db\Sql\AbstractSql;
 class ModelManager implements EventManagerAwareInterface
 {
     /**
+     * Zend Db Adapter used for connecting to the database.
+     *
      * @var \Zend\Db\Adapter\AdapterInterface
      */
     protected $adapter;
@@ -286,4 +288,3 @@ class ModelManager implements EventManagerAwareInterface
 
 
 }
-
