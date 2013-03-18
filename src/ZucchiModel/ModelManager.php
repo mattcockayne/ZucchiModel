@@ -17,8 +17,10 @@ use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
+use Zend\Stdlib\Hydrator;
 use ZucchiModel\Annotation\MetadataListener;
 use ZucchiModel\Metadata;
+use ZucchiModel\Query\Criteria;
 
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\AbstractSql;
@@ -313,5 +315,109 @@ class ModelManager implements EventManagerAwareInterface
     }
 
 
+    // TODO: test compound keys
+    // TODO: take into account schema and table names in foreignKeys
+    // TODO: store results in mapCache
+    // TODO: n level enitites
+    public function findOne(Criteria $criteria)
+    {
+        $select = $this->sql->select();
+
+        // Get model and check it exists
+        $model = $criteria->getModel();
+        if (!class_exists($model)) {
+            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+        }
+
+        // Get metadata for the given model
+        $metadata = $this->getMetadata($model);
+
+        // Check dataSource and metadata exist
+        if (!isset($metadata['dataSourceMetadata']) || !isset($metadata['model']['dataSource'])) {
+            throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
+        }
+
+        $dataSourceMetadata = $metadata['dataSourceMetadata'];
+        $dataSources = $metadata['model']['dataSource'];
+
+        $foreignKeys = array();
+        foreach ($dataSources as $dataSource) {
+            $constraints = $dataSourceMetadata[$dataSource]->getConstraints();
+            foreach ($constraints as $constraint) {
+                if ($constraint->isForeignKey()) {
+                    $columns = $constraint->getColumns();
+                    $referencedColumns = $constraint->getReferencedColumns();
+
+                    $foreignKeys[$constraint->getReferencedTableName()] = array(
+                        'on' => array(
+                            'columns' => $columns,
+                            'referencedColumns' => $referencedColumns
+                        )
+                    );
+                }
+            }
+        }
+
+        // Get the first dataSource which will be the from table
+        if ($from = array_shift($dataSources)) {
+            $select->from(array('t0' => $from));
+
+            // Join subsequent table names
+            $i = 1;
+            foreach ($dataSources as $join) {
+                $table = 't'.$i++;
+                if (isset($foreignKeys[$join]) && !empty($foreignKeys[$join]['on']['columns']) && !empty($foreignKeys[$join]['on']['columns'])) {
+                    $columns = $foreignKeys[$join]['on']['columns'];
+                    $referencedColumns = $foreignKeys[$join]['on']['referencedColumns'];
+
+                    // Make sure the columns match with referencedColumns
+                    if (count($columns) != count($referencedColumns)) {
+                        throw new \RuntimeException(sprintf('Failed to construct join with %s. Columns did not match Referenced Columns'), $join);
+                    }
+
+                    $on = array();
+                    for ($i=0; $i < count($columns); $i++) {
+                        $on[] = 't0.'.$columns[$i].' = '.$table.'.'.$referencedColumns[$i];
+                    }
+
+                    // Add joins for other data sources
+                    $select->join(array($table => $join), implode(' AND ', $on), '*', 'left');
+                }
+            }
+        }
+
+        // Check and apply any where
+        if ($where = $criteria->getWhere()) {
+            $select->where($where);
+        }
+
+        // Check and apply any offset
+        if ($offset = $criteria->getOffset()) {
+            $select->offset($offset);
+        }
+
+        // Force limit to one
+        $select->limit(1);
+
+        // Build and run the DB statement
+        $statememt = $this->sql->prepareStatementForSqlObject($select);
+        $results = $statememt->execute();
+
+        // Check for single result
+        if ($result = $results->current()) {
+            // Create new model
+            $model = new $model();
+
+            // Hydrate single result.
+            $hydrator = new Hydrator\ObjectProperty();
+            $hydrator->hydrate($result, $model);
+
+            // Return result
+            return $model;
+        }
+
+        // Return false if nothing found
+        return false;
+    }
 
 }
