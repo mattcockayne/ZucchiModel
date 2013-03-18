@@ -314,11 +314,10 @@ class ModelManager implements EventManagerAwareInterface
 
     }
 
-
     // TODO: test compound keys
     // TODO: take into account schema and table names in foreignKeys
     // TODO: store results in mapCache
-    // TODO: n level enitites
+    // TODO: if one dataSource, but more are need for all fields throw error.
     public function findOne(Criteria $criteria)
     {
         $select = $this->sql->select();
@@ -345,14 +344,10 @@ class ModelManager implements EventManagerAwareInterface
             $constraints = $dataSourceMetadata[$dataSource]->getConstraints();
             foreach ($constraints as $constraint) {
                 if ($constraint->isForeignKey()) {
-                    $columns = $constraint->getColumns();
-                    $referencedColumns = $constraint->getReferencedColumns();
-
                     $foreignKeys[$constraint->getReferencedTableName()] = array(
-                        'on' => array(
-                            'columns' => $columns,
-                            'referencedColumns' => $referencedColumns
-                        )
+                        'tableName' => $constraint->getTableName(),
+                        'columns' => $constraint->getColumns(),
+                        'referencedColumns' => $constraint->getReferencedColumns()
                     );
                 }
             }
@@ -360,29 +355,53 @@ class ModelManager implements EventManagerAwareInterface
 
         // Get the first dataSource which will be the from table
         if ($from = array_shift($dataSources)) {
+            $tableNameLookup = array($from => 't0');
             $select->from(array('t0' => $from));
 
             // Join subsequent table names
-            $i = 1;
-            foreach ($dataSources as $join) {
-                $table = 't'.$i++;
-                if (isset($foreignKeys[$join]) && !empty($foreignKeys[$join]['on']['columns']) && !empty($foreignKeys[$join]['on']['columns'])) {
-                    $columns = $foreignKeys[$join]['on']['columns'];
-                    $referencedColumns = $foreignKeys[$join]['on']['referencedColumns'];
-
-                    // Make sure the columns match with referencedColumns
-                    if (count($columns) != count($referencedColumns)) {
-                        throw new \RuntimeException(sprintf('Failed to construct join with %s. Columns did not match Referenced Columns'), $join);
-                    }
-
-                    $on = array();
-                    for ($i=0; $i < count($columns); $i++) {
-                        $on[] = 't0.'.$columns[$i].' = '.$table.'.'.$referencedColumns[$i];
-                    }
-
-                    // Add joins for other data sources
-                    $select->join(array($table => $join), implode(' AND ', $on), '*', 'left');
+            foreach ($dataSources as $referencedTableName) {
+                // Check a foreign key to match exists
+                if (!isset($foreignKeys[$referencedTableName])) {
+                    throw new \RuntimeException(sprintf('No Foreign Keys were found to construct join with %s.', $referencedTableName));
                 }
+
+                // Check there is a table name to join on
+                if (empty($foreignKeys[$referencedTableName]['tableName'])) {
+                    throw new \RuntimeException(sprintf('No Table Name was found to construct join with %s.', $referencedTableName));
+                }
+
+                // Check there are columns to join on
+                if (empty($foreignKeys[$referencedTableName]['columns']) || empty($foreignKeys[$referencedTableName]['columns'])) {
+                    throw new \RuntimeException(sprintf('No Columns were found to construct join with %s.', $referencedTableName));
+                }
+
+                $tableName = $foreignKeys[$referencedTableName]['tableName'];
+                $columns = $foreignKeys[$referencedTableName]['columns'];
+                $referencedColumns = $foreignKeys[$referencedTableName]['referencedColumns'];
+
+                // Make sure the columns match with referencedColumns
+                if (count($columns) != count($referencedColumns)) {
+                    throw new \RuntimeException(sprintf('Failed to construct join with %s. Columns did not match Referenced Columns', $referencedTableName));
+                }
+
+                if (!isset($tableNameLookup[$tableName])) {
+                    $tableNameLookup[$tableName] = 't'.count($tableNameLookup);
+                }
+
+                $tableFrom = $tableNameLookup[$tableName];
+
+                if (!isset($tableNameLookup[$referencedTableName])) {
+                    $tableNameLookup[$referencedTableName] = 't'.count($tableNameLookup);
+                }
+                $tableTo = $tableNameLookup[$referencedTableName];
+
+                $on = array();
+                for ($i=0; $i < count($columns); $i++) {
+                    $on[] = $tableFrom.'.'.$columns[$i].' = '.$tableTo.'.'.$referencedColumns[$i];
+                }
+
+                // Add joins for other data sources
+                $select->join(array($tableTo => $referencedTableName), implode(' AND ', $on), '*', 'left');
             }
         }
 
