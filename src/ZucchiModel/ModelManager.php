@@ -223,15 +223,15 @@ class ModelManager implements EventManagerAwareInterface
             // Check for Data Sources and get their Table Name
             if (isset($model['dataSource']) && !empty($model['dataSource'])){
                 $dbMeta = new \Zend\Db\Metadata\Metadata($this->getAdapter());
-                $sourceMeta = array();
+                $dataSourceMetadata = array();
                 // populate datasource details
                 foreach ($model['dataSource'] as $dataSource) {
-                    $sourceMeta[$dataSource] = $dbMeta->getTable($dataSource);
+                    $dataSourceMetadata[$dataSource] = $dbMeta->getTable($dataSource);
                 }
 
                 // Check we have matched the given dataSource to a Table Name
-                if (!empty($sourceMeta)) {
-                    $this->modelMetadata[$class]['dataSource'] = $sourceMeta;
+                if (!empty($dataSourceMetadata)) {
+                    $this->modelMetadata[$class]['dataSourceMetadata'] = $dataSourceMetadata;
                 } else {
                     throw new \RuntimeException(sprintf('Data Source mapping not found for %s.', var_export($model['dataSource'], true)));
                 }
