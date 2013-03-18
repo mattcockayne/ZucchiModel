@@ -43,6 +43,13 @@ class ModelManager implements EventManagerAwareInterface
     protected $adapter;
 
     /**
+     * SQL object used to create SQL statements.
+     *
+     * @var \Zend\Db\Sql\Sql
+     */
+    protected $sql;
+
+    /**
      * @var EventManager
      */
     protected $eventManager;
@@ -99,6 +106,8 @@ class ModelManager implements EventManagerAwareInterface
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
+        $this->sql = new Sql($adapter);
+
         return $this;
     }
 
