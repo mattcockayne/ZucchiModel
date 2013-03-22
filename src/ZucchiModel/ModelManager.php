@@ -26,6 +26,7 @@ use ZucchiModel\Query\Criteria;
 
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\AbstractSql;
+use ZucchiModel\ResultSet\UnbufferedHydratingResultSet;
 
 
 /**
@@ -486,8 +487,7 @@ class ModelManager implements EventManagerAwareInterface
         return false;
     }
 
-    // TODO: make this return a ResultIterator that hydrates the data on each pass
-    public function findAll(Criteria $criteria)
+    public function findAll(Criteria $criteria, $bufferResult = true)
     {
         $select = $this->sql->select();
 
@@ -623,7 +623,12 @@ class ModelManager implements EventManagerAwareInterface
         $results = $statememt->execute();
 
         if ($results instanceof ResultInterface && $results->isQueryResult()) {
-            $hydratingResultSet = new HydratingResultSet(new Hydrator\ObjectProperty, new $model);
+            if ($bufferResult) {
+                $results->buffer();
+                $hydratingResultSet = new HydratingResultSet(new Hydrator\ObjectProperty, new $model);
+            } else {
+                $hydratingResultSet = new UnbufferedHydratingResultSet(new Hydrator\ObjectProperty, new $model);
+            }
             $hydratingResultSet->initialize($results);
 
             return $hydratingResultSet;
