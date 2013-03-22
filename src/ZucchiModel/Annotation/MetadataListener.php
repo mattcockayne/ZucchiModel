@@ -23,7 +23,6 @@ use ZucchiModel\Annotation;
  */
 class MetadataListener
 {
-
     /**
      * Attach listeners
      *
@@ -50,10 +49,10 @@ class MetadataListener
 
     public function prepareModelMetadata(Event $event)
     {
-        $metadata = $event->getTarget();
-        $relationships = array();
+        $model = $event->getParam('model');
+        $relationships = $event->getParam('relationships');
         $dataSource = array();
-        $annotations = $event->getParam('annotations');
+        $annotations = $event->getTarget();
 
         foreach ($annotations as $annotation) {
             if ($annotation instanceof Annotation\Relationship) {
@@ -66,8 +65,7 @@ class MetadataListener
             }
         }
 
-        $metadata['relationships'] = $relationships;
-        $metadata['dataSource'] = $dataSource;
+        $model['dataSource'] = $dataSource;
     }
 
     public function prepareFieldMetadata(Event $event)

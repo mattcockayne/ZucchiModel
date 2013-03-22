@@ -193,19 +193,24 @@ class ModelManager implements EventManagerAwareInterface
             $em = $this->getEventManager();
 
             $model = new Metadata\Model();
+            $relationships = new Metadata\Relationships();
             $fields = new Metadata\Fields();
 
             // Find all the Model Metadata
             if ($annotations = $reflection->getAnnotations($am)) {
                 $event = new Event();
                 $event->setName('prepareModelMetadata');
-                $event->setTarget($model);
-                $event->setParam('annotations', $annotations);
+                $event->setTarget($annotations);
+                $event->setParam('model', $model);
+                $event->setParam('relationships', $relationships);
                 $em->trigger($event);
             }
 
             // Cache Model Metadata
             $this->modelMetadata[$class]['model'] = $model;
+            
+            // Cache Relationships Metadata
+            $this->modelMetadata[$class]['relationships'] = $relationships;
 
             // Find all the Fields Metadata
             if ($properties = $reflection->getProperties()) {
