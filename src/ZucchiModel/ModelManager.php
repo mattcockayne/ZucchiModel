@@ -208,7 +208,7 @@ class ModelManager implements EventManagerAwareInterface
 
             // Cache Model Metadata
             $this->modelMetadata[$class]['model'] = $model;
-            
+
             // Cache Relationships Metadata
             $this->modelMetadata[$class]['relationships'] = $relationships;
 
@@ -232,15 +232,15 @@ class ModelManager implements EventManagerAwareInterface
             // Check for Data Sources and get their Table Name
             if (isset($model['dataSource']) && !empty($model['dataSource'])){
                 $dbMeta = new \Zend\Db\Metadata\Metadata($this->getAdapter());
-                $dataSourceMetadata = array();
+                $metadata = array();
                 // populate datasource details
                 foreach ($model['dataSource'] as $dataSource) {
-                    $dataSourceMetadata[$dataSource] = $dbMeta->getTable($dataSource);
+                    $metadata[$dataSource] = $dbMeta->getTable($dataSource);
                 }
 
                 // Check we have matched the given dataSource to a Table Name
-                if (!empty($dataSourceMetadata)) {
-                    $this->modelMetadata[$class]['dataSourceMetadata'] = $dataSourceMetadata;
+                if (!empty($metadata)) {
+                    $this->modelMetadata[$class]['metadata'] = $metadata;
                 } else {
                     throw new \RuntimeException(sprintf('Data Source mapping not found for %s.', var_export($model['dataSource'], true)));
                 }
@@ -340,7 +340,7 @@ class ModelManager implements EventManagerAwareInterface
         $metadata = $this->getMetadata($model);
 
         // Check dataSource and metadata exist
-        if (!isset($metadata['dataSourceMetadata']) || empty($metadata['dataSourceMetadata'])) {
+        if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
             throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
@@ -353,7 +353,7 @@ class ModelManager implements EventManagerAwareInterface
         // Create a look up for all the foreign keys
         $foreignKeys = array();
 
-        foreach ($metadata['dataSourceMetadata'] as $dataSource => $metadata) {
+        foreach ($metadata['metadata'] as $dataSource => $metadata) {
             // Create list of Data Sources
             $dataSources[] = $dataSource;
 
@@ -501,7 +501,7 @@ class ModelManager implements EventManagerAwareInterface
         $metadata = $this->getMetadata($model);
 
         // Check dataSource and metadata exist
-        if (!isset($metadata['dataSourceMetadata']) || empty($metadata['dataSourceMetadata'])) {
+        if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
             throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
@@ -514,7 +514,7 @@ class ModelManager implements EventManagerAwareInterface
         // Create a look up for all the foreign keys
         $foreignKeys = array();
 
-        foreach ($metadata['dataSourceMetadata'] as $dataSource => $metadata) {
+        foreach ($metadata['metadata'] as $dataSource => $metadata) {
             // Create list of Data Sources
             $dataSources[] = $dataSource;
 
