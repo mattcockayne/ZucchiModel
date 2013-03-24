@@ -253,11 +253,18 @@ class ModelManager implements EventManagerAwareInterface
         }
     }
 
-    // TODO: test compound keys
-    // TODO: take into account schema and table names in foreignKeys
-    // TODO: store results in mapCache
-    // TODO: break out sql into its own driver(matt may change this) so we can add NoSql etc.
-    // TODO: add function with factory to new sql driver
+    /**
+     * Find and return a single model
+     *
+     * @param Criteria $criteria
+     * @return bool
+     * @throws \RuntimeException
+     * @todo: test compound keys
+     * @todo: take into account schema and table names in foreignKeys
+     * @todo: store results in mapCache
+     * @todo: break out sql into its own driver(matt may change this) so we can add NoSql etc.
+     * @todo: add function with factory to new sql driver
+     */
     public function findOne(Criteria $criteria)
     {
         // Get model and check it exists
@@ -297,6 +304,14 @@ class ModelManager implements EventManagerAwareInterface
         return false;
     }
 
+    /**
+     * find and return a collection of models
+     *
+     * @param Criteria $criteria
+     * @param bool $bufferResult
+     * @return bool|HydratingResultSet|UnbufferedHydratingResultSet
+     * @throws \RuntimeException
+     */
     public function findAll(Criteria $criteria, $bufferResult = true)
     {
         // Get model and check it exists
