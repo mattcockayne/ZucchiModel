@@ -7,7 +7,7 @@ return array(
     'ZucchiModel\ModelManager'                     => __DIR__ . '//src/ZucchiModel/ModelManager.php',
     'ZucchiModel\Model\ModelTrait'                 => __DIR__ . '//src/ZucchiModel/Model/ModelTrait.php',
     'ZucchiModel\Model\IdentityTrait'              => __DIR__ . '//src/ZucchiModel/Model/IdentityTrait.php',
-    'ZucchiModel\Metadata\Fields'                   => __DIR__ . '//src/ZucchiModel/MetaData/Fields.php',
+    'ZucchiModel\Metadata\Fields'                  => __DIR__ . '//src/ZucchiModel/MetaData/Fields.php',
     'ZucchiModel\Metadata\Model'                   => __DIR__ . '//src/ZucchiModel/MetaData/Model.php',
     'ZucchiModel\Module'                           => __DIR__ . '//Module.php',
 );

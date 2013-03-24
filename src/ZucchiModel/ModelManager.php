@@ -8,24 +8,26 @@
  */
 namespace ZucchiModel;
 
-use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\Adapter\Driver\ResultInterface;
 use Zend\Db\ResultSet\HydratingResultSet;
+
 use Zend\Code\Annotation\AnnotationManager;
 use Zend\Code\Annotation\Parser;
 use Zend\Code\Reflection\ClassReflection;
+
 use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
+
+
+use ZucchiModel\Adapter\AdapterInterface;
 use ZucchiModel\Hydrator;
 use ZucchiModel\Annotation\MetadataListener;
 use ZucchiModel\Metadata;
 use ZucchiModel\Query\Criteria;
 
-use Zend\Db\Sql\Sql;
-use Zend\Db\Sql\AbstractSql;
 use ZucchiModel\ResultSet\UnbufferedHydratingResultSet;
 
 
@@ -43,7 +45,7 @@ class ModelManager implements EventManagerAwareInterface
     /**
      * Zend Db Adapter used for connecting to the database.
      *
-     * @var \Zend\Db\Adapter\AdapterInterface
+     * @var \ZucchiModel\Adapter\AdapterInterface
      */
     protected $adapter;
 
@@ -83,9 +85,9 @@ class ModelManager implements EventManagerAwareInterface
     );
 
     /**
-     * Construct ModelManager with supplied Zend Db Adapter
+     * Construct ModelManager with supplied ZucchiModel Adapter
      *
-     * @param \Zend\Db\Adapter\AdapterInterface $adapter
+     * @param \ZucchiModel\Adapter\AdapterInterfacee $adapter
      */
     public function __construct(AdapterInterface $adapter)
     {
@@ -93,9 +95,9 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * Get Zend Db Adapter
+     * Get ZucchiModel Adapter
      *
-     * @return \Zend\Db\Adapter\AdapterInterface
+     * @return \ZucchiModel\Adapter\AdapterInterface
      */
     public function getAdapter()
     {
@@ -105,14 +107,12 @@ class ModelManager implements EventManagerAwareInterface
     /**
      * Set Zend Db Adapter
      *
-     * @param \Zend\Db\Adapter\AdapterInterface $adapter
+     * @param \ZucchiModel\Adapter\AdapterInterface $adapter
      * @return ModelManager
      */
     public function setAdapter(AdapterInterface $adapter)
     {
         $this->adapter = $adapter;
-        $this->sql = new Sql($adapter);
-
         return $this;
     }
 
@@ -220,8 +220,8 @@ class ModelManager implements EventManagerAwareInterface
                 $event->setTarget($fields);
                 foreach ($properties as $property) {
                     if ($annotation = $property->getAnnotations($am)) {
-                        $event->setParam('property',$property->getName());
-                        $event->setParam('annotation',$annotation);
+                        $event->setParam('property', $property->getName());
+                        $event->setParam('annotation', $annotation);
                         $em->trigger($event);
                     }
                 }
@@ -232,19 +232,7 @@ class ModelManager implements EventManagerAwareInterface
 
             // Check for Data Sources and get their Table Name
             if (isset($model['dataSource']) && !empty($model['dataSource'])){
-                $dbMeta = new \Zend\Db\Metadata\Metadata($this->getAdapter());
-                $metadata = array();
-                // populate datasource details
-                foreach ($model['dataSource'] as $dataSource) {
-                    $metadata[$dataSource] = $dbMeta->getTable($dataSource);
-                }
-
-                // Check we have matched the given dataSource to a Table Name
-                if (!empty($metadata)) {
-                    $this->modelMetadata[$class]['metadata'] = $metadata;
-                } else {
-                    throw new \RuntimeException(sprintf('Data Source mapping not found for %s.', var_export($model['dataSource'], true)));
-                }
+                $this->modelMetadata[$class]['metadata'] = $this->getAdapter()->getMetaData($model['dataSource']);
             }
         }
 
@@ -265,63 +253,6 @@ class ModelManager implements EventManagerAwareInterface
         }
     }
 
-    /**
-     * Release stored model
-     *
-     * @param $model
-     * @param bool $releaseRelationships
-     */
-    public function release($model, $releaseRelationships = true)
-    {
-
-    }
-
-    /**
-     * create a new Query
-     *
-     * @todo: requires consideration of NoSQL queries
-     * @return \Zend\Db\Sql\Sql
-     */
-    public function createQuery()
-    {
-        $query = new Sql($this->getAdapter());
-        return $query;
-    }
-
-    /**
-     * execute query and return mapped results
-     * @param $criteria
-     * @return ResultSet?
-     */
-    public function query(AbstractSql $query)
-    {
-        // detect if aggregation, group by or function present.
-        // if present throw exception as not mapable results
-
-        // detect tables being accessed
-
-        // update query to return ALL columns
-
-        // pass results to mapToModel method
-
-        // if array of results needs to use custom ResultSet that
-        // will use model manager for hydrating on iteration.
-
-        // return primary entity or resultset from query
-
-
-    }
-
-    public function mapToModel($data, $modelOrModelNameToMapTo)
-    {
-        // map data to Model
-
-        // cache model in memory?
-
-        // return model
-
-    }
-
     // TODO: test compound keys
     // TODO: take into account schema and table names in foreignKeys
     // TODO: store results in mapCache
@@ -329,8 +260,6 @@ class ModelManager implements EventManagerAwareInterface
     // TODO: add function with factory to new sql driver
     public function findOne(Criteria $criteria)
     {
-        $select = $this->sql->select();
-
         // Get model and check it exists
         $model = $criteria->getModel();
         if (!class_exists($model)) {
@@ -342,133 +271,14 @@ class ModelManager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
-            throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
-        // List of Data Source Names
-        $dataSources = array();
+        $criteria->setLimit(1);
 
-        // Fields to select
-        $selectColumns = array();
+        $query = $this->getAdapter()->buildQuery($criteria, $metadata);
 
-        // Create a look up for all the foreign keys
-        $foreignKeys = array();
-
-        foreach ($metadata['metadata'] as $dataSource => $metadata) {
-            // Create list of Data Sources
-            $dataSources[] = $dataSource;
-
-            // Build up an array of all the Columns to select
-            $columns = $metadata->getColumns();
-            array_walk(
-                $columns,
-                function ($column) use (&$selectColumns, $dataSource) {
-                    if (!isset($selectColumns[$column->getName()])) {
-                        $selectColumns[$column->getName()] = $dataSource;
-                    }
-                }
-            );
-
-            // Build up an array of all the Foreign Key Relationships
-            $constraints = $metadata->getConstraints();
-            array_walk(
-                $constraints,
-                function ($constraint) use (&$foreignKeys) {
-                    $foreignKeys[$constraint->getReferencedTableName()] = array(
-                        'tableName' => $constraint->getTableName(),
-                        'columns' => $constraint->getColumns(),
-                        'referencedColumns' => $constraint->getReferencedColumns()
-                    );
-                }
-            );
-        }
-
-        // Get the first Data Source which will be the From Table
-        $from = array_shift($dataSources);
-
-        // Create lookup to match Table name to alias
-        $tableNameLookup = array($from => 0);
-
-        // Set form Table and Columns if present
-        $select->from(array('t0' => $from));
-        $columns = array_keys($selectColumns, $from);
-        if (!empty($columns)) {
-            $select->columns($columns);
-        }
-
-        $joins = array();
-
-        // Building Join references
-        foreach ($dataSources as $referencedTableName) {
-            // Make sure required Metadata is present
-            if (empty($foreignKeys[$referencedTableName]['tableName']) ||
-                empty($foreignKeys[$referencedTableName]['columns']) ||
-                empty($foreignKeys[$referencedTableName]['referencedColumns']) ||
-                (count($foreignKeys[$referencedTableName]['columns']) != count($foreignKeys[$referencedTableName]['referencedColumns']))
-            ) {
-                throw new \RuntimeException(sprintf('Invalid Foreign Key Metadata defined for %s.', $referencedTableName));
-            }
-
-            $tableName = $foreignKeys[$referencedTableName]['tableName'];
-            $columns = $foreignKeys[$referencedTableName]['columns'];
-            $referencedColumns = $foreignKeys[$referencedTableName]['referencedColumns'];
-
-            // If not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$tableName])) {
-                $tableNameLookup[$tableName] = count($tableNameLookup);
-            }
-            $tableFrom = $tableNameLookup[$tableName];
-
-            // If referenced table has not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$referencedTableName])) {
-                $tableNameLookup[$referencedTableName] = count($tableNameLookup);
-            }
-            $tableTo = $tableNameLookup[$referencedTableName];
-
-            // Create array of map on for join
-            $on = array();
-            for ($i = 0; $i < count($columns); $i++) {
-                $on[] = 't' . $tableFrom . '.' . $columns[$i] . ' = t' . $tableTo . '.' . $referencedColumns[$i];
-            }
-
-            // Find all columns to "select" for this join
-            $columns = array_keys($selectColumns, $referencedTableName);
-
-            // Setting join reference
-            $joins[$tableTo] = array(
-                'table' => array('t' . $tableTo => $referencedTableName),
-                'on' => implode(' AND ', $on),
-                'columns' => (!empty($columns)) ? $columns : array()
-            );
-        }
-
-        // Check if we have any joins
-        if (!empty($joins)) {
-            // Sort into table join order e.g. t0, t1, t2
-            ksort($joins);
-
-            // Add joins for other Data Sources
-            foreach($joins as $join) {
-                $select->join($join['table'], $join['on'], $join['columns'], 'left');
-            }
-        }
-
-        // Check and apply any "where"
-        if ($where = $criteria->getWhere()) {
-            $select->where($where);
-        }
-
-        // Check and apply any "offset"
-        if ($offset = $criteria->getOffset()) {
-            $select->offset($offset);
-        }
-
-        // Force "limit" to one
-        $select->limit(1);
-
-        // Build and run the DB statement
-        $statememt = $this->sql->prepareStatementForSqlObject($select);
-        $results = $statememt->execute();
+        $results = $this->getAdapter()->execute($query);
 
         // Check for single result
         if ($result = $results->current()) {
@@ -489,8 +299,6 @@ class ModelManager implements EventManagerAwareInterface
 
     public function findAll(Criteria $criteria, $bufferResult = true)
     {
-        $select = $this->sql->select();
-
         // Get model and check it exists
         $model = $criteria->getModel();
         if (!class_exists($model)) {
@@ -505,122 +313,9 @@ class ModelManager implements EventManagerAwareInterface
             throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
-        // List of Data Source Names
-        $dataSources = array();
+        $query = $this->getAdapter()->buildQuery($criteria, $metadata);
 
-        // Fields to select
-        $selectColumns = array();
-
-        // Create a look up for all the foreign keys
-        $foreignKeys = array();
-
-        foreach ($metadata['metadata'] as $dataSource => $metadata) {
-            // Create list of Data Sources
-            $dataSources[] = $dataSource;
-
-            // Build up an array of all the Columns to select
-            $columns = $metadata->getColumns();
-            array_walk(
-                $columns,
-                function ($column) use (&$selectColumns, $dataSource) {
-                    if (!isset($selectColumns[$column->getName()])) {
-                        $selectColumns[$column->getName()] = $dataSource;
-                    }
-                }
-            );
-
-            // Build up an array of all the Foreign Key Relationships
-            $constraints = $metadata->getConstraints();
-            array_walk(
-                $constraints,
-                function ($constraint) use (&$foreignKeys) {
-                    $foreignKeys[$constraint->getReferencedTableName()] = array(
-                        'tableName' => $constraint->getTableName(),
-                        'columns' => $constraint->getColumns(),
-                        'referencedColumns' => $constraint->getReferencedColumns()
-                    );
-                }
-            );
-        }
-
-        // Get the first Data Source which will be the From Table
-        $from = array_shift($dataSources);
-
-        // Create lookup to match Table name to alias
-        $tableNameLookup = array($from => 0);
-
-        // Set form Table and Columns if present
-        $select->from(array('t0' => $from));
-        $columns = array_keys($selectColumns, $from);
-        if (!empty($columns)) {
-            $select->columns($columns);
-        }
-
-        $joins = array();
-
-        // Building Join references
-        foreach ($dataSources as $referencedTableName) {
-            // Make sure required Metadata is present
-            if (empty($foreignKeys[$referencedTableName]['tableName']) ||
-                empty($foreignKeys[$referencedTableName]['columns']) ||
-                empty($foreignKeys[$referencedTableName]['referencedColumns']) ||
-                (count($foreignKeys[$referencedTableName]['columns']) != count($foreignKeys[$referencedTableName]['referencedColumns']))
-            ) {
-                throw new \RuntimeException(sprintf('Invalid Foreign Key Metadata defined for %s.', $referencedTableName));
-            }
-
-            $tableName = $foreignKeys[$referencedTableName]['tableName'];
-            $columns = $foreignKeys[$referencedTableName]['columns'];
-            $referencedColumns = $foreignKeys[$referencedTableName]['referencedColumns'];
-
-            // If not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$tableName])) {
-                $tableNameLookup[$tableName] = count($tableNameLookup);
-            }
-            $tableFrom = $tableNameLookup[$tableName];
-
-            // If referenced table has not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$referencedTableName])) {
-                $tableNameLookup[$referencedTableName] = count($tableNameLookup);
-            }
-            $tableTo = $tableNameLookup[$referencedTableName];
-
-            // Create array of map on for join
-            $on = array();
-            for ($i = 0; $i < count($columns); $i++) {
-                $on[] = 't' . $tableFrom . '.' . $columns[$i] . ' = t' . $tableTo . '.' . $referencedColumns[$i];
-            }
-
-            // Find all columns to "select" for this join
-            $columns = array_keys($selectColumns, $referencedTableName);
-
-            // Setting join reference
-            $joins[$tableTo] = array(
-                'table' => array('t' . $tableTo => $referencedTableName),
-                'on' => implode(' AND ', $on),
-                'columns' => (!empty($columns)) ? $columns : array()
-            );
-        }
-
-        // Check if we have any joins
-        if (!empty($joins)) {
-            // Sort into table join order e.g. t0, t1, t2
-            ksort($joins);
-
-            // Add joins for other Data Sources
-            foreach($joins as $join) {
-                $select->join($join['table'], $join['on'], $join['columns'], 'left');
-            }
-        }
-
-        // Check and apply any "where"
-        if ($where = $criteria->getWhere()) {
-            $select->where($where);
-        }
-
-        // Build and run the DB statement
-        $statememt = $this->sql->prepareStatementForSqlObject($select);
-        $results = $statememt->execute();
+        $results = $this->getAdapter()->execute($query);
 
         if ($results instanceof ResultInterface && $results->isQueryResult()) {
             if ($bufferResult) {
