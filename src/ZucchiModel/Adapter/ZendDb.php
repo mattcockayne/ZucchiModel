@@ -251,8 +251,9 @@ class ZendDb extends AbstractAdapter
         return $joins;
     }
 
-    public function getHydratingResultSet($hydrator, $model)
+    public function buildCountQuery($criteria)
     {
-        return new HydratingResultSet($hydrator, $model);
+        // SELECT COUNT(*) FROM utag_tag as t0 LEFT JOIN utag_source t1 ON ? = ? WHERE ? = ? GROUP BY t0.id
     }
+
 }

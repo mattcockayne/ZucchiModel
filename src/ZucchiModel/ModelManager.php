@@ -337,23 +337,55 @@ class ModelManager implements EventManagerAwareInterface
             throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
-        $query = $this->getAdapter()->buildQuery($criteria, $metadata);
-
-        $results = $this->getAdapter()->execute($query);
-
-        if (!$results instanceof \Iterator) {
-            // if not an iterator then return false
-            return false;
-        }
+        $resultSet = false;
 
         if ($paginated) {
+            $resultSet = new ResultSet\PaginatedResultSet($this, $criteria, 10);
+
 
         } else {
+            $query = $this->getAdapter()->buildQuery($criteria, $metadata);
+
+            $results = $this->getAdapter()->execute($query);
+
+            if (!$results instanceof \Iterator) {
+                // if not an iterator then return false
+                return false;
+            }
+
             $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
+            $resultSet->initialize($results);
         }
 
-        $resultSet->initialize($results);
-
         return $resultSet;
+    }
+
+    /**
+     * get a count of all results matching criteria
+     * @param Criteria $criteria
+     */
+    public function countAll(Criteria $criteria)
+    {
+        // Get model and check it exists
+        $model = $criteria->getModel();
+        if (!class_exists($model)) {
+            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+        }
+
+        // Get metadata for the given model
+        $metadata = $this->getMetadata($model);
+
+        // Check dataSource and metadata exist
+        if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
+            throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
+        }
+
+        $criteria->setLimit(null);
+        $criteria->setOffset(null);
+
+        $query = $this->getAdapter()->buildCountQuery($criteria);
+
+
+
     }
 }

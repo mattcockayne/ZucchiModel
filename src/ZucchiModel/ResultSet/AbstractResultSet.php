@@ -49,7 +49,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
     protected $iterator = null;
 
 
-    public function __construct(EventManager$eventManager, $objectPrototype = null)
+    public function __construct(EventManager$eventManager, $objectPrototype = null, $options)
     {
         $this->setEventManager($eventManager);
         $this->setObjectPrototype(($objectPrototype) ?: new ArrayObject);
