@@ -349,11 +349,11 @@ class ModelManager implements EventManagerAwareInterface
         if ($paginated) {
 
         } else {
-            $hydratingResultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
+            $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
         }
 
-        $hydratingResultSet->initialize($results);
+        $resultSet->initialize($results);
 
-        return $hydratingResultSet;
+        return $resultSet;
     }
 }
