@@ -49,7 +49,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
     protected $iterator = null;
 
 
-    public function __construct(EventManager$eventManager, $objectPrototype = null, $options)
+    public function __construct(EventManager $eventManager, $objectPrototype = null)
     {
         $this->setEventManager($eventManager);
         $this->setObjectPrototype(($objectPrototype) ?: new ArrayObject);
@@ -64,13 +64,13 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
      * Set the row object prototype
      *
      * @param  object $objectPrototype
-     * @throws Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return ResultSet
      */
     public function setObjectPrototype($objectPrototype)
     {
         if (!is_object($objectPrototype)) {
-            throw new Exception\InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 'An object must be set as the object prototype, a ' . gettype($objectPrototype) . ' was provided.'
             );
         }

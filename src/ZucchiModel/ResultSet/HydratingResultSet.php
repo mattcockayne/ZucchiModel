@@ -9,12 +9,17 @@
 
 namespace ZucchiModel\ResultSet;
 
-use ArrayObject;
-use Zend\Stdlib\Hydrator\ArraySerializable;
-use Zend\Stdlib\Hydrator\HydratorInterface;
-
 use Zucchi\Event\EventProviderTrait;
 
+/**
+ * Hydrating ResultSet
+ *
+ * @author Rick Nicol <rick@zucchi.co.uk>
+ * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @package ZucchiModel
+ * @subpackage ResultSet
+ * @category
+ */
 class HydratingResultSet extends AbstractResultSet
 {
 }
