@@ -28,7 +28,7 @@ use ZucchiModel\Annotation\MetadataListener;
 use ZucchiModel\Metadata;
 use ZucchiModel\Query\Criteria;
 
-use ZucchiModel\ResultSet\UnbufferedHydratingResultSet;
+use ZucchiModel\ResultSet;
 
 
 /**
@@ -351,10 +351,9 @@ class ModelManager implements EventManagerAwareInterface
             if (method_exists($results, 'buffer')) {
                 $results->buffer();
             }
-
-            $hydratingResultSet = $this->getAdapter()->getHydratingResultSet(new Hydrator\ObjectProperty, new $model);
+            $hydratingResultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
         } else {
-            $hydratingResultSet = new UnbufferedHydratingResultSet(new Hydrator\ObjectProperty, new $model);
+            $hydratingResultSet = new ResultSet\UnbufferedHydratingResultSet($this->getEventManager(), new $model);
         }
 
         $hydratingResultSet->initialize($results);
