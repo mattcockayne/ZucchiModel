@@ -24,7 +24,7 @@ use Zucchi\Event\EventProviderTrait;
  * @subpackage ResultSet
  * @category 
  */
-abstract class AbstractResultSet implements Iterator
+abstract class AbstractResultSet implements Iterator, ResultSetInterface
 {
     use EventProviderTrait;
 
