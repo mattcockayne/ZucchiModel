@@ -9,6 +9,7 @@
 
 namespace ZucchiModel\Adapter;
 
+use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
 use ZucchiModel\Query\Criteria;
 use Zend\Db\Sql\Sql;
@@ -19,12 +20,18 @@ use Zend\Db\Sql\Sql;
  * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Adapter
  * @category
  */
 class ZendDb extends AbstractAdapter
 {
+    /**
+     * Sql object for creating queries
+     *
+     * @var Sql $sql
+     */
     protected $sql;
 
     /**
@@ -39,7 +46,9 @@ class ZendDb extends AbstractAdapter
 
     /**
      * Set the datasource
-     * @param $source
+     *
+     * @param $dataSource
+     * @return $this
      */
     public function setDataSource($dataSource)
     {
@@ -48,9 +57,11 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * retrieve metadata for class
-     * @param $class
-     * @return mixed
+     * Retrieve metadata for class
+     *
+     * @param array $tables
+     * @return array|mixed
+     * @throws \RuntimeException
      */
     public function getMetaData($tables = array())
     {
@@ -157,7 +168,8 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * execute supplied query and return result
+     * Execute supplied query and return result
+     * 
      * @param $query
      * @return mixed
      */
@@ -176,6 +188,7 @@ class ZendDb extends AbstractAdapter
      *
      * @param $dataSources
      * @param $from
+     * @param $selectColumns
      * @param $foreignKeys
      * @return array
      * @throws \RuntimeException
