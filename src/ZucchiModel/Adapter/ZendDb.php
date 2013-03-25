@@ -249,4 +249,9 @@ class ZendDb extends AbstractAdapter
 
         return $joins;
     }
+
+    public function getHydratingResultSet($hydrator, $model)
+    {
+        return new HydratingResultSet($hydrator, $model);
+    }
 }

@@ -48,4 +48,13 @@ interface AdapterInterface
      * @return mixed
      */
     public function execute($query);
+
+    /**
+     * return a data source specific hydrating rowset
+     *
+     * @param $hydrator
+     * @param $model
+     * @return mixed
+     */
+    public function getHydratingResultSet($hydrator, $model);
 }

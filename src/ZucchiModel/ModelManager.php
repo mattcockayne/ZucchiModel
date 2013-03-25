@@ -288,20 +288,20 @@ class ModelManager implements EventManagerAwareInterface
         $results = $this->getAdapter()->execute($query);
 
         // Check for single result
-        if ($result = $results->current()) {
-            // Create new model
-            $model = new $model();
-
-            // Hydrate single result.
-            $hydrator = new Hydrator\ObjectProperty();
-            $hydrator->hydrate($result, $model);
-
-            // Return result
-            return $model;
+        if (!$result = $results->current()) {
+            // return false as no result found
+            return false;
         }
 
-        // Return false if nothing found
-        return false;
+        // Create new model
+        $model = new $model();
+
+        // Hydrate single result.
+        $hydrator = new Hydrator\ObjectProperty();
+        $hydrator->hydrate($result, $model);
+
+        // Return result
+        return $model;
     }
 
     /**
@@ -332,19 +332,24 @@ class ModelManager implements EventManagerAwareInterface
 
         $results = $this->getAdapter()->execute($query);
 
-        if ($results instanceof ResultInterface && $results->isQueryResult()) {
-            if ($bufferResult) {
-                $results->buffer();
-                $hydratingResultSet = new HydratingResultSet(new Hydrator\ObjectProperty, new $model);
-            } else {
-                $hydratingResultSet = new UnbufferedHydratingResultSet(new Hydrator\ObjectProperty, new $model);
-            }
-            $hydratingResultSet->initialize($results);
-
-            return $hydratingResultSet;
+        if (!$results instanceof \Iterator) {
+            // if not an iterator then return false
+            return false;
         }
 
-        // Return false if nothing found
-        return false;
+        if ($bufferResult) {
+
+            if (method_exists($results, 'buffer')) {
+                $results->buffer();
+            }
+
+            $hydratingResultSet = $this->getAdapter()->getHydratingResultSet(new Hydrator\ObjectProperty, new $model);
+        } else {
+            $hydratingResultSet = new UnbufferedHydratingResultSet(new Hydrator\ObjectProperty, new $model);
+        }
+
+        $hydratingResultSet->initialize($results);
+
+        return $hydratingResultSet;
     }
 }
