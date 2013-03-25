@@ -51,7 +51,7 @@ class MetadataListener
     {
         $model = $event->getParam('model');
         $relationships = $event->getParam('relationships');
-        $dataSource = array();
+        $target = array();
         $annotations = $event->getTarget();
 
         foreach ($annotations as $annotation) {
@@ -61,11 +61,11 @@ class MetadataListener
             }
 
             if ($annotation instanceof Annotation\Target) {
-                $dataSource = $annotation->getTarget();
+                $target = $annotation->getTarget();
             }
         }
 
-        $model['target'] = $dataSource;
+        $model['target'] = $target;
     }
 
     public function prepareFieldMetadata(Event $event)
