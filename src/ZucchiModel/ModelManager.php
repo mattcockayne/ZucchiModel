@@ -143,6 +143,10 @@ class ModelManager implements EventManagerAwareInterface
         ));
         $metadataListener = new MetadataListener();
         $metadataListener->attach($events);
+
+        $hydrationListener = new Hydrator\HydrationListener();
+        $hydrationListener->attach($events);
+
         $this->eventManager = $events;
         return $this;
     }
@@ -293,12 +297,17 @@ class ModelManager implements EventManagerAwareInterface
             return false;
         }
 
-        // Create new model
         $model = new $model();
 
-        // Hydrate single result.
-        $hydrator = new Hydrator\ObjectProperty();
-        $hydrator->hydrate($result, $model);
+        // Trigger Hydration events
+        $event = new Event('preHydrate', $result);
+        $this->getEventManager()->trigger($event);
+
+        $event = new Event('hydrate', $model, array('data' => $result));
+        $this->getEventManager()->trigger($event);
+
+        $event = new Event('postHydrate', $model);
+        $this->getEventManager()->trigger($event);
 
         // Return result
         return $model;

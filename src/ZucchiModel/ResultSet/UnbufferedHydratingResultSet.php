@@ -211,7 +211,7 @@ class UnbufferedHydratingResultSet implements Iterator, ResultSetInterface
      */
     public function count()
     {
-        trigger_error('Count is not avaliable on Unbuffered Result Sets', E_USER_NOTICE);
+        trigger_error('Count is not available with an Unbuffered Result Set', E_USER_NOTICE);
 
         return false;
     }
