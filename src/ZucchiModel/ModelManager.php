@@ -321,7 +321,7 @@ class ModelManager implements EventManagerAwareInterface
      * @return bool|HydratingResultSet|UnbufferedHydratingResultSet
      * @throws \RuntimeException
      */
-    public function findAll(Criteria $criteria, $bufferResult = true)
+    public function findAll(Criteria $criteria, $paginated = true)
     {
         // Get model and check it exists
         $model = $criteria->getModel();
@@ -346,14 +346,10 @@ class ModelManager implements EventManagerAwareInterface
             return false;
         }
 
-        if ($bufferResult) {
+        if ($paginated) {
 
-            if (method_exists($results, 'buffer')) {
-                $results->buffer();
-            }
-            $hydratingResultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
         } else {
-            $hydratingResultSet = new ResultSet\UnbufferedHydratingResultSet($this->getEventManager(), new $model);
+            $hydratingResultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
         }
 
         $hydratingResultSet->initialize($results);
