@@ -81,7 +81,7 @@ class ModelManager implements EventManagerAwareInterface
     protected $registeredAnnotations = array(
         'ZucchiModel\Annotation\Field',
         'ZucchiModel\Annotation\Relationship',
-        'ZucchiModel\Annotation\DataSource',
+        'ZucchiModel\Annotation\Target',
     );
 
     /**
@@ -231,8 +231,8 @@ class ModelManager implements EventManagerAwareInterface
             $this->modelMetadata[$class]['fields'] = $fields;
 
             // Check for Data Sources and get their Table Name
-            if (isset($model['dataSource']) && !empty($model['dataSource'])){
-                $this->modelMetadata[$class]['metadata'] = $this->getAdapter()->getMetaData($model['dataSource']);
+            if (isset($model['target']) && !empty($model['target'])){
+                $this->modelMetadata[$class]['metadata'] = $this->getAdapter()->getMetaData($model['target']);
             }
         }
 

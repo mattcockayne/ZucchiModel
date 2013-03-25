@@ -60,12 +60,12 @@ class MetadataListener
                 $relationships[$rel['name']] = $rel;
             }
 
-            if ($annotation instanceof Annotation\DataSource) {
-                $dataSource = $annotation->getDataSource();
+            if ($annotation instanceof Annotation\Target) {
+                $dataSource = $annotation->getTarget();
             }
         }
 
-        $model['dataSource'] = $dataSource;
+        $model['target'] = $dataSource;
     }
 
     public function prepareFieldMetadata(Event $event)

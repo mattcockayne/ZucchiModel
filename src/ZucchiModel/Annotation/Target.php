@@ -12,9 +12,9 @@ namespace ZucchiModel\Annotation;
 use Zend\Form\Annotation\AbstractArrayAnnotation;
 
 /**
- * Table annotation
+ * Target annotation
  *
- * Use this annotation to specify the database table to use
+ * Use this annotation to specify the table/collection to use
  *
  * @Annotation
  * @author Matt Cockayne <matt@zucchi.co.uk>
@@ -22,14 +22,14 @@ use Zend\Form\Annotation\AbstractArrayAnnotation;
  * @package ZucchiModel
  * @subpackage Annotation
  */
-class DataSource extends AbstractArrayAnnotation
+class Target extends AbstractArrayAnnotation
 {
     /**
      * Retrieve the class type
      *
      * @return null|array
      */
-    public function getDataSource()
+    public function getTarget()
     {
         return $this->value;
     }
