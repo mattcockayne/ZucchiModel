@@ -28,6 +28,16 @@ class ZendDb extends AbstractAdapter
     protected $sql;
 
     /**
+     * Create ZendDb adapter with supplied dataSource
+     *
+     * @param Adapter $dataSource
+     */
+    public function __construct(Adapter $dataSource)
+    {
+        $this->setDataSource($dataSource);
+    }
+
+    /**
      * Set the datasource
      * @param $source
      */
