@@ -13,6 +13,7 @@ use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
 use ZucchiModel\Query\Criteria;
 use Zend\Db\Sql\Sql;
+use Zend\Db\ResultSet\HydratingResultSet;
 
 /**
  * ZendDb
