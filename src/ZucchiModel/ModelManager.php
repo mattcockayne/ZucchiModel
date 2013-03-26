@@ -381,9 +381,14 @@ class ModelManager implements EventManagerAwareInterface
         $criteria->setLimit(null);
         $criteria->setOffset(null);
 
-        $query = $this->getAdapter()->buildCountQuery($criteria);
+        $query = $this->getAdapter()->buildCountQuery($criteria, $metadata);
 
+        $result = $this->getAdapter()->execute($query);
 
-
+        if ($count = $result->current()) {
+            return $count['count'];
+        } else {
+            return false;
+        }
     }
 }
