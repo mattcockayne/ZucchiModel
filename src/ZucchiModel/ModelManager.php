@@ -345,6 +345,9 @@ class ModelManager implements EventManagerAwareInterface
             }
 
             $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
+            if (method_exists($results, 'buffer')) {
+                $results->buffer();
+            }
             $resultSet->initialize($results);
         }
 
