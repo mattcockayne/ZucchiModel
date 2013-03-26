@@ -314,7 +314,7 @@ class ModelManager implements EventManagerAwareInterface
      * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
      * @throws \RuntimeException
      */
-    public function findAll(Criteria $criteria, $paginated = true)
+    public function findAll(Criteria $criteria, $paginated = false)
     {
         // Get model and check it exists
         $model = $criteria->getModel();
