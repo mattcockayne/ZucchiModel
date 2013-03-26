@@ -330,8 +330,6 @@ class ModelManager implements EventManagerAwareInterface
             throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
-        $resultSet = false;
-
         // Check if a Paginated Result Set is wanted,
         // else return standard Hydrating Result Set
         if ($paginated) {
