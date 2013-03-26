@@ -20,6 +20,7 @@ use ZucchiModel\Query\Criteria;
  * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel\ResultSet
  * @subpackage
  * @category
@@ -27,20 +28,22 @@ use ZucchiModel\Query\Criteria;
 class PaginatedResultSet implements Iterator, Countable
 {
     /**
+     * Reference to ModelManager
+     *
      * @var ModelManager
      */
     protected $modelManager;
 
-
     /**
-     * Critera for lookup
+     * The original supplied Critera for lookup
+     *
      * @var Criteria
      */
     protected $criteria;
 
-
     /**
-     * Actual position of record in complete recordset
+     * Actual position of current result in complete result set
+     *
      * @var int
      */
     protected $position = 0;
@@ -51,25 +54,42 @@ class PaginatedResultSet implements Iterator, Countable
     protected $resultSet;
 
     /**
-     * @var Maximum Page size
+     * Maximum Page size
+     *
+     * @var int
      */
     protected $pageSize;
 
     /**
      * Current Page of results
+     *
      * @var int
      */
     protected $page = 0;
 
+    /**
+     * Total count of selected results
+     *
+     * @var bool
+     */
     protected $count = false;
 
+    /**
+     * Custom Limit 0 = Not set
+     *
+     * @var int
+     */
     protected $limit = 0;
 
-
+    /**
+     * Current offset of page
+     *
+     * @var int
+     */
     protected $offset = 0;
 
     /**
-     * constructor
+     * Constructor
      *
      * @param ModelManager $modelManager
      * @param Criteria $criteria
@@ -84,7 +104,9 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * initialise the results
+     * Initialise the results
+     *
+     * @return void
      */
     public function initialize()
     {
@@ -105,17 +127,33 @@ class PaginatedResultSet implements Iterator, Countable
 
     }
 
+    /**
+     * Get current result from result set
+     *
+     * @return mixed
+     */
     public function current()
     {
         return $this->resultSet->current();
     }
 
+    /**
+     * Move to the next result in the
+     * result set
+     *
+     * @return void
+     */
     public function next()
     {
         $this->resultSet->next();
         $this->position++;
     }
 
+    /**
+     * Get current key
+     *
+     * @return int
+     */
     public function key()
     {
         return $this->position;
@@ -142,12 +180,19 @@ class PaginatedResultSet implements Iterator, Countable
         return true;
     }
 
+    /**
+     * Rewind result set to the beginning
+     */
     public function rewind()
     {
         $this->initialize();
     }
 
-
+    /**
+     * Get count of result set
+     *
+     * @return bool|int
+     */
     public function count()
     {
         if ($this->count !== false) {
@@ -157,29 +202,48 @@ class PaginatedResultSet implements Iterator, Countable
         $this->count = $this->getModelManager()->countAll(clone $this->getCriteria());
 
         return $this->count;
-
     }
 
-
-
-
+    /**
+     * Set Model Manager
+     *
+     * @param $modelManager
+     * @return $this
+     */
     public function setModelManager($modelManager)
     {
         $this->modelManager = $modelManager;
         return $this;
     }
 
+    /**
+     * Get Model Manager
+     *
+     * @return ModelManager
+     */
     public function getModelManager()
     {
         return $this->modelManager;
     }
 
+    /**
+     * Set Page Size
+     *
+     * @param $pageSize
+     * @return $this
+     */
     public function setPageSize($pageSize)
     {
         $this->pageSize = $pageSize;
         return $this;
     }
 
+    /**
+     * Set Criteria
+     *
+     * @param $criteria
+     * @return $this
+     */
     public function setCriteria($criteria)
     {
         $this->criteria = $criteria;
@@ -195,14 +259,23 @@ class PaginatedResultSet implements Iterator, Countable
         return $this;
     }
 
+    /**
+     * Get Criteria
+     *
+     * @return Criteria
+     */
     public function getCriteria()
     {
         return $this->criteria;
     }
 
+    /**
+     * Get Page Size
+     *
+     * @return int
+     */
     public function getPageSize()
     {
         return $this->pageSize;
     }
-
 }

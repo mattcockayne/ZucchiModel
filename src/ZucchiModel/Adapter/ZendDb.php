@@ -48,7 +48,7 @@ class ZendDb extends AbstractAdapter
     /**
      * Set the datasource
      *
-     * @param $dataSource
+     * @param Adapter $dataSource
      * @return $this
      */
     public function setDataSource($dataSource)
@@ -82,11 +82,11 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * build and return query object from criteria
+     * Build and return query object from criteria
      *
      * @param Criteria $criteria
-     * @param Array $metadata
-     * @return mixed
+     * @param array $metadata
+     * @return mixed|\Zend\Db\Sql\Select
      */
     public function buildQuery(Criteria $criteria, Array $metadata)
     {
@@ -131,6 +131,7 @@ class ZendDb extends AbstractAdapter
         // Get the first Data Source which will be the From Table
         $from = array_shift($dataSources);
 
+        // Create Select Query object
         $select = $this->sql->select();
 
         // Set form Table and Columns if present
@@ -140,6 +141,7 @@ class ZendDb extends AbstractAdapter
             $select->columns($columns);
         }
 
+        // Get array of any joins
         $joins = $this->determineJoins($dataSources, $from, $selectColumns, $foreignKeys);
 
         // Check if we have any joins
@@ -155,6 +157,7 @@ class ZendDb extends AbstractAdapter
             $select->where($where);
         }
 
+        // Check and apply any "limit"
         if ($limit = $criteria->getLimit()) {
             $select->limit($limit);
 
@@ -195,11 +198,11 @@ class ZendDb extends AbstractAdapter
     {
         // Build and run the DB statement
         $statememt = $this->sql->prepareStatementForSqlObject($query);
+        echo $this->sql->getSqlStringForSqlObject($query);
         $results = $statememt->execute();
 
         return $results;
     }
-
 
     /**
      * Determines the required joins for a query
@@ -210,12 +213,14 @@ class ZendDb extends AbstractAdapter
      * @param $foreignKeys
      * @return array
      * @throws \RuntimeException
+     * @todo: add select column lookup on where
      */
     protected function determineJoins($dataSources, $from, $selectColumns, $foreignKeys)
     {
         // Create lookup to match Table name to alias
         $tableNameLookup = array($from => 0);
 
+        // Create empty return array
         $joins = array();
 
         // Building Join references

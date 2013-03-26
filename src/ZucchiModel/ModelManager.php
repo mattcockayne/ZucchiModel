@@ -8,9 +8,6 @@
  */
 namespace ZucchiModel;
 
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\HydratingResultSet;
-
 use Zend\Code\Annotation\AnnotationManager;
 use Zend\Code\Annotation\Parser;
 use Zend\Code\Reflection\ClassReflection;
@@ -21,15 +18,12 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
 
-
 use ZucchiModel\Adapter\AdapterInterface;
 use ZucchiModel\Hydrator;
 use ZucchiModel\Annotation\MetadataListener;
 use ZucchiModel\Metadata;
 use ZucchiModel\Query\Criteria;
-
 use ZucchiModel\ResultSet;
-
 
 /**
  * Model Manager for ORM
@@ -266,7 +260,6 @@ class ModelManager implements EventManagerAwareInterface
      * @todo: test compound keys
      * @todo: take into account schema and table names in foreignKeys
      * @todo: store results in mapCache
-     * @todo: break out sql into its own driver(matt may change this) so we can add NoSql etc.
      * @todo: add function with factory to new sql driver
      */
     public function findOne(Criteria $criteria)
@@ -314,11 +307,11 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * find and return a collection of models
+     * Find and return a collection of models
      *
      * @param Criteria $criteria
-     * @param bool $bufferResult
-     * @return bool|HydratingResultSet|UnbufferedHydratingResultSet
+     * @param bool $paginated
+     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
      * @throws \RuntimeException
      */
     public function findAll(Criteria $criteria, $paginated = true)
@@ -339,10 +332,10 @@ class ModelManager implements EventManagerAwareInterface
 
         $resultSet = false;
 
+        // Check if a Paginated Result Set is wanted,
+        // else return standard Hydrating Result Set
         if ($paginated) {
             $resultSet = new ResultSet\PaginatedResultSet($this, $criteria, 10);
-
-
         } else {
             $query = $this->getAdapter()->buildQuery($criteria, $metadata);
 
@@ -361,8 +354,11 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * get a count of all results matching criteria
+     * Return row count
+     *
      * @param Criteria $criteria
+     * @return int|bool
+     * @throws \RuntimeException
      */
     public function countAll(Criteria $criteria)
     {
@@ -380,6 +376,7 @@ class ModelManager implements EventManagerAwareInterface
             throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
+        // Force limit and offset to null
         $criteria->setLimit(null);
         $criteria->setOffset(null);
 
