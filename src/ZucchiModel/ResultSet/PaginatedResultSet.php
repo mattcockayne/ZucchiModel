@@ -115,7 +115,7 @@ class PaginatedResultSet implements Iterator, Countable
 
         $criteria = $this->getCriteria();
 
-        if ($this->limit < $this->getPageSize()) {
+        if ($this->limit != 0 && $this->limit < $this->getPageSize()) {
             $criteria->setLimit($this->limit);
         } else {
             $criteria->setLimit($this->getPageSize());
