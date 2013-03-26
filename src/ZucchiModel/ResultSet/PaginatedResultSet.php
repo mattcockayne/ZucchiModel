@@ -166,7 +166,7 @@ class PaginatedResultSet implements Iterator, Countable
             // assume end of page
             $criteria = $this->getCriteria();
 
-            $criteria->setOffset($this->offset + ($this->pageSize * $this->page+1));
+            $criteria->setOffset($this->offset + ($this->pageSize * ($this->page+1)));
 
             $resultSet = $this->getModelManager()->findAll($criteria);
             if ($resultSet->count() == 0) {
