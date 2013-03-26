@@ -13,7 +13,7 @@ use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
 use ZucchiModel\Query\Criteria;
 use Zend\Db\Sql\Sql;
-use Zend\Db\ResultSet\HydratingResultSet;
+use Zend\Db\Sql\Expression;
 
 /**
  * ZendDb
@@ -165,7 +165,24 @@ class ZendDb extends AbstractAdapter
         }
 
         return $select;
+    }
 
+    /**
+     * Build and return a count query object from criteria
+     *
+     * @param Criteria $criteria
+     * @param array $metadata
+     * @return \Zend\Db\Sql\Select
+     */
+    public function buildCountQuery(Criteria $criteria, Array $metadata)
+    {
+        // Create normal Select Query object
+        $select = $this->buildQuery($criteria, $metadata);
+
+        // Replace column select with Count(*)
+        $select->reset('columns')->columns(array('count' => new Expression('COUNT(*)')));
+
+        return $select;
     }
 
     /**
@@ -250,10 +267,4 @@ class ZendDb extends AbstractAdapter
 
         return $joins;
     }
-
-    public function buildCountQuery($criteria)
-    {
-        // SELECT COUNT(*) FROM utag_tag as t0 LEFT JOIN utag_source t1 ON ? = ? WHERE ? = ? GROUP BY t0.id
-    }
-
 }
