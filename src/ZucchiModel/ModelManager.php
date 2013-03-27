@@ -327,7 +327,7 @@ class ModelManager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
-            throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Target Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
         // Check if a Paginated Result Set is wanted,
@@ -374,7 +374,7 @@ class ModelManager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
-            throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Target Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
         // Force limit and offset to null
