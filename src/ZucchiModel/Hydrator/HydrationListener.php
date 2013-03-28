@@ -48,6 +48,10 @@ class HydrationListener
         $this->listeners = array();
     }
 
+    /**
+     * @param Event $event
+     * @todo: Add DataType conversions
+     */
     public function preHydrate(Event $event)
     {
 
