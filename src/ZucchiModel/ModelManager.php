@@ -416,4 +416,30 @@ class ModelManager implements EventManagerAwareInterface
             return false;
         }
     }
+
+    /**
+     * Get a model property, checks for
+     * unmapped properties.
+     *
+     * @param $model
+     * @param $property
+     * @return mixed the property value
+     * @throws \RuntimeException if it can not find the property
+     */
+    protected function getModelProperty($model, $property)
+    {
+        if (is_object($model)) {
+            if (property_exists($model, $property)) {
+                return $model->$property;
+            } else {
+                if (property_exists($model, 'unmappedProperties') && !empty($model->unmappedProperties[$property])) {
+                    return $model->unmappedProperties[$property];
+                }
+            }
+        }
+
+        // Can not find the property, throw error. Note false and null can not be returned instead as they can be
+        // valid values for properties.
+        throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($model, true)));
+    }
 }
