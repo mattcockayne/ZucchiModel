@@ -207,7 +207,6 @@ class ZendDb extends AbstractAdapter
     {
         // Build and run the DB statement
         $statememt = $this->sql->prepareStatementForSqlObject($query);
-        echo $this->sql->getSqlStringForSqlObject($query);
         $results = $statememt->execute();
 
         return $results;
