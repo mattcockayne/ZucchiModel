@@ -13,6 +13,7 @@ use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
 use ZucchiModel\Query\Criteria;
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
 
 /**
@@ -144,6 +145,9 @@ class ZendDb extends AbstractAdapter
         // Get array of any joins
         $joins = $this->determineJoins($dataSources, $from, $selectColumns, $foreignKeys);
 
+        // Add any additional joins to join array
+        $joins = array_merge($joins, $this->determineAdditionalJoins($criteria));
+
         // Check if we have any joins
         if (!empty($joins)) {
             // Add joins for other Data Sources
@@ -274,6 +278,40 @@ class ZendDb extends AbstractAdapter
 
         // Sort into table join order e.g. t0, t1, t2
         ksort($joins);
+
+        return $joins;
+    }
+
+    /**
+     * Workout joins for supplied additional data
+     *
+     * @param Criteria $criteria
+     * @param array $joins
+     * @return array
+     */
+    public function determineAdditionalJoins(Criteria $criteria, $joins = array())
+    {
+        if ($additionalJoins = $criteria->getJoin()) {
+            $where = $criteria->getWhere() ?: new Where();
+            $order = $criteria->getOrderBy() ?: array();
+
+            foreach ($additionalJoins as $additionalJoin) {
+                $on = sprintf('%s.' . $additionalJoin['foreignBy'] . ' = %s.' . $additionalJoin['foreignKey'], $additionalJoin['referencedBy'], 't0');
+                $joins[] = array(
+                    'table' => $additionalJoin['referencedBy'],
+                    'on' => $on,
+                    'columns' => array()
+                );
+
+                $where->equalTo($additionalJoin['referencedBy'] . '.' . $additionalJoin['mappedBy'], $additionalJoin['mappedKey']);
+                if (!empty($additionalJoin['referencedOrder'])) {
+                    $order[] = $additionalJoin['referencedOrder'];
+                }
+            }
+
+            $criteria->setWhere($where);
+            $criteria->setOrderBy($order);
+        }
 
         return $joins;
     }
