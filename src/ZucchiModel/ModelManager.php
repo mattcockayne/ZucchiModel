@@ -366,11 +366,12 @@ class ModelManager implements EventManagerAwareInterface
      * Find and return a collection of models
      *
      * @param Criteria $criteria
-     * @param bool $paginated
+     * @param int $paginatedPageSize if greater than 1 then paginate results using this as Page Size
      * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
      * @throws \RuntimeException
+     * @todo: change paginated to a number for pageSize
      */
-    public function findAll(Criteria $criteria, $paginated = false)
+    public function findAll(Criteria $criteria, $paginatedPageSize = 0)
     {
         // Get model and check it exists
         $model = $criteria->getModel();
@@ -388,8 +389,8 @@ class ModelManager implements EventManagerAwareInterface
 
         // Check if a Paginated Result Set is wanted,
         // else return standard Hydrating Result Set
-        if ($paginated) {
-            $resultSet = new ResultSet\PaginatedResultSet($this, $criteria, 10);
+        if ($paginatedPageSize > 0) {
+            $resultSet = new ResultSet\PaginatedResultSet($this, $criteria, $paginatedPageSize);
         } else {
             $query = $this->getAdapter()->buildQuery($criteria, $metadata);
 
