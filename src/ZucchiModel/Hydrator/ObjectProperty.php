@@ -40,15 +40,24 @@ class ObjectProperty extends PropertyHydrator
                 '%s expects the provided $object to be a PHP object)', __METHOD__
             ));
         }
+
         $populated = array();
+        $unmappedProperties = array();
         foreach ($data as $property => $value) {
-            // Check property to stop misc data being mapped to the Model
+            // Check property to stop misc data being mapped to the Model.
+            // Instead this data is stored in a key value pair array called
+            // unmappedProperties.
             if (property_exists($object, $property) && !in_array($property, $populated)) {
                 $object->$property = $this->hydrateValue($property, $value);
                 $populated[] = $property;
-
+            } else {
+                $unmappedProperties[$property] = $value;
             }
         }
+
+        // Set unmappedProperties on the model
+        $object->unmappedProperties = $unmappedProperties;
+
         return $object;
     }
 }
