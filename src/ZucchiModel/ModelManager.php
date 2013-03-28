@@ -11,6 +11,7 @@ namespace ZucchiModel;
 use Zend\Code\Annotation\AnnotationManager;
 use Zend\Code\Annotation\Parser;
 use Zend\Code\Reflection\ClassReflection;
+use Zend\Db\Sql\Where;
 
 use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
@@ -242,12 +243,36 @@ class ModelManager implements EventManagerAwareInterface
      *
      * @param $model
      * @param $nameOfRelationship
+     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
+     * @throws \RuntimeException
      */
     public function getRelationship($model, $nameOfRelationship)
     {
-        if (isset($this->modelMetadata[get_class($model)]['relationships'][$nameOfRelationship])) {
-            // lookup and return relationship;
+        if (!($classMetadata = $this->getMetadata(get_class($model)))) {
+            throw new \RuntimeException(sprintf('No Metadata found for %s.', var_export($model, true)));
+        }
 
+        if (!($relationshipMetadata = $classMetadata['relationships'][$nameOfRelationship])) {
+            throw new \RuntimeException(sprintf('No Relationship found for %s', $nameOfRelationship));
+        }
+
+        switch ($relationshipMetadata['type']) {
+            case 'ManytoMany':
+                // Replace mappedKey with actually value, while we have access to the
+                // model.
+                $where = new Where();
+                $relationshipMetadata['mappedKey'] = $model->$relationshipMetadata['mappedKey'];
+
+                $criteria = new Criteria(array(
+                    'model' => $relationshipMetadata['model'],
+                    'where' => $where,
+                    'join' => array($relationshipMetadata),
+                ));
+
+                return $this->findAll($criteria);
+                break;
+            default:
+                throw new \RuntimeException(sprintf('Invalid Relationship Type. Given %s', var_export($relationshipMetadata)));
         }
     }
 
