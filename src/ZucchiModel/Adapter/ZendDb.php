@@ -167,6 +167,11 @@ class ZendDb extends AbstractAdapter
             }
         }
 
+        // Check and apply any "order"
+        if ($orderBy = $criteria->getOrderBy()) {
+            $select->order($orderBy);
+        }
+
         return $select;
     }
 
