@@ -257,18 +257,48 @@ class ModelManager implements EventManagerAwareInterface
         }
 
         switch ($relationshipMetadata['type']) {
+            case 'toOne':
+                // Create where clause with actually value, pointed at by
+                // mappedKey, while we have access to the model.
+                $where = new Where();
+                $where->equalTo($relationshipMetadata['mappedBy'], $this->getModelProperty($model, $relationshipMetadata['mappedKey']));
+
+                // Create Criteria for query
+                $criteria = new Criteria(array(
+                    'model' => $relationshipMetadata['model'],
+                    'where' => $where
+                ));
+
+                // Find relationship
+                return $this->findOne($criteria);
+                break;
+            case 'toMany':
+                // Create where clause with actually value, pointed at by
+                // mappedKey, while we have access to the model.
+                $where = new Where();
+                $where->equalTo($relationshipMetadata['mappedBy'], $this->getModelProperty($model, $relationshipMetadata['mappedKey']));
+
+                // Create Criteria for query
+                $criteria = new Criteria(array(
+                    'model' => $relationshipMetadata['model'],
+                    'where' => $where
+                ));
+
+                // Find relationship
+                return $this->findAll($criteria);
+                break;
             case 'ManytoMany':
                 // Replace mappedKey with actually value, while we have access to the
                 // model.
-                $where = new Where();
                 $relationshipMetadata['mappedKey'] = $model->$relationshipMetadata['mappedKey'];
 
+                // Create Criteria for query
                 $criteria = new Criteria(array(
                     'model' => $relationshipMetadata['model'],
-                    'where' => $where,
                     'join' => array($relationshipMetadata),
                 ));
 
+                // Find relationship
                 return $this->findAll($criteria);
                 break;
             default:
