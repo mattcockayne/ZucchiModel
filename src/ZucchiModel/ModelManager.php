@@ -243,10 +243,11 @@ class ModelManager implements EventManagerAwareInterface
      *
      * @param $model
      * @param $nameOfRelationship
+     * @param int $paginatedPageSize
      * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
      * @throws \RuntimeException
      */
-    public function getRelationship($model, $nameOfRelationship)
+    public function getRelationship($model, $nameOfRelationship, $paginatedPageSize = 0)
     {
         if (!($classMetadata = $this->getMetadata(get_class($model)))) {
             throw new \RuntimeException(sprintf('No Metadata found for %s.', var_export($model, true)));
@@ -285,7 +286,7 @@ class ModelManager implements EventManagerAwareInterface
                 ));
 
                 // Find relationship
-                return $this->findAll($criteria);
+                return $this->findAll($criteria, $paginatedPageSize);
                 break;
             case 'ManytoMany':
                 // Replace mappedKey with actually value, while we have access to the
@@ -299,7 +300,7 @@ class ModelManager implements EventManagerAwareInterface
                 ));
 
                 // Find relationship
-                return $this->findAll($criteria);
+                return $this->findAll($criteria, $paginatedPageSize);
                 break;
             default:
                 throw new \RuntimeException(sprintf('Invalid Relationship Type. Given %s', var_export($relationshipMetadata)));
