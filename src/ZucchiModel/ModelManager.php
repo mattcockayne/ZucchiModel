@@ -313,10 +313,8 @@ class ModelManager implements EventManagerAwareInterface
      * @param Criteria $criteria
      * @return bool
      * @throws \RuntimeException
-     * @todo: test compound keys
      * @todo: take into account schema and table names in foreignKeys
      * @todo: store results in mapCache
-     * @todo: add function with factory to new sql driver
      */
     public function findOne(Criteria $criteria)
     {
