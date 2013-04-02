@@ -82,7 +82,7 @@ class ModelManager implements EventManagerAwareInterface
     /**
      * Construct ModelManager with supplied ZucchiModel Adapter
      *
-     * @param \ZucchiModel\Adapter\AdapterInterfacee $adapter
+     * @param AdapterInterface $adapter
      */
     public function __construct(AdapterInterface $adapter)
     {
@@ -139,7 +139,7 @@ class ModelManager implements EventManagerAwareInterface
         $metadataListener = new MetadataListener();
         $metadataListener->attach($events);
 
-        $hydrationListener = new Hydrator\HydrationListener();
+        $hydrationListener = new Hydrator\HydrationListener($this);
         $hydrationListener->attach($events);
 
         $this->eventManager = $events;
@@ -315,7 +315,7 @@ class ModelManager implements EventManagerAwareInterface
      * @throws \RuntimeException
      * @todo: take into account schema and table names in foreignKeys
      * @todo: store results in mapCache
-     * @todo: add listener for converting DateTime, JSON, currency etc.
+     * @todo: add listener for converting JSON, currency etc.
      */
     public function findOne(Criteria $criteria)
     {

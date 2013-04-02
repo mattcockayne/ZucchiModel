@@ -12,6 +12,7 @@ namespace ZucchiModel\Behaviour;
  * Version Behaviour Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Model
  * @category
@@ -20,7 +21,7 @@ trait VersionTrait
 {
     /**
      * @var integer
-     * @Model\Type({"type" : "integer"})
+     * @Model\Field("integer")
      */
     public $version;
 }

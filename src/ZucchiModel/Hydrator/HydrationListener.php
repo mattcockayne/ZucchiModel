@@ -39,7 +39,8 @@ class HydrationListener
     }
 
     /**
-     * remove listeners from events
+     * Remove listeners from events
+     *
      * @param EventManagerInterface $events
      */
     public function detach(EventManagerInterface $events)
@@ -57,6 +58,9 @@ class HydrationListener
 
     }
 
+    /**
+     * @param Event $event
+     */
     public function hydrate(Event $event)
     {
         $target = $event->getTarget();
@@ -66,6 +70,9 @@ class HydrationListener
         $hydrator->hydrate($data, $target);
     }
 
+    /**
+     * @param Event $event
+     */
     public function postHydrate(Event $event)
     {
 
