@@ -316,6 +316,7 @@ class ModelManager implements EventManagerAwareInterface
      * @todo: test compound keys
      * @todo: take into account schema and table names in foreignKeys
      * @todo: store results in mapCache
+     * @todo: add listener for converting DateTime, JSON, currency etc.
      */
     public function findOne(Criteria $criteria)
     {
