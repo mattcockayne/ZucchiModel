@@ -71,7 +71,10 @@ class HydrationListener
     {
         $this->listeners = array(
             $events->attach('preHydrate', array($this, 'preHydrate')),
+            $events->attach('preHydrate.cast', array($this, 'castDateTime')),
+
             $events->attach('hydrate', array($this, 'hydrate')),
+
             $events->attach('postHydrate', array($this, 'postHydrate')),
         );
     }
@@ -88,12 +91,37 @@ class HydrationListener
     }
 
     /**
+     * Handles casting data values of know types
+     * to objects etc. E.g 'datetime' is cast to
+     * new \DateTime()
+     *
      * @param Event $event
-     * @todo: Add DataType conversions
      */
     public function preHydrate(Event $event)
     {
+        $metadata = $this->getModelManager()->getMetadata(get_class($event->getTarget()));
+        $data = $event->getParam('data');
 
+        // If metadata is given, cast values by type
+        if ($fields = $metadata['fields']) {
+            foreach ($data as $key => $value) {
+                if ($type = $fields[$key]) {
+                    // Metadata exists for this value, trigger event
+                    // to cast value to object etc.
+                    $castEvent = new Event('preHydrate.cast', $value, array('type' => $type));
+                    $castResult = $this->getModelManager()->getEventManager()->trigger($castEvent);
+
+                    // Check if the Event called stopPropagation
+                    if ($castResult->stopped()) {
+                        // Store returned result back in data array
+                        $data[$key] = $castResult->last();
+                    }
+                }
+            }
+
+            // Set data
+            $event->setParam('data', $data);
+        }
     }
 
     /**
@@ -116,4 +144,33 @@ class HydrationListener
 
     }
 
+    /**
+     * Check if supplied data is a datetime column.
+     * If so, cast to \DateTime.
+     *
+     * @param Event $event
+     * @return \Datetime|object|string
+     */
+    public function castDateTime(Event $event)
+    {
+        $value = $event->getTarget();
+        $type = $event->getParam('type');
+
+        // Check if this is a datetime column
+        if ('datetime' == strtolower($type)) {
+            // Turn value into timestamp
+            if (false !== ($time = strtotime($value))) {
+                // Create new DateTime with timestamp
+                $dt = new \Datetime();
+                $dt->setTimestamp($time);
+
+                // All done, stop all other events and return
+                $event->stopPropagation(true);
+                return $dt;
+            }
+        }
+
+        // Return original just incase
+        return $value;
+    }
 }
