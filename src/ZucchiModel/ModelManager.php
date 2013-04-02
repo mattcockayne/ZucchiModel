@@ -351,15 +351,15 @@ class ModelManager implements EventManagerAwareInterface
         $model = new $model();
 
         // Trigger Hydration events
-        $event = new Event('preHydrate', $result);
+        $event = new Event('preHydrate', $model, array('data' => $result));
         $this->getEventManager()->trigger($event);
 
-        $event = new Event('hydrate', $model, array('data' => $result));
+        $event->setName('hydrate');
         $this->getEventManager()->trigger($event);
 
-        $event = new Event('postHydrate', $model);
+        $event->setName('postHydrate');
         $this->getEventManager()->trigger($event);
-
+        
         // Return result
         return $model;
     }
