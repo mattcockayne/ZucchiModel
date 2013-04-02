@@ -313,7 +313,6 @@ class ModelManager implements EventManagerAwareInterface
      * @param Criteria $criteria
      * @return bool
      * @throws \RuntimeException
-     * @todo: test compound keys
      * @todo: take into account schema and table names in foreignKeys
      * @todo: store results in mapCache
      * @todo: add listener for converting DateTime, JSON, currency etc.
@@ -369,7 +368,6 @@ class ModelManager implements EventManagerAwareInterface
      * @param int $paginatedPageSize if greater than 1 then paginate results using this as Page Size
      * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
      * @throws \RuntimeException
-     * @todo: change paginated to a number for pageSize
      */
     public function findAll(Criteria $criteria, $paginatedPageSize = 0)
     {
