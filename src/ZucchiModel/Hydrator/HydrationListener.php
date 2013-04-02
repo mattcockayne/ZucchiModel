@@ -10,6 +10,7 @@ namespace ZucchiModel\Hydrator;
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
+use ZucchiModel\ModelManager;
 
 use ZucchiModel\Annotation;
 
@@ -23,6 +24,43 @@ use ZucchiModel\Annotation;
  */
 class HydrationListener
 {
+    /**
+     * @var ModelManager
+     */
+    protected $modelManager;
+
+    /**
+     * Constructor
+     *
+     * @param ModelManager $modelManager
+     */
+    public function __construct(ModelManager $modelManager)
+    {
+        $this->setModelManager($modelManager);
+    }
+
+    /**
+     * Set Model Manager
+     *
+     * @param ModelManager $modelManager
+     * @return $this
+     */
+    public function setModelManager(ModelManager $modelManager)
+    {
+        $this->modelManager = $modelManager;
+        return $this;
+    }
+
+    /**
+     * Get Model Manager
+     *
+     * @return ModelManager
+     */
+    public function getModelManager()
+    {
+        return $this->modelManager;
+    }
+
     /**
      * Attach listeners
      *
