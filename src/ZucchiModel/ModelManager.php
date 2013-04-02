@@ -142,6 +142,9 @@ class ModelManager implements EventManagerAwareInterface
         $hydrationListener = new Hydrator\HydrationListener($this);
         $hydrationListener->attach($events);
 
+        $behaviourListener = new Behaviour\BehaviourListener($this);
+        $behaviourListener->attach($events);
+
         $this->eventManager = $events;
         return $this;
     }
