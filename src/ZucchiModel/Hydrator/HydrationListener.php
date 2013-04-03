@@ -74,6 +74,7 @@ class HydrationListener
             $events->attach('preHydrate', array($this, 'preHydrate')),
             $events->attach('preHydrate.cast', array($this, 'castDateTime')),
             $events->attach('preHydrate.cast', array($this, 'castJson')),
+            $events->attach('preHydrate.cast', array($this, 'castScalar')),
 
             $events->attach('hydrate', array($this, 'hydrate')),
 
@@ -198,6 +199,49 @@ class HydrationListener
                 // All done, stop all other events and return
                 $event->stopPropagation(true);
                 return Json::decode($value);
+                break;
+            default:
+                return $value;
+                break;
+        }
+    }
+
+    /**
+     * Check if supplied data is boolean, float,
+     * integer or string. If so, cast value to that.
+     *
+     * @param Event $event
+     * @return bool|float|int|object|string
+     */
+    public function castScalar(Event $event)
+    {
+        $value = $event->getTarget();
+        $type = $event->getParam('type');
+
+        switch (strtolower($type)) {
+            case 'boolean':
+                // All done, stop all other events and return
+                $event->stopPropagation(true);
+                if ($value === false || $value == 0 || $value == 'false' || is_null($value)) {
+                    return false;
+                } else {
+                    return true;
+                }
+                break;
+            case 'float':
+                // All done, stop all other events and return
+                $event->stopPropagation(true);
+                return (float) $value;
+                break;
+            case 'integer':
+                // All done, stop all other events and return
+                $event->stopPropagation(true);
+                return (int) $value;
+                break;
+            case 'string':
+                // All done, stop all other events and return
+                $event->stopPropagation(true);
+                return '' . $value;
                 break;
             default:
                 return $value;
