@@ -10,6 +10,7 @@ namespace ZucchiModel\Hydrator;
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
+use Zend\Json\Json;
 use ZucchiModel\ModelManager;
 
 use ZucchiModel\Annotation;
@@ -72,6 +73,7 @@ class HydrationListener
         $this->listeners = array(
             $events->attach('preHydrate', array($this, 'preHydrate')),
             $events->attach('preHydrate.cast', array($this, 'castDateTime')),
+            $events->attach('preHydrate.cast', array($this, 'castJson')),
 
             $events->attach('hydrate', array($this, 'hydrate')),
 
@@ -172,5 +174,34 @@ class HydrationListener
 
         // Return original just incase
         return $value;
+    }
+
+    /**
+     * Check if supplied data is a json column.
+     * If so, cast to array or object.
+     *
+     * @param Event $event
+     * @return array|object|string
+     */
+    public function castJson(Event $event)
+    {
+        $value = $event->getTarget();
+        $type = $event->getParam('type');
+
+        switch (strtolower($type)) {
+            case 'json_array':
+                // All done, stop all other events and return
+                $event->stopPropagation(true);
+                return Json::decode($value, Json::TYPE_ARRAY);
+                break;
+            case 'json_object':
+                // All done, stop all other events and return
+                $event->stopPropagation(true);
+                return Json::decode($value);
+                break;
+            default:
+                return $value;
+                break;
+        }
     }
 }

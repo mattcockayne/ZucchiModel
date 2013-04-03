@@ -28,7 +28,7 @@ class Field extends AbstractArrayOrStringAnnotation
      * @var array
      */
     private $allowedTypes = array(
-        'string', 'integer', 'binary', 'boolean', 'float', 'date', 'time', 'datetime', 'json'
+        'string', 'integer', 'binary', 'boolean', 'float', 'date', 'time', 'datetime', 'json_array', 'json_object'
     );
 
     /**
