@@ -336,4 +336,50 @@ class ZendDb extends AbstractAdapter
         return $h;
     }
 
+
+    /**
+     * Get Model Property
+     *
+     * @param $model
+     * @param $property
+     * @return mixed
+     * @throws \RuntimeException
+     */
+    protected function getModelProperty($model, $property)
+    {
+        if (is_object($model)) {
+            if (property_exists($model, $property)) {
+                return $model->$property;
+            } else {
+                if (property_exists($model, 'unmappedProperties') && !empty($model->unmappedProperties[$property])) {
+                    return $model->unmappedProperties[$property];
+                }
+            }
+        }
+
+        // Can not find the property, throw error. Note false and null can not be returned instead as they can be
+        // valid values for properties.
+        throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($model, true)));
+    }
+
+    /**
+     * Set Model Property
+     *
+     * @param $model
+     * @param $property
+     * @param $value
+     * @throws \RuntimeException
+     */
+    protected function setModelProperty($model, $property, $value)
+    {
+        if (is_object($model)) {
+            if (property_exists($model, $property)) {
+                $model->$property = $value;
+            } else {
+                $model->unmappedProperties[$property] = $value;
+            }
+        } else {
+            throw new \RuntimeException(sprintf('Model is not an object. Given %s.', var_export($model, true)));
+        }
+    }
 }
