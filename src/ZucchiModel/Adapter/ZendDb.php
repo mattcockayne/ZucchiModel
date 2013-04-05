@@ -120,11 +120,13 @@ class ZendDb extends AbstractAdapter
             array_walk(
                 $constraints,
                 function ($constraint) use (&$foreignKeys) {
-                    $foreignKeys[$constraint->getReferencedTableName()] = array(
-                        'tableName' => $constraint->getTableName(),
-                        'columns' => $constraint->getColumns(),
-                        'referencedColumns' => $constraint->getReferencedColumns()
-                    );
+                    if ('FOREIGN KEY' == $constraint->getType()) {
+                        $foreignKeys[$constraint->getReferencedTableName()] = array(
+                            'tableName' => $constraint->getTableName(),
+                            'columns' => $constraint->getColumns(),
+                            'referencedColumns' => $constraint->getReferencedColumns()
+                        );
+                    }
                 }
             );
         }
