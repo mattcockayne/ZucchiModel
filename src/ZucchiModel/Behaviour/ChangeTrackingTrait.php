@@ -8,12 +8,11 @@
  */
 namespace ZucchiModel\Behaviour;
 
-
-
 /**
  * Change Tracking Behaviour Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Behaviour
  * @category
@@ -26,9 +25,10 @@ trait ChangeTrackingTrait
     private $cleanData = array();
 
     /**
-     * set the clean data to compare with
-     * @param array $data
+     * Set the clean data to compare with
      *
+     * @param array $data
+     * @return $this
      */
     public function setCleanData(array $data)
     {

@@ -16,21 +16,36 @@ use Zend\Form\Annotation\AbstractArrayAnnotation;
  *
  * @Annotation
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Annotation
  */
 class Relationship extends AbstractArrayAnnotation
 {
+    const TO_ONE = 'toOne';
+
+    const TO_MANY = 'toMany';
+
+    const MANY_TO_MANY = 'ManytoMany';
+
     protected $validKeys = array(
-        'name','model','type','mappedKey','mappedBy',
+        'name','model','type','mappedKey','mappedBy','foreignKey','foreignBy','referencedBy','referencedOrder'
     );
 
     protected $validTypes = array(
-        'toOne','toMany',
+        self::TO_ONE, self::TO_MANY, self::MANY_TO_MANY
     );
 
     protected $requiredKeys = array(
-        'name','model','type','mappedKey','mappedBy',
+        self::TO_ONE => array(
+            'name','model','type','mappedKey','mappedBy'
+        ),
+        self::TO_MANY => array(
+            'name','model','type','mappedKey','mappedBy'
+        ),
+        self::MANY_TO_MANY => array(
+            'name','model','type','mappedKey','mappedBy','foreignKey','foreignBy','referencedBy'
+        )
     );
 
     public function __construct(array $data)
@@ -39,21 +54,26 @@ class Relationship extends AbstractArrayAnnotation
 
         $foundKeys = array_keys($this->value);
 
-        $missingKeys = array_diff($this->requiredKeys, $foundKeys);
+        if (!($type = $this->value['type'])){
+            throw new \RuntimeException(sprintf('Required type missing from Relationship annotation. Given "%s".', (implode(',',$foundKeys))));
+        }
+
+        if (!in_array($type, $this->validTypes)) {
+            throw new \RuntimeException(sprintf('Invalid type of relationship "%s" defined in Relationship annotation.', $this->value['type']));
+        }
+
+        $missingKeys = array_diff($this->requiredKeys[$type], $foundKeys);
 
         if (!empty($missingKeys)) {
-            throw new \RuntimeException(sprintf('Required data for "%s" missing from  Relationship annotation', (implode(',',$missingKeys))));
+            throw new \RuntimeException(sprintf('Required data for "%s" missing from Relationship annotation.', (implode(',',$missingKeys))));
         }
 
         foreach ($foundKeys as $key) {
             if (!in_array($key, $this->validKeys)) {
-                throw new \RuntimeException(sprintf('Invalid definition of "%s" in Relationship annotation', $key));
+                throw new \RuntimeException(sprintf('Invalid definition of "%s" in Relationship annotation.', $key));
             }
         }
 
-        if (!in_array($this->value['type'], $this->validTypes)) {
-            throw new \RuntimeException(sprintf('Invalid type of relationship  ("%s") defined in Relationship annotation', $this->value['type']));
-        }
     }
 
     /**

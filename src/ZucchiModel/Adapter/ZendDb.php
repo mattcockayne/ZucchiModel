@@ -9,9 +9,12 @@
 
 namespace ZucchiModel\Adapter;
 
+use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
 use ZucchiModel\Query\Criteria;
 use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Where;
+use Zend\Db\Sql\Expression;
 
 /**
  * ZendDb
@@ -19,17 +22,35 @@ use Zend\Db\Sql\Sql;
  * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Adapter
  * @category
  */
 class ZendDb extends AbstractAdapter
 {
+    /**
+     * Sql object for creating queries
+     *
+     * @var Sql $sql
+     */
     protected $sql;
 
     /**
+     * Create ZendDb adapter with supplied dataSource
+     *
+     * @param Adapter $dataSource
+     */
+    public function __construct(Adapter $dataSource)
+    {
+        $this->setDataSource($dataSource);
+    }
+
+    /**
      * Set the datasource
-     * @param $source
+     *
+     * @param Adapter $dataSource
+     * @return $this
      */
     public function setDataSource($dataSource)
     {
@@ -38,9 +59,11 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * retrieve metadata for class
-     * @param $class
-     * @return mixed
+     * Retrieve metadata for class
+     *
+     * @param array $tables
+     * @return array|mixed
+     * @throws \RuntimeException
      */
     public function getMetaData($tables = array())
     {
@@ -60,11 +83,11 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * build and return query object from criteria
+     * Build and return query object from criteria
      *
      * @param Criteria $criteria
-     * @param Array $metadata
-     * @return mixed
+     * @param array $metadata
+     * @return mixed|\Zend\Db\Sql\Select
      */
     public function buildQuery(Criteria $criteria, Array $metadata)
     {
@@ -109,6 +132,7 @@ class ZendDb extends AbstractAdapter
         // Get the first Data Source which will be the From Table
         $from = array_shift($dataSources);
 
+        // Create Select Query object
         $select = $this->sql->select();
 
         // Set form Table and Columns if present
@@ -118,7 +142,11 @@ class ZendDb extends AbstractAdapter
             $select->columns($columns);
         }
 
+        // Get array of any joins
         $joins = $this->determineJoins($dataSources, $from, $selectColumns, $foreignKeys);
+
+        // Add any additional joins to join array
+        $joins = array_merge($joins, $this->determineAdditionalJoins($criteria));
 
         // Check if we have any joins
         if (!empty($joins)) {
@@ -133,6 +161,7 @@ class ZendDb extends AbstractAdapter
             $select->where($where);
         }
 
+        // Check and apply any "limit"
         if ($limit = $criteria->getLimit()) {
             $select->limit($limit);
 
@@ -142,12 +171,35 @@ class ZendDb extends AbstractAdapter
             }
         }
 
-        return $select;
+        // Check and apply any "order"
+        if ($orderBy = $criteria->getOrderBy()) {
+            $select->order($orderBy);
+        }
 
+        return $select;
     }
 
     /**
-     * execute supplied query and return result
+     * Build and return a count query object from criteria
+     *
+     * @param Criteria $criteria
+     * @param array $metadata
+     * @return \Zend\Db\Sql\Select
+     */
+    public function buildCountQuery(Criteria $criteria, Array $metadata)
+    {
+        // Create normal Select Query object
+        $select = $this->buildQuery($criteria, $metadata);
+
+        // Replace column select with Count(*)
+        $select->reset('columns')->columns(array('count' => new Expression('COUNT(*)')));
+
+        return $select;
+    }
+
+    /**
+     * Execute supplied query and return result
+     * 
      * @param $query
      * @return mixed
      */
@@ -160,21 +212,23 @@ class ZendDb extends AbstractAdapter
         return $results;
     }
 
-
     /**
      * Determines the required joins for a query
      *
      * @param $dataSources
      * @param $from
+     * @param $selectColumns
      * @param $foreignKeys
      * @return array
      * @throws \RuntimeException
+     * @todo: add select column lookup on where
      */
     protected function determineJoins($dataSources, $from, $selectColumns, $foreignKeys)
     {
         // Create lookup to match Table name to alias
         $tableNameLookup = array($from => 0);
 
+        // Create empty return array
         $joins = array();
 
         // Building Join references
@@ -223,6 +277,40 @@ class ZendDb extends AbstractAdapter
 
         // Sort into table join order e.g. t0, t1, t2
         ksort($joins);
+
+        return $joins;
+    }
+
+    /**
+     * Workout joins for supplied additional data
+     *
+     * @param Criteria $criteria
+     * @param array $joins
+     * @return array
+     */
+    public function determineAdditionalJoins(Criteria $criteria, $joins = array())
+    {
+        if ($additionalJoins = $criteria->getJoin()) {
+            $where = $criteria->getWhere() ?: new Where();
+            $order = $criteria->getOrderBy() ?: array();
+
+            foreach ($additionalJoins as $additionalJoin) {
+                $on = sprintf('%s.' . $additionalJoin['foreignBy'] . ' = %s.' . $additionalJoin['foreignKey'], $additionalJoin['referencedBy'], 't0');
+                $joins[] = array(
+                    'table' => $additionalJoin['referencedBy'],
+                    'on' => $on,
+                    'columns' => array()
+                );
+
+                $where->equalTo($additionalJoin['referencedBy'] . '.' . $additionalJoin['mappedBy'], $additionalJoin['mappedKey']);
+                if (!empty($additionalJoin['referencedOrder'])) {
+                    $order[] = $additionalJoin['referencedOrder'];
+                }
+            }
+
+            $criteria->setWhere($where);
+            $criteria->setOrderBy($order);
+        }
 
         return $joins;
     }

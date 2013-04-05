@@ -15,6 +15,7 @@ namespace ZucchiModel\Adapter;
  * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel\Adapter
  * @subpackage 
  * @category 
@@ -23,13 +24,16 @@ abstract class AbstractAdapter implements AdapterInterface
 {
     /**
      * The Adapter/interface for the db i.e. Zend\Db\AdapterAbstract | MongoClient
+     *
      * @var mixed
      */
     protected $dataSource = null;
 
     /**
      * Set the datasource
-     * @param $source
+     *
+     * @param $dataSource
+     * @return $this
      */
     public function setDataSource($dataSource)
     {
@@ -38,7 +42,9 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
-     * get the datasource
+     * Get the datasource
+     *
+     * @return mixed|null
      */
     public function getDataSource()
     {

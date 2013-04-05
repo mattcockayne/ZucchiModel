@@ -14,6 +14,7 @@ use ZucchiModel\Annotation as Model;
  * Timestamp Behaviour Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Behaviour
  * @category
@@ -22,13 +23,13 @@ trait TimestampTrait
 {
     /**
      * @var datetime;
-     * @Model\Type({"type" : "datetime"})
+     * @Model\Field("datetime")
      */
     public $createdAt;
 
     /**
      * @var datetime
-     * @Model\Type({"type" : "datetime"})
+     * @Model\Field("datetime")
      */
     public $updatedAt;
 }

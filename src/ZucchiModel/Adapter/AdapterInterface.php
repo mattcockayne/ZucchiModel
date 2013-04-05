@@ -17,6 +17,7 @@ use ZucchiModel\Query\Criteria;
  * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel\Adapter
  * @subpackage
  * @category
@@ -24,14 +25,15 @@ use ZucchiModel\Query\Criteria;
 interface AdapterInterface
 {
     /**
-     * retrieve metadata for class
+     * Retrieve metadata for class
+     *
      * @param $class
      * @return mixed
      */
     public function getMetaData($class);
 
     /**
-     * build and return query object from criteria
+     * Build and return query object from criteria
      *
      * @param Criteria $criteria
      * @param Array $metadata
@@ -40,11 +42,10 @@ interface AdapterInterface
     public function buildQuery(Criteria $criteria, Array $metadata);
 
     /**
-     * execute supplied query and return result
+     * Execute supplied query and return result
+     *
      * @param $query
      * @return mixed
      */
     public function execute($query);
-
-
 }

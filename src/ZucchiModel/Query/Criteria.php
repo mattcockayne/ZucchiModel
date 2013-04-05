@@ -56,6 +56,13 @@ class Criteria extends AbstractOptions
     protected $orderBy = null;
 
     /**
+     * Additional Join
+     *
+     * @var array|null
+     */
+    protected $join = null;
+
+    /**
      * Get Models - a single model.
      *
      * @return string|array|null
@@ -63,6 +70,16 @@ class Criteria extends AbstractOptions
     public function getModel()
     {
         return $this->model;
+    }
+
+    /**
+     * Get join - array of models to join.
+     *
+     * @return string|array|null
+     */
+    public function getJoin()
+    {
+        return $this->join;
     }
 
     /**
@@ -119,6 +136,23 @@ class Criteria extends AbstractOptions
             $type = gettype($model);
             $type = ($type != 'object')?: get_class($model);
             throw new \RuntimeException(sprintf('Model must be a string and can not be blank. %s given.', $type));
+        }
+    }
+
+    /**
+     * Set Additional Join with a given array.
+     *
+     * @param $join
+     * @throws \RuntimeException
+     */
+    public function setJoin($join)
+    {
+        if (is_array($join) || is_null($join)) {
+            $this->join = $join;
+        } else {
+            $type = gettype($join);
+            $type = ($type != 'object')?: get_class($join);
+            throw new \RuntimeException(sprintf('Join must be an array or null. %s given.', $type));
         }
     }
 

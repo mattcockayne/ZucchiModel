@@ -12,6 +12,7 @@ namespace ZucchiModel\Behaviour;
  * Soft Delete Behaviour Trait
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Behaviour
  * @category
@@ -20,7 +21,7 @@ trait SoftDeleteTrait
 {
     /**
      * @var datetime;
-     * @Model\Type({"type" : "datetime"})
+     * @Model\Field("datetime")
      */
     public $id;
 }

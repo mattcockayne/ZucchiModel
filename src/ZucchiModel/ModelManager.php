@@ -8,12 +8,10 @@
  */
 namespace ZucchiModel;
 
-use Zend\Db\Adapter\Driver\ResultInterface;
-use Zend\Db\ResultSet\HydratingResultSet;
-
 use Zend\Code\Annotation\AnnotationManager;
 use Zend\Code\Annotation\Parser;
 use Zend\Code\Reflection\ClassReflection;
+use Zend\Db\Sql\Where;
 
 use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
@@ -21,15 +19,12 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
 
-
 use ZucchiModel\Adapter\AdapterInterface;
 use ZucchiModel\Hydrator;
 use ZucchiModel\Annotation\MetadataListener;
 use ZucchiModel\Metadata;
 use ZucchiModel\Query\Criteria;
-
-use ZucchiModel\ResultSet\UnbufferedHydratingResultSet;
-
+use ZucchiModel\ResultSet;
 
 /**
  * Model Manager for ORM
@@ -87,7 +82,7 @@ class ModelManager implements EventManagerAwareInterface
     /**
      * Construct ModelManager with supplied ZucchiModel Adapter
      *
-     * @param \ZucchiModel\Adapter\AdapterInterfacee $adapter
+     * @param AdapterInterface $adapter
      */
     public function __construct(AdapterInterface $adapter)
     {
@@ -143,6 +138,13 @@ class ModelManager implements EventManagerAwareInterface
         ));
         $metadataListener = new MetadataListener();
         $metadataListener->attach($events);
+
+        $hydrationListener = new Hydrator\HydrationListener($this);
+        $hydrationListener->attach($events);
+
+        $behaviourListener = new Behaviour\BehaviourListener($this);
+        $behaviourListener->attach($events);
+
         $this->eventManager = $events;
         return $this;
     }
@@ -244,12 +246,67 @@ class ModelManager implements EventManagerAwareInterface
      *
      * @param $model
      * @param $nameOfRelationship
+     * @param int $paginatedPageSize
+     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
+     * @throws \RuntimeException
      */
-    public function getRelationship($model, $nameOfRelationship)
+    public function getRelationship($model, $nameOfRelationship, $paginatedPageSize = 0)
     {
-        if (isset($this->modelMetadata[get_class($model)]['relationships'][$nameOfRelationship])) {
-            // lookup and return relationship;
+        if (!($classMetadata = $this->getMetadata(get_class($model)))) {
+            throw new \RuntimeException(sprintf('No Metadata found for %s.', var_export($model, true)));
+        }
 
+        if (!($relationshipMetadata = $classMetadata['relationships'][$nameOfRelationship])) {
+            throw new \RuntimeException(sprintf('No Relationship found for %s', $nameOfRelationship));
+        }
+
+        switch ($relationshipMetadata['type']) {
+            case 'toOne':
+                // Create where clause with actually value, pointed at by
+                // mappedKey, while we have access to the model.
+                $where = new Where();
+                $where->equalTo($relationshipMetadata['mappedBy'], $this->getModelProperty($model, $relationshipMetadata['mappedKey']));
+
+                // Create Criteria for query
+                $criteria = new Criteria(array(
+                    'model' => $relationshipMetadata['model'],
+                    'where' => $where
+                ));
+
+                // Find relationship
+                return $this->findOne($criteria);
+                break;
+            case 'toMany':
+                // Create where clause with actually value, pointed at by
+                // mappedKey, while we have access to the model.
+                $where = new Where();
+                $where->equalTo($relationshipMetadata['mappedBy'], $this->getModelProperty($model, $relationshipMetadata['mappedKey']));
+
+                // Create Criteria for query
+                $criteria = new Criteria(array(
+                    'model' => $relationshipMetadata['model'],
+                    'where' => $where
+                ));
+
+                // Find relationship
+                return $this->findAll($criteria, $paginatedPageSize);
+                break;
+            case 'ManytoMany':
+                // Replace mappedKey with actually value, while we have access to the
+                // model.
+                $relationshipMetadata['mappedKey'] = $model->$relationshipMetadata['mappedKey'];
+
+                // Create Criteria for query
+                $criteria = new Criteria(array(
+                    'model' => $relationshipMetadata['model'],
+                    'join' => array($relationshipMetadata),
+                ));
+
+                // Find relationship
+                return $this->findAll($criteria, $paginatedPageSize);
+                break;
+            default:
+                throw new \RuntimeException(sprintf('Invalid Relationship Type. Given %s', var_export($relationshipMetadata)));
         }
     }
 
@@ -259,11 +316,9 @@ class ModelManager implements EventManagerAwareInterface
      * @param Criteria $criteria
      * @return bool
      * @throws \RuntimeException
-     * @todo: test compound keys
      * @todo: take into account schema and table names in foreignKeys
      * @todo: store results in mapCache
-     * @todo: break out sql into its own driver(matt may change this) so we can add NoSql etc.
-     * @todo: add function with factory to new sql driver
+     * @todo: add listener for converting JSON, currency etc.
      */
     public function findOne(Criteria $criteria)
     {
@@ -288,31 +343,36 @@ class ModelManager implements EventManagerAwareInterface
         $results = $this->getAdapter()->execute($query);
 
         // Check for single result
-        if ($result = $results->current()) {
-            // Create new model
-            $model = new $model();
-
-            // Hydrate single result.
-            $hydrator = new Hydrator\ObjectProperty();
-            $hydrator->hydrate($result, $model);
-
-            // Return result
-            return $model;
+        if (!$result = $results->current()) {
+            // return false as no result found
+            return false;
         }
 
-        // Return false if nothing found
-        return false;
+        $model = new $model();
+
+        // Trigger Hydration events
+        $event = new Event('preHydrate', $model, array('data' => $result));
+        $this->getEventManager()->trigger($event);
+
+        $event->setName('hydrate');
+        $this->getEventManager()->trigger($event);
+
+        $event->setName('postHydrate');
+        $this->getEventManager()->trigger($event);
+        
+        // Return result
+        return $model;
     }
 
     /**
-     * find and return a collection of models
+     * Find and return a collection of models
      *
      * @param Criteria $criteria
-     * @param bool $bufferResult
-     * @return bool|HydratingResultSet|UnbufferedHydratingResultSet
+     * @param int $paginatedPageSize if greater than 1 then paginate results using this as Page Size
+     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
      * @throws \RuntimeException
      */
-    public function findAll(Criteria $criteria, $bufferResult = true)
+    public function findAll(Criteria $criteria, $paginatedPageSize = 0)
     {
         // Get model and check it exists
         $model = $criteria->getModel();
@@ -325,26 +385,94 @@ class ModelManager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
-            throw new \RuntimeException(sprintf('No Data Source Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Target Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
-        $query = $this->getAdapter()->buildQuery($criteria, $metadata);
+        // Check if a Paginated Result Set is wanted,
+        // else return standard Hydrating Result Set
+        if ($paginatedPageSize > 0) {
+            $resultSet = new ResultSet\PaginatedResultSet($this, $criteria, $paginatedPageSize);
+        } else {
+            $query = $this->getAdapter()->buildQuery($criteria, $metadata);
 
-        $results = $this->getAdapter()->execute($query);
+            $results = $this->getAdapter()->execute($query);
 
-        if ($results instanceof ResultInterface && $results->isQueryResult()) {
-            if ($bufferResult) {
-                $results->buffer();
-                $hydratingResultSet = new HydratingResultSet(new Hydrator\ObjectProperty, new $model);
-            } else {
-                $hydratingResultSet = new UnbufferedHydratingResultSet(new Hydrator\ObjectProperty, new $model);
+            if (!$results instanceof \Iterator) {
+                // if not an iterator then return false
+                return false;
             }
-            $hydratingResultSet->initialize($results);
 
-            return $hydratingResultSet;
+            $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
+            if (method_exists($results, 'buffer')) {
+                $results->buffer();
+            }
+            $resultSet->initialize($results);
         }
 
-        // Return false if nothing found
-        return false;
+        return $resultSet;
+    }
+
+    /**
+     * Return row count
+     *
+     * @param Criteria $criteria
+     * @return int|bool
+     * @throws \RuntimeException
+     */
+    public function countAll(Criteria $criteria)
+    {
+        // Get model and check it exists
+        $model = $criteria->getModel();
+        if (!class_exists($model)) {
+            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+        }
+
+        // Get metadata for the given model
+        $metadata = $this->getMetadata($model);
+
+        // Check dataSource and metadata exist
+        if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
+            throw new \RuntimeException(sprintf('No Target Metadata can be found for this Model. %s given.', var_export($model, true)));
+        }
+
+        // Force limit and offset to null
+        $criteria->setLimit(null);
+        $criteria->setOffset(null);
+
+        $query = $this->getAdapter()->buildCountQuery($criteria, $metadata);
+
+        $result = $this->getAdapter()->execute($query);
+
+        if ($count = $result->current()) {
+            return $count['count'];
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Get a model property, checks for
+     * unmapped properties.
+     *
+     * @param $model
+     * @param $property
+     * @return mixed the property value
+     * @throws \RuntimeException if it can not find the property
+     */
+    protected function getModelProperty($model, $property)
+    {
+        if (is_object($model)) {
+            if (property_exists($model, $property)) {
+                return $model->$property;
+            } else {
+                if (property_exists($model, 'unmappedProperties') && !empty($model->unmappedProperties[$property])) {
+                    return $model->unmappedProperties[$property];
+                }
+            }
+        }
+
+        // Can not find the property, throw error. Note false and null can not be returned instead as they can be
+        // valid values for properties.
+        throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($model, true)));
     }
 }
