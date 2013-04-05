@@ -341,6 +341,53 @@ class ZendDb extends AbstractAdapter
 
 
     /**
+     * Insert given model
+     *
+     * @param $dataSource
+     * @param $insertColumns
+     * @param $foreignKeys
+     * @param $primaryKeys
+     * @param $model
+     */
+    private function insert($dataSource, $insertColumns, $foreignKeys, &$primaryKeys, &$model)
+    {
+        $query = $this->sql->insert($dataSource);
+        $query->values($insertColumns);
+        $result = $this->execute($query);
+        if ($ids = $result->getGeneratedValue()) {
+            if (is_array($ids)) {
+                $primaryKeys[$dataSource] = $ids;
+                foreach ($ids as $key => $value) {
+                    // set model values.
+                    $this->setModelProperty($model, $key, $value);
+                }
+            } else {
+                foreach ($primaryKeys[$dataSource] as $key=>$value) {
+                    $primaryKeys[$dataSource][$key] = $ids;
+                    if (isset($foreignKeys[$dataSource]['columnReferenceMap'][$key])) {
+                        $this->setModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$key], $ids);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Update given model.
+     *
+     * @param $dataSource
+     * @param $updateColumns
+     * @param $primaryKeys
+     */
+    private function update($dataSource, $updateColumns, $primaryKeys)
+    {
+        $query = $this->sql->update($dataSource);
+        $query->set($updateColumns);
+        $query->where($primaryKeys[$dataSource]);
+        $result = $this->execute($query);
+    }
+
+    /**
      * Get Model Property
      *
      * @param $model
