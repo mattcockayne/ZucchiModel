@@ -475,4 +475,18 @@ class ModelManager implements EventManagerAwareInterface
         // valid values for properties.
         throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($model, true)));
     }
+
+    /**
+     * Persist Model to the database.
+     *
+     * @param $model
+     */
+    public function persist($model)
+    {
+        // Get metadata for the given model
+        $metadata = $this->getMetadata(get_class($model));
+
+        // Call presist on the adapter
+        $this->getAdapter()->persist($model, $metadata);
+    }
 }

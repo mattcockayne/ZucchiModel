@@ -339,6 +339,145 @@ class ZendDb extends AbstractAdapter
         return $h;
     }
 
+    /**
+     * Persist given model.
+     *
+     * @param $model
+     * @param array $metadata
+     * @throws \RuntimeException
+     */
+    public function persist($model, Array $metadata)
+    {
+        if (in_array('ZucchiModel\Behaviour\ChangeTrackingTrait', class_uses($model))) {
+            if (!$model->isChanged()) {
+                return;
+            }
+        }
+
+        // List of Data Source Names
+        $dataSources = array();
+
+        // Fields to select
+        $selectColumns = array();
+
+        // Create a look up for all the foreign keys
+        $foreignKeys = array();
+
+        $primaryKeys = array();
+
+        foreach ($metadata['metadata'] as $dataSource => $metadata) {
+            // Create list of Data Sources
+            $dataSources[] = $dataSource;
+
+            // Build up an array of all the columns and the table to write to
+            $columns = $metadata->getColumns();
+            array_walk(
+                $columns,
+                function ($column) use (&$selectColumns, $dataSource) {
+                    if (!isset($selectColumns[$column->getName()])) {
+                        $selectColumns[$column->getName()] = $dataSource;
+                    }
+                }
+            );
+
+            // Build up an array of all the Foreign Key Relationships
+            $constraints = $metadata->getConstraints();
+            array_walk(
+                $constraints,
+                function ($constraint) use (&$foreignKeys, &$primaryKeys) {
+                    switch ($constraint->getType()) {
+                        case 'FOREIGN KEY':
+                            $foreignKeys[$constraint->getReferencedTableName()] = array(
+                                'tableName' => $constraint->getTableName(),
+                                'columnReferenceMap' => array_combine($constraint->getReferencedColumns(), $constraint->getColumns()),
+                            );
+                            break;
+                        case 'PRIMARY KEY':
+                            if (!isset($primaryKeys[$constraint->getTableName()])) {
+                                $primaryKeys[$constraint->getTableName()] = array_fill_keys($constraint->getColumns(), null);
+                            } else {
+                                $primaryKeys[$constraint->getTableName()] = array_merge($primaryKeys[$constraint->getTableName()], array_fill_keys($constraint->getColumns(), null));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            );
+        }
+
+        $current = reset($dataSources);
+        $dataSources = $this->getTargetHierarchy($current, $foreignKeys);
+        $dataSources = array_reverse($dataSources, true);
+
+        foreach ($dataSources as $dataSource => $related) {
+            $columns = array_keys($selectColumns, $dataSource);
+            $updateColumns = array();
+            if (isset($primaryKeys[$dataSource])) {
+                foreach ($primaryKeys[$dataSource] as $primaryKey => $value) {
+                    if (isset($foreignKeys[$dataSource]['columnReferenceMap'][$primaryKey])) {
+                        try {
+                            $primaryKeys[$dataSource][$primaryKey] = $value = $this->getModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$primaryKey]);
+                        } catch (\RuntimeException $e) {
+                            $this->setModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$primaryKey], null);
+                            $primaryKeys[$dataSource][$primaryKey] = $value = null;
+                        }
+                    } else {
+                        try {
+                            $primaryKeys[$dataSource][$primaryKey] = $value = $this->getModelProperty($model, $primaryKey);
+                        } catch (\RuntimeException $e) {
+                            $this->setModelProperty($model, $primaryKey, null);
+                            $primaryKeys[$dataSource][$primaryKey] = $value = null;
+                        }
+                    }
+                    $updateColumns[$primaryKey] = $value;
+                }
+            } else {
+                throw new \RuntimeException(sprintf('No primary keys found for %s.', $dataSource));
+            }
+
+            foreach ($columns as $column) {
+                if (!in_array($column, $primaryKeys[$dataSource]) && $column != 'createdAt' && $column != 'updatedAt') {
+                    if (isset($foreignKeys[$dataSource]['columnReferenceMap'][$column])) {
+                        $updateColumns[$column] = $this->getModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$column]);
+                    } else {
+                        $updateColumns[$column] = $this->getModelProperty($model, $column);
+                    }
+                }
+            }
+
+            if (array_search(null, $primaryKeys[$dataSource])) {
+                // insert
+                $this->insert($dataSource, $updateColumns, $foreignKeys, $primaryKeys, $model);
+            } else {
+                if (in_array('ZucchiModel\Behaviour\ChangeTrackingTrait', class_uses($model))) {
+                    $changes = $model->getChanges();
+                    if (array_keys($changes, array_keys($primaryKeys[$dataSource]))) {
+                        //insert
+                        $this->insert($dataSource, $updateColumns, $foreignKeys, $primaryKeys, $model);
+                        //delete?
+                    } else {
+                        //update
+                        $this->update($dataSource, $updateColumns, $primaryKeys);
+                    }
+                } else {
+                    //select
+                    $select = $this->sql->select($dataSource);
+                    $select->columns(array('count' => new Expression('COUNT(*)')));
+                    $select->where($primaryKeys[$dataSource]);
+                    $result = $this->execute($select);
+                    if ($count = $result->current()) {
+                        if ($count['count'] > 0) {
+                            //update
+                            $this->update($dataSource, $updateColumns, $primaryKeys);
+                        }
+                    }
+                    //insert
+                    $this->insert($dataSource, $updateColumns, $foreignKeys, $primaryKeys, $model);
+                }
+            }
+        }
+    }
 
     /**
      * Insert given model
