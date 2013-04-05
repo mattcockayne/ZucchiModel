@@ -144,6 +144,9 @@ class ZendDb extends AbstractAdapter
             $select->columns($columns);
         }
 
+        $dataSources = array_keys($this->getTargetHierarchy($from, $foreignKeys));
+        array_shift($dataSources);
+
         // Get array of any joins
         $joins = $this->determineJoins($dataSources, $from, $selectColumns, $foreignKeys);
 
