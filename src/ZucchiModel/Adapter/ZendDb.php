@@ -316,4 +316,24 @@ class ZendDb extends AbstractAdapter
 
         return $joins;
     }
+
+    /**
+     * Get full Target Hierarchy
+     * 
+     * @param $current
+     * @param $foreignKeys
+     * @return array
+     */
+    public function getTargetHierarchy($current, $foreignKeys) {
+        $h = array();
+        foreach ($foreignKeys as $fkTable => $fk) {
+            if ($fk['tableName'] == $current) {
+                $h[$current][] = $fkTable;
+                $h[$fkTable] = array();
+                $h = array_merge($h, $this->getTargetHierarchy($fkTable, $foreignKeys));
+            }
+        }
+        return $h;
+    }
+
 }
