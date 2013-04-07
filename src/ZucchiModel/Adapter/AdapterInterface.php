@@ -10,6 +10,7 @@
 namespace ZucchiModel\Adapter;
 
 use ZucchiModel\Query\Criteria;
+use ZucchiModel\Persistence\Container;
 
 /**
  * AdapterInterface
@@ -48,4 +49,11 @@ interface AdapterInterface
      * @return mixed
      */
     public function execute($query);
+
+    /**
+     * Method to write models from container to database
+     * @param Container $container
+     * @return mixed
+     */
+    public function write(Container $container);
 }

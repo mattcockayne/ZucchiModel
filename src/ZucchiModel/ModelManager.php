@@ -23,6 +23,7 @@ use ZucchiModel\Adapter\AdapterInterface;
 use ZucchiModel\Hydrator;
 use ZucchiModel\Annotation\MetadataListener;
 use ZucchiModel\Metadata;
+use ZucchiModel\Persistence;
 use ZucchiModel\Query\Criteria;
 use ZucchiModel\ResultSet;
 
@@ -67,6 +68,8 @@ class ModelManager implements EventManagerAwareInterface
      * @var array
      */
     protected $modelMetadata = array();
+
+    protected $persistenceContainer;
 
     /**
      * Collection of know Annotations related to ModelManager
@@ -483,10 +486,42 @@ class ModelManager implements EventManagerAwareInterface
      */
     public function persist($model)
     {
-        // Get metadata for the given model
-        $metadata = $this->getMetadata(get_class($model));
+        if (!$this->persistenceContainer) {
+            $this->persistenceContainer = new Persistence\Container();
+        }
 
-        // Call presist on the adapter
-        $this->getAdapter()->persist($model, $metadata);
+        // if container doe not already have a reference to the model
+        if (!$this->persistenceContainer->contains($model)) {
+
+            // Get metadata for the given model
+            $metadata = $this->getMetadata(get_class($model));
+
+            // Trigger Persistence events for behaviours
+            $event = new Event('prePersist', $this->persistenceContainer, array(
+                'model' => $model,
+                'metadata' => $metadata,
+            ));
+            $this->getEventManager()->trigger($event);
+
+            $this->persistenceContainer->attach($model, $metadata);
+
+            $event->setName('postPersist');
+            $this->getEventManager()->trigger($event);
+
+        }
+    }
+
+    /**
+     * Write persisted models to dataSource
+     */
+    public function write()
+    {
+        if ($this->persistenceContainer instanceof Persistence\Container) {
+            $this->getAdapter()->write($this->persistenceContainer);
+        }
+
+        // clean out Persistence Container
+        $this->persistenceContainer = null;
+        $this->persistenceContainer = new Persistence\Container();
     }
 }
