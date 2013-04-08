@@ -110,6 +110,7 @@ class ModelManager implements EventManagerAwareInterface
      */
     public function setAdapter(AdapterInterface $adapter)
     {
+        $adapter->setEventManager($this->getEventManager());
         $this->adapter = $adapter;
         return $this;
     }
@@ -480,7 +481,7 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * Persist Model to the database.
+     * Add model to persistenceContainer for later writing to datasource
      *
      * @param $model
      */
@@ -521,7 +522,7 @@ class ModelManager implements EventManagerAwareInterface
         }
 
         // clean out Persistence Container
+        unset($this->persistenceContainer);
         $this->persistenceContainer = null;
-        $this->persistenceContainer = new Persistence\Container();
     }
 }

@@ -9,6 +9,8 @@
 
 namespace ZucchiModel\Adapter;
 
+use Zucchi\Event\EventProviderTrait;
+
 /**
  * AbstractAdapter
  *
@@ -17,11 +19,13 @@ namespace ZucchiModel\Adapter;
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel\Adapter
- * @subpackage 
- * @category 
+ * @subpackage
+ * @category
  */
 abstract class AbstractAdapter implements AdapterInterface
 {
+    use EventProviderTrait;
+
     /**
      * The Adapter/interface for the db i.e. Zend\Db\AdapterAbstract | MongoClient
      *

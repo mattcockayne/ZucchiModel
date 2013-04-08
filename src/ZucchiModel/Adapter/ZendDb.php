@@ -11,7 +11,9 @@ namespace ZucchiModel\Adapter;
 
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
+use Zend\EventManager\EventManager;
 use ZucchiModel\Query\Criteria;
+use ZucchiModel\Persistence;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
@@ -55,6 +57,7 @@ class ZendDb extends AbstractAdapter
     public function setDataSource($dataSource)
     {
         $this->sql = new Sql($dataSource);
+
         return parent::setDataSource($dataSource);
     }
 
@@ -350,7 +353,7 @@ class ZendDb extends AbstractAdapter
     {
         if (in_array('ZucchiModel\Behaviour\ChangeTrackingTrait', class_uses($model))) {
             if (!$model->isChanged()) {
-                return;
+                return false;
             }
         }
 
@@ -570,5 +573,40 @@ class ZendDb extends AbstractAdapter
         } else {
             throw new \RuntimeException(sprintf('Model is not an object. Given %s.', var_export($model, true)));
         }
+    }
+
+    public function write(Persistence\Container $container)
+    {
+        $em = $this->getEventManager();
+
+        $container->rewind();
+        while($container->valid()) {
+            $model = $container->current();
+            $metadata = $container->getInfo();
+
+            // Trigger Write events for validation and manipulation
+            $event = new Event('preWrite', $model, array(
+                'metadata' => $metadata,
+                'adapter' => $this,
+            ));
+            $preWriteResult = $this->getEventManager()->trigger($event);
+
+
+            // if stopped assume failed validation of some sort
+            if ($preWriteResult->stopped()) {
+                // ??? throw something
+            }
+
+            // @todo: write model to db
+
+
+            $event->setName('postWrite');
+            $this->getEventManager()->trigger($event);
+
+            $container->detach($model);
+            $container->next();
+        }
+
+
     }
 }
