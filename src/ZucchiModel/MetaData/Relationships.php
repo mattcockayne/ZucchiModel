@@ -22,5 +22,16 @@ use Zend\Stdlib\ArrayObject;
  */
 class Relationships extends ArrayObject
 {
+    public function getRelationship($relationship)
+    {
+        return $this->offsetGet($relationship);
+    }
 
+    public function getType($relationship)
+    {
+        if ($relationship = $this->getRelationship($relationship)) {
+            return $relationship['type'];
+        }
+        return false;
+    }
 }

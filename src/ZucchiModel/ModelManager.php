@@ -11,7 +11,6 @@ namespace ZucchiModel;
 use Zend\Code\Annotation\AnnotationManager;
 use Zend\Code\Annotation\Parser;
 use Zend\Code\Reflection\ClassReflection;
-use Zend\Db\Sql\Where;
 
 use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
@@ -192,38 +191,28 @@ class ModelManager implements EventManagerAwareInterface
     {
         if (!array_key_exists($class, $this->modelMetadata)) {
             // Add class to cache
-            $this->modelMetadata[$class] = array();
+            $this->modelMetadata[$class] = $md = new Metadata\MetaDataContainer();
 
             // Get the Model's Annotations
             $reflection  = new ClassReflection($class);
             $am = $this->getAnnotationManager();
             $em = $this->getEventManager();
 
-            $model = new Metadata\Model();
-            $relationships = new Metadata\Relationships();
-            $fields = new Metadata\Fields();
-
             // Find all the Model Metadata
             if ($annotations = $reflection->getAnnotations($am)) {
                 $event = new Event();
                 $event->setName('prepareModelMetadata');
                 $event->setTarget($annotations);
-                $event->setParam('model', $model);
-                $event->setParam('relationships', $relationships);
+                $event->setParam('model', $md->getModel());
+                $event->setParam('relationships', $md->getRelationships());
                 $em->trigger($event);
             }
-
-            // Cache Model Metadata
-            $this->modelMetadata[$class]['model'] = $model;
-
-            // Cache Relationships Metadata
-            $this->modelMetadata[$class]['relationships'] = $relationships;
 
             // Find all the Fields Metadata
             if ($properties = $reflection->getProperties()) {
                 $event = new Event();
                 $event->setName('prepareFieldMetadata');
-                $event->setTarget($fields);
+                $event->setTarget($md->getFields());
                 foreach ($properties as $property) {
                     if ($annotation = $property->getAnnotations($am)) {
                         $event->setParam('property', $property->getName());
@@ -233,12 +222,9 @@ class ModelManager implements EventManagerAwareInterface
                 }
             }
 
-            // Cache Fields Metadata
-            $this->modelMetadata[$class]['fields'] = $fields;
-
             // Check for Data Sources and get their Table Name
-            if (isset($model['target']) && !empty($model['target'])){
-                $this->modelMetadata[$class]['metadata'] = $this->getAdapter()->getMetaData($model['target']);
+            if ($target = $md->getModel()->getTarget()) {
+                $md->setAdapter($this->getAdapter()->getMetaData($target));
             }
         }
 
@@ -249,69 +235,35 @@ class ModelManager implements EventManagerAwareInterface
      * Get Relationships
      *
      * @param $model
-     * @param $nameOfRelationship
+     * @param $relationship
      * @param int $paginatedPageSize
      * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
-     * @throws \RuntimeException
      */
-    public function getRelationship($model, $nameOfRelationship, $paginatedPageSize = 0)
+    public function getRelationship($model, $relationship, $paginatedPageSize = 0)
     {
-        if (!($classMetadata = $this->getMetadata(get_class($model)))) {
-            throw new \RuntimeException(sprintf('No Metadata found for %s.', var_export($model, true)));
-        }
+        $metadata = $this->getMetadata(get_class($model));
+        $relationship = $metadata->getRelationships()->getRelationship($relationship);
 
-        if (!($relationshipMetadata = $classMetadata['relationships'][$nameOfRelationship])) {
-            throw new \RuntimeException(sprintf('No Relationship found for %s', $nameOfRelationship));
-        }
+        $criteria = new Criteria(array(
+            'model' => $relationship['model'],
+        ));
+        $criteria = $metadata->getAdapter()->addRelationship(
+            $model,
+            $criteria,
+            $relationship
+        );
 
-        switch ($relationshipMetadata['type']) {
+        switch ($relationship['type']) {
             case 'toOne':
-                // Create where clause with actually value, pointed at by
-                // mappedKey, while we have access to the model.
-                $where = new Where();
-                $where->equalTo($relationshipMetadata['mappedBy'], $this->getModelProperty($model, $relationshipMetadata['mappedKey']));
-
-                // Create Criteria for query
-                $criteria = new Criteria(array(
-                    'model' => $relationshipMetadata['model'],
-                    'where' => $where
-                ));
-
-                // Find relationship
                 return $this->findOne($criteria);
                 break;
             case 'toMany':
-                // Create where clause with actually value, pointed at by
-                // mappedKey, while we have access to the model.
-                $where = new Where();
-                $where->equalTo($relationshipMetadata['mappedBy'], $this->getModelProperty($model, $relationshipMetadata['mappedKey']));
-
-                // Create Criteria for query
-                $criteria = new Criteria(array(
-                    'model' => $relationshipMetadata['model'],
-                    'where' => $where
-                ));
-
-                // Find relationship
-                return $this->findAll($criteria, $paginatedPageSize);
-                break;
             case 'ManytoMany':
-                // Replace mappedKey with actually value, while we have access to the
-                // model.
-                $relationshipMetadata['mappedKey'] = $model->$relationshipMetadata['mappedKey'];
-
-                // Create Criteria for query
-                $criteria = new Criteria(array(
-                    'model' => $relationshipMetadata['model'],
-                    'join' => array($relationshipMetadata),
-                ));
-
-                // Find relationship
                 return $this->findAll($criteria, $paginatedPageSize);
                 break;
-            default:
-                throw new \RuntimeException(sprintf('Invalid Relationship Type. Given %s', var_export($relationshipMetadata)));
         }
+
+        return false;
     }
 
     /**
@@ -336,7 +288,7 @@ class ModelManager implements EventManagerAwareInterface
         $metadata = $this->getMetadata($model);
 
         // Check dataSource and metadata exist
-        if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
+        if (!$metadata->getAdapter()) {
             throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
@@ -380,6 +332,7 @@ class ModelManager implements EventManagerAwareInterface
     {
         // Get model and check it exists
         $model = $criteria->getModel();
+
         if (!class_exists($model)) {
             throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
         }
@@ -388,8 +341,8 @@ class ModelManager implements EventManagerAwareInterface
         $metadata = $this->getMetadata($model);
 
         // Check dataSource and metadata exist
-        if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
-            throw new \RuntimeException(sprintf('No Target Metadata can be found for this Model. %s given.', var_export($model, true)));
+        if (!$metadata->getAdapter()) {
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
         // Check if a Paginated Result Set is wanted,
@@ -427,6 +380,7 @@ class ModelManager implements EventManagerAwareInterface
     {
         // Get model and check it exists
         $model = $criteria->getModel();
+
         if (!class_exists($model)) {
             throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
         }
@@ -435,8 +389,8 @@ class ModelManager implements EventManagerAwareInterface
         $metadata = $this->getMetadata($model);
 
         // Check dataSource and metadata exist
-        if (!isset($metadata['metadata']) || empty($metadata['metadata'])) {
-            throw new \RuntimeException(sprintf('No Target Metadata can be found for this Model. %s given.', var_export($model, true)));
+        if (!$metadata->getAdapter()) {
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
         }
 
         // Force limit and offset to null
@@ -452,32 +406,6 @@ class ModelManager implements EventManagerAwareInterface
         } else {
             return false;
         }
-    }
-
-    /**
-     * Get a model property, checks for
-     * unmapped properties.
-     *
-     * @param $model
-     * @param $property
-     * @return mixed the property value
-     * @throws \RuntimeException if it can not find the property
-     */
-    protected function getModelProperty($model, $property)
-    {
-        if (is_object($model)) {
-            if (property_exists($model, $property)) {
-                return $model->$property;
-            } else {
-                if (property_exists($model, 'unmappedProperties') && !empty($model->unmappedProperties[$property])) {
-                    return $model->unmappedProperties[$property];
-                }
-            }
-        }
-
-        // Can not find the property, throw error. Note false and null can not be returned instead as they can be
-        // valid values for properties.
-        throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($model, true)));
     }
 
     /**

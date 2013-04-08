@@ -41,7 +41,17 @@ class MetaDataContainer
     /**
      * @var Adapter\AdapterInterface
      */
-    protected $adapter;
+    protected $adapter = null;
+
+    /**
+     * Instantiate default meta data containers
+     */
+    public function __construct()
+    {
+        $this->setFields(new Fields());
+        $this->setRelationships(new Relationships());
+        $this->setModel(new Model());
+    }
 
     /**
      * @param Adapter\AdapterInterface $adapter

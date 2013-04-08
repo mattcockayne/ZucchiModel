@@ -20,5 +20,13 @@ use Zend\Stdlib\ArrayObject;
  */
 class Model extends ArrayObject
 {
+    public function getTarget()
+    {
+        if ($this->offsetExists('target')) {
+            return $this->offsetGet('target');
+        }
+        return false;
+    }
+
 
 }

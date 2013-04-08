@@ -18,17 +18,7 @@ use Zend\Stdlib\ArrayObject;
  * @subpackage MetaData
  * @category
  */
-abstract class Adapter extends ArrayObject implements AdapterInterface
+abstract class AbstractAdapter extends ArrayObject implements AdapterInterface
 {
-    protected $metaData;
 
-    public function setMetaData($metaData)
-    {
-        $this->metaData = $metaData;
-    }
-
-    public function getMetaData()
-    {
-        return $this->metaData;
-    }
 }

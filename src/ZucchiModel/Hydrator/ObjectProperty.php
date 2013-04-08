@@ -43,10 +43,27 @@ class ObjectProperty extends PropertyHydrator
 
         $populated = array();
         $unmappedProperties = array();
+
+        $object->getProperty = function($property) {
+            if (property_exists($this, $property)) {
+                return $this->$property;
+            } else {
+                if (property_exists($this, 'unmappedProperties') && !empty($this->unmappedProperties[$property])) {
+                    return $this->unmappedProperties[$property];
+                }
+            }
+            // Can not find the property, throw error. Note false and null can not be returned instead as they can be
+            // valid values for properties.
+            throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($this, true)));
+        };
+        Closure::bind($object->getUnmappedProperty, $object);
+
+
         foreach ($data as $property => $value) {
             // Check property to stop misc data being mapped to the Model.
             // Instead this data is stored in a key value pair array called
             // unmappedProperties.
+
             if (property_exists($object, $property) && !in_array($property, $populated)) {
                 $object->$property = $this->hydrateValue($property, $value);
                 $populated[] = $property;

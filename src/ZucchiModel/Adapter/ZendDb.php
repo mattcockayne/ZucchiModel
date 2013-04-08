@@ -11,12 +11,14 @@ namespace ZucchiModel\Adapter;
 
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
-use Zend\EventManager\EventManager;
+use ZucchiModel\Metadata\MetaDataContainer;
 use ZucchiModel\Query\Criteria;
 use ZucchiModel\Persistence;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
+
+use ZucchiModel\Metadata\Adapter\ZendDb as AdapterMetadata;
 
 /**
  * ZendDb
@@ -82,17 +84,20 @@ class ZendDb extends AbstractAdapter
             throw new \RuntimeException(sprintf('Data Source mapping not found for %s.', var_export($tables, true)));
         }
 
-        return $metadata;
+        $adapterMetadata = new AdapterMetadata();
+        $adapterMetadata->exchangeArray($metadata);
+
+        return $adapterMetadata;
     }
 
     /**
      * Build and return query object from criteria
      *
      * @param Criteria $criteria
-     * @param array $metadata
-     * @return mixed|\Zend\Db\Sql\Select
+     * @param MetaDataContainer $metadata
+     * @return \Zend\Db\Sql\Select
      */
-    public function buildQuery(Criteria $criteria, Array $metadata)
+    public function buildQuery(Criteria $criteria, MetaDataContainer $metadata)
     {
         // List of Data Source Names
         $dataSources = array();
@@ -103,12 +108,12 @@ class ZendDb extends AbstractAdapter
         // Create a look up for all the foreign keys
         $foreignKeys = array();
 
-        foreach ($metadata['metadata'] as $dataSource => $metadata) {
+        foreach ($metadata->getAdapter() as $dataSource => $targetMetadata) {
             // Create list of Data Sources
             $dataSources[] = $dataSource;
 
             // Build up an array of all the Columns to select
-            $columns = $metadata->getColumns();
+            $columns = $targetMetadata->getColumns();
             array_walk(
                 $columns,
                 function ($column) use (&$selectColumns, $dataSource) {
@@ -119,7 +124,7 @@ class ZendDb extends AbstractAdapter
             );
 
             // Build up an array of all the Foreign Key Relationships
-            $constraints = $metadata->getConstraints();
+            $constraints = $targetMetadata->getConstraints();
             array_walk(
                 $constraints,
                 function ($constraint) use (&$foreignKeys) {
@@ -368,12 +373,12 @@ class ZendDb extends AbstractAdapter
 
         $primaryKeys = array();
 
-        foreach ($metadata['metadata'] as $dataSource => $metadata) {
+        foreach ($metadata->getAdapter() as $dataSource => $targetMetadata) {
             // Create list of Data Sources
             $dataSources[] = $dataSource;
 
             // Build up an array of all the columns and the table to write to
-            $columns = $metadata->getColumns();
+            $columns = $targetMetadata->getColumns();
             array_walk(
                 $columns,
                 function ($column) use (&$selectColumns, $dataSource) {
@@ -384,7 +389,7 @@ class ZendDb extends AbstractAdapter
             );
 
             // Build up an array of all the Foreign Key Relationships
-            $constraints = $metadata->getConstraints();
+            $constraints = $targetMetadata->getConstraints();
             array_walk(
                 $constraints,
                 function ($constraint) use (&$foreignKeys, &$primaryKeys) {
