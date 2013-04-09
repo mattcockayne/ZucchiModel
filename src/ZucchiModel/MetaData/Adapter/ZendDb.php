@@ -18,6 +18,7 @@ use ZucchiModel\Query\Criteria;
  * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Metadata
  * @category
@@ -169,5 +170,82 @@ class ZendDb extends AbstractAdapter
         }
 
         return $hierarchy;
+    }
+
+    /**
+     * Prepare data, and set columnMap, constraints,
+     * hierarchy and targets.
+     *
+     * @param $data
+     * @return $this
+     */
+    public function prepare($data)
+    {
+        $this->exchangeArray($data);
+
+        $columnMap = array();
+        $primary = array();
+        $foreign = array();
+        $unique = array();
+        $dataSources = array();
+        $iterator = $this->getIterator();
+
+        $iterator->rewind();
+
+        while ($iterator->valid()) {
+            $dataSource = $iterator->key();
+            $dataSources[] = $dataSource;
+            $targetMetadata = $iterator->current();
+
+            // Build up an array of all the Foreign Key Relationships
+            $constraints = $targetMetadata->getConstraints();
+
+            // Build up an array of all the Columns to select from or write to
+            $columns = $targetMetadata->getColumns();
+            array_walk(
+                $columns,
+                function ($column) use (&$columnMap, $dataSource) {
+                    if (!isset($columnMap[$column->getName()])) {
+                        $columnMap[$column->getName()] = $dataSource;
+                    }
+                }
+            );
+
+            array_walk(
+                $constraints,
+                function ($constraint) use (&$foreign, &$primary) {
+                    switch ($constraint->getType()) {
+                        case 'FOREIGN KEY':
+                            $foreign[$constraint->getReferencedTableName()] = array(
+                                'tableName' => $constraint->getTableName(),
+                                'columnReferenceMap' => array_combine($constraint->getReferencedColumns(), $constraint->getColumns()),
+                            );
+                            break;
+                        case 'PRIMARY KEY':
+                            if (!isset($primary[$constraint->getTableName()])) {
+                                $primary[$constraint->getTableName()] = array_fill_keys($constraint->getColumns(), null);
+                            } else {
+                                $primary[$constraint->getTableName()] = array_merge($primary[$constraint->getTableName()], array_fill_keys($constraint->getColumns(), null));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            );
+            $iterator->next();
+        }
+        $this->constraints = array(
+            'primary' => $primary,
+            'foreign' => $foreign,
+            'unique' => $unique,
+        );
+
+        $this->columnMap = $columnMap;
+        $this->targets = $dataSources;
+        $target = array_shift($dataSources);
+        $this->hierarchy = $this->getTargetHierarchy($target, $foreign);
+
+        return $this;
     }
 }
