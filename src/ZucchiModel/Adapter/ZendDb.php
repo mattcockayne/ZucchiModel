@@ -426,28 +426,32 @@ class ZendDb extends AbstractAdapter
      * Insert given model
      *
      * @param $dataSource
-     * @param $insertColumns
-     * @param $foreignKeys
-     * @param $primaryKeys
+     * @param $columnMap
+     * @param $foreign
+     * @param $primary
      * @param $model
      */
-    private function insert($dataSource, $insertColumns, $foreignKeys, &$primaryKeys, &$model)
+    private function insert($dataSource, $columnMap, $foreign, &$primary, &$model)
     {
+        if (property_exists($model, 'setProperty')) {
+            $setProperty = $model->setProperty;
+        }
+
         $query = $this->sql->insert($dataSource);
-        $query->values($insertColumns);
+        $query->values($columnMap);
         $result = $this->execute($query);
         if ($ids = $result->getGeneratedValue()) {
             if (is_array($ids)) {
-                $primaryKeys[$dataSource] = $ids;
+                $primary[$dataSource] = $ids;
                 foreach ($ids as $key => $value) {
                     // set model values.
-                    $this->setModelProperty($model, $key, $value);
+                    $setProperty($key, $value);
                 }
             } else {
-                foreach ($primaryKeys[$dataSource] as $key=>$value) {
+                foreach ($primary[$dataSource] as $key=>$value) {
                     $primaryKeys[$dataSource][$key] = $ids;
-                    if (isset($foreignKeys[$dataSource]['columnReferenceMap'][$key])) {
-                        $this->setModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$key], $ids);
+                    if (isset($foreign[$dataSource]['columnReferenceMap'][$key])) {
+                        $setProperty($foreign[$dataSource]['columnReferenceMap'][$key], $ids);
                     }
                 }
             }
