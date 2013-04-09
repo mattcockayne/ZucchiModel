@@ -107,53 +107,17 @@ class ZendDb extends AbstractAdapter
      * @param string|null $type
      * @return array|bool
      */
-    public function getConstraints($target, $type = null)
+    public function getConstraints($type = null)
     {
-        if (!isset($this->constraints[$target])) {
-
-            $tableMetadata = $this->offsetGet($target);
-
-            $primary = array();
-            $foreign = array();
-            $unique = array();
-
-            // Build up an array of all the Foreign Key Relationships
-            $constraints = $tableMetadata->getConstraints();
-            array_walk(
-                $constraints,
-                function ($constraint) use (&$foreign, &$primary, &$unique) {
-                    switch ($constraint->getType()) {
-                        case 'FOREIGN KEY':
-                            $foreign[$constraint->getReferencedTableName()] = array(
-                                'tableName' => $constraint->getTableName(),
-                                'columnReferenceMap' => array_combine($constraint->getReferencedColumns(), $constraint->getColumns()),
-                            );
-                            break;
-                        case 'PRIMARY KEY':
-                            if (!isset($primary[$constraint->getTableName()])) {
-                                $primary[$constraint->getTableName()] = array_fill_keys($constraint->getColumns(), null);
-                            } else {
-                                $primary[$constraint->getTableName()] = array_merge($primary[$constraint->getTableName()], array_fill_keys($constraint->getColumns(), null));
-                            }
-                            break;
-                        case 'UNIQUE':
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            );
-            $this->constraints[$target] = array(
-                'primary' => $primary,
-                'foreign' => $foreign,
-                'unique' => $unique,
-            );
+        if (!empty($this->constraints)) {
+            if (!$type) {
+                return $this->constraints;
+            } else {
+                return $this->constraints[$type];
+            }
         }
 
-        if ($type) {
-            return $this->constraints[$target][$type];
-        }
-        return $this->constraints;
+        return false;
     }
 
     /**
