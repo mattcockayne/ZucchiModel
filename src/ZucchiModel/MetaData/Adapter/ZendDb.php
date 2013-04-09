@@ -162,10 +162,10 @@ class ZendDb extends AbstractAdapter
     {
         $hierarchy = array();
         foreach ($foreignKeys as $foreignKeyTable => $foreignKey) {
-            if ($foreignKey['tableName'] == $currentTable) {
-                $hierarchy[$currentTable][] = $foreignKeyTable;
-                $hierarchy[$foreignKeyTable] = array();
-                $hierarchy = array_merge($hierarchy, $this->getTargetHierarchy($foreignKeyTable, $foreignKeys));
+            if ($foreignKeyTable == $currentTable) {
+                $hierarchy[$currentTable][] = $foreignKey['tableTo'];
+                $hierarchy[$foreignKey['tableTo']] = array();
+                $hierarchy = array_merge($hierarchy, $this->getTargetHierarchy($foreignKey['tableTo'], $foreignKeys));
             }
         }
 
