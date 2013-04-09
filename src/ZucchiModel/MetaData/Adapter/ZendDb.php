@@ -41,6 +41,13 @@ class ZendDb extends AbstractAdapter
     protected $hierarchy = array();
 
     /**
+     * List of all the targets
+     *
+     * @var array
+     */
+    protected $targets = array();
+
+    /**
      * @param $model
      * @param Criteria $criteria
      * @param array $relationship
@@ -138,6 +145,21 @@ class ZendDb extends AbstractAdapter
             return $this->constraints[$target][$type];
         }
         return $this->constraints;
+    }
+
+    /**
+     * Return list of all the targets.
+     * False if not are set.
+     *
+     * @return array|bool
+     */
+    public function getTargets()
+    {
+        if (!empty($this->targets)) {
+            return $this->targets;
+        }
+
+        return false;
     }
 
     /**
