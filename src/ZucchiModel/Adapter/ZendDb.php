@@ -199,13 +199,13 @@ class ZendDb extends AbstractAdapter
      *
      * @param $dataSources
      * @param $from
-     * @param $selectColumns
-     * @param $foreignKeys
+     * @param $columnMap
+     * @param $foreign
      * @return array
      * @throws \RuntimeException
      * @todo: add select column lookup on where
      */
-    protected function determineJoins($dataSources, $from, $selectColumns, $foreignKeys)
+    protected function determineJoins($dataSources, $from, $columnMap, $foreign)
     {
         // Create lookup to match Table name to alias
         $tableNameLookup = array($from => 0);
@@ -216,17 +216,17 @@ class ZendDb extends AbstractAdapter
         // Building Join references
         foreach ($dataSources as $referencedTableName) {
             // Make sure required Metadata is present
-            if (empty($foreignKeys[$referencedTableName]['tableName']) ||
-                empty($foreignKeys[$referencedTableName]['columns']) ||
-                empty($foreignKeys[$referencedTableName]['referencedColumns']) ||
-                (count($foreignKeys[$referencedTableName]['columns']) != count($foreignKeys[$referencedTableName]['referencedColumns']))
+            if (empty($foreign[$referencedTableName]['tableName']) ||
+                empty($foreign[$referencedTableName]['columns']) ||
+                empty($foreign[$referencedTableName]['referencedColumns']) ||
+                (count($foreign[$referencedTableName]['columns']) != count($foreign[$referencedTableName]['referencedColumns']))
             ) {
                 throw new \RuntimeException(sprintf('Invalid Foreign Key Metadata defined for %s.', $referencedTableName));
             }
 
-            $tableName = $foreignKeys[$referencedTableName]['tableName'];
-            $columns = $foreignKeys[$referencedTableName]['columns'];
-            $referencedColumns = $foreignKeys[$referencedTableName]['referencedColumns'];
+            $tableName = $foreign[$referencedTableName]['tableName'];
+            $columns = $foreign[$referencedTableName]['columns'];
+            $referencedColumns = $foreign[$referencedTableName]['referencedColumns'];
 
             // If not used before add table to temporary lookup
             if (!isset($tableNameLookup[$tableName])) {
@@ -247,7 +247,7 @@ class ZendDb extends AbstractAdapter
             }
 
             // Find all columns to "select" for this join
-            $columns = array_keys($selectColumns, $referencedTableName);
+            $columns = array_keys($columnMap, $referencedTableName);
 
             // Setting join reference
             $joins[$tableTo] = array(
