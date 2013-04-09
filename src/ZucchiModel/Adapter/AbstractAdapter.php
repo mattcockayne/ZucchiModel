@@ -7,7 +7,7 @@
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
 
-namespace ZucchiModel\MetaAdapter;
+namespace ZucchiModel\Adapter;
 
 use Zucchi\Event\EventProviderTrait;
 
