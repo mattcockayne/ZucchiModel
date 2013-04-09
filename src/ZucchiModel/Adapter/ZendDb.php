@@ -165,10 +165,10 @@ class ZendDb extends AbstractAdapter
      * Build and return a count query object from criteria
      *
      * @param Criteria $criteria
-     * @param array $metadata
+     * @param MetaDataContainer $metadata
      * @return \Zend\Db\Sql\Select
      */
-    public function buildCountQuery(Criteria $criteria, Array $metadata)
+    public function buildCountQuery(Criteria $criteria, MetaDataContainer $metadata)
     {
         // Create normal Select Query object
         $select = $this->buildQuery($criteria, $metadata);
