@@ -99,45 +99,14 @@ class ZendDb extends AbstractAdapter
      */
     public function buildQuery(Criteria $criteria, MetaDataContainer $metadata)
     {
-        // List of Data Source Names
-        $dataSources = array();
+        // Create a look up for all the foreign keys
+        $foreign = $metadata->getAdapter()->getConstraints('foreign');
 
         // Fields to select
-        $selectColumns = array();
+        $columnMap = $metadata->getAdapter()->getColumnMap();
 
-        // Create a look up for all the foreign keys
-        $foreignKeys = array();
-
-        foreach ($metadata->getAdapter() as $dataSource => $targetMetadata) {
-            // Create list of Data Sources
-            $dataSources[] = $dataSource;
-
-            // Build up an array of all the Columns to select
-            $columns = $targetMetadata->getColumns();
-            array_walk(
-                $columns,
-                function ($column) use (&$selectColumns, $dataSource) {
-                    if (!isset($selectColumns[$column->getName()])) {
-                        $selectColumns[$column->getName()] = $dataSource;
-                    }
-                }
-            );
-
-            // Build up an array of all the Foreign Key Relationships
-            $constraints = $targetMetadata->getConstraints();
-            array_walk(
-                $constraints,
-                function ($constraint) use (&$foreignKeys) {
-                    if ('FOREIGN KEY' == $constraint->getType()) {
-                        $foreignKeys[$constraint->getReferencedTableName()] = array(
-                            'tableName' => $constraint->getTableName(),
-                            'columns' => $constraint->getColumns(),
-                            'referencedColumns' => $constraint->getReferencedColumns()
-                        );
-                    }
-                }
-            );
-        }
+        // List of Data Source Names
+        $dataSources = $metadata->getAdapter()->getTargets();
 
         // Get the first Data Source which will be the From Table
         $from = array_shift($dataSources);
@@ -147,16 +116,16 @@ class ZendDb extends AbstractAdapter
 
         // Set form Table and Columns if present
         $select->from(array('t0' => $from));
-        $columns = array_keys($selectColumns, $from);
+        $columns = array_keys($columnMap, $from);
         if (!empty($columns)) {
             $select->columns($columns);
         }
 
-        $dataSources = array_keys($this->getTargetHierarchy($from, $foreignKeys));
+        $dataSources = $metadata->getAdapter()->getHierarchy();
         array_shift($dataSources);
 
         // Get array of any joins
-        $joins = $this->determineJoins($dataSources, $from, $selectColumns, $foreignKeys);
+        $joins = $this->determineJoins($dataSources, $from, $columnMap, $foreign);
 
         // Add any additional joins to join array
         $joins = array_merge($joins, $this->determineAdditionalJoins($criteria));
