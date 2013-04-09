@@ -121,8 +121,8 @@ class ZendDb extends AbstractAdapter
             $select->columns($columns);
         }
 
-        $dataSources = $metadata->getAdapter()->getHierarchy();
-        array_shift($dataSources);
+        $dataSources = array_keys($metadata->getAdapter()->getHierarchy());
+        array_pop($dataSources);
 
         // Get array of any joins
         $joins = $this->determineJoins($dataSources, $from, $columnMap, $foreign);
@@ -214,44 +214,42 @@ class ZendDb extends AbstractAdapter
         $joins = array();
 
         // Building Join references
-        foreach ($dataSources as $referencedTableName) {
+        foreach ($dataSources as $tableFromName) {
             // Make sure required Metadata is present
-            if (empty($foreign[$referencedTableName]['tableName']) ||
-                empty($foreign[$referencedTableName]['columns']) ||
-                empty($foreign[$referencedTableName]['referencedColumns']) ||
-                (count($foreign[$referencedTableName]['columns']) != count($foreign[$referencedTableName]['referencedColumns']))
+            if (empty($foreign[$tableFromName]['tableTo']) ||
+                empty($foreign[$tableFromName]['columnReferenceMap'])
             ) {
-                throw new \RuntimeException(sprintf('Invalid Foreign Key Metadata defined for %s.', $referencedTableName));
+                throw new \RuntimeException(sprintf('Invalid Foreign Key Metadata defined for %s.', $tableFromName));
             }
 
-            $tableName = $foreign[$referencedTableName]['tableName'];
-            $columns = $foreign[$referencedTableName]['columns'];
-            $referencedColumns = $foreign[$referencedTableName]['referencedColumns'];
+            $tableToName = $foreign[$tableFromName]['tableTo'];
+            $columnReferenceMap = $foreign[$tableFromName]['columnReferenceMap'];
+
 
             // If not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$tableName])) {
-                $tableNameLookup[$tableName] = count($tableNameLookup);
+            if (!isset($tableNameLookup[$tableFromName])) {
+                $tableNameLookup[$tableFromName] = count($tableNameLookup);
             }
-            $tableFrom = $tableNameLookup[$tableName];
+            $tableFrom = $tableNameLookup[$tableFromName];
 
             // If referenced table has not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$referencedTableName])) {
-                $tableNameLookup[$referencedTableName] = count($tableNameLookup);
+            if (!isset($tableNameLookup[$tableToName])) {
+                $tableNameLookup[$tableToName] = count($tableNameLookup);
             }
-            $tableTo = $tableNameLookup[$referencedTableName];
+            $tableTo = $tableNameLookup[$tableToName];
 
             // Create array of map on for join
             $on = array();
-            for ($i = 0; $i < count($columns); $i++) {
-                $on[] = 't' . $tableFrom . '.' . $columns[$i] . ' = t' . $tableTo . '.' . $referencedColumns[$i];
+            foreach ($columnReferenceMap as $column => $referencedColumn) {
+                $on[] = 't' . $tableFrom . '.' . $column . ' = t' . $tableTo . '.' . $referencedColumn;
             }
 
             // Find all columns to "select" for this join
-            $columns = array_keys($columnMap, $referencedTableName);
+            $columns = array_keys($columnMap, $tableToName);
 
             // Setting join reference
             $joins[$tableTo] = array(
-                'table' => array('t' . $tableTo => $referencedTableName),
+                'table' => array('t' . $tableTo => $tableToName),
                 'on' => implode(' AND ', $on),
                 'columns' => (!empty($columns)) ? $columns : array()
             );
