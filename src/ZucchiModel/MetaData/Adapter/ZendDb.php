@@ -27,6 +27,13 @@ class ZendDb extends AbstractAdapter
     public $constraints = array();
 
     /**
+     * Cache of target hierarchy found for this model
+     *
+     * @var array
+     */
+    protected $hierarchy = array();
+
+    /**
      * @param $model
      * @param Criteria $criteria
      * @param array $relationship
@@ -109,5 +116,26 @@ class ZendDb extends AbstractAdapter
             return $this->constraints[$target][$type];
         }
         return $this->constraints;
+    }
+
+    /**
+     * Get full Table Hierarchy from given target
+     *
+     * @param $currentTable
+     * @param $foreignKeys
+     * @return array
+     */
+    protected function getTargetHierarchy($currentTable, $foreignKeys)
+    {
+        $hierarchy = array();
+        foreach ($foreignKeys as $foreignKeyTable => $foreignKey) {
+            if ($foreignKey['tableName'] == $currentTable) {
+                $hierarchy[$currentTable][] = $foreignKeyTable;
+                $hierarchy[$foreignKeyTable] = array();
+                $hierarchy = array_merge($hierarchy, $this->getTargetHierarchy($foreignKeyTable, $foreignKeys));
+            }
+        }
+
+        return $hierarchy;
     }
 }
