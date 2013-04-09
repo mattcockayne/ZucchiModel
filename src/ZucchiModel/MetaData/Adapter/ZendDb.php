@@ -157,6 +157,21 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
+     * Return hierarchy. False if not
+     * are set.
+     *
+     * @return array|bool
+     */
+    public function getHierarchy()
+    {
+        if (!empty($this->hierarchy)) {
+            return $this->hierarchy;
+        }
+
+        return false;
+    }
+    
+    /**
      * Return list of all the targets.
      * False if not are set.
      *
