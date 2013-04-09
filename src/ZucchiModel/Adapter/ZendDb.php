@@ -298,25 +298,6 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * Get full Target Hierarchy
-     * 
-     * @param $current
-     * @param $foreignKeys
-     * @return array
-     */
-    public function getTargetHierarchy($current, $foreignKeys) {
-        $h = array();
-        foreach ($foreignKeys as $fkTable => $fk) {
-            if ($fk['tableName'] == $current) {
-                $h[$current][] = $fkTable;
-                $h[$fkTable] = array();
-                $h = array_merge($h, $this->getTargetHierarchy($fkTable, $foreignKeys));
-            }
-        }
-        return $h;
-    }
-
-    /**
      * Persist given model.
      *
      * @param $model
@@ -474,51 +455,8 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * Get Model Property
-     *
-     * @param $model
-     * @param $property
-     * @return mixed
-     * @throws \RuntimeException
+     * @param Persistence\Container $container
      */
-    protected function getModelProperty($model, $property)
-    {
-        if (is_object($model)) {
-            if (property_exists($model, $property)) {
-                return $model->$property;
-            } else {
-                if (property_exists($model, 'unmappedProperties') && !empty($model->unmappedProperties[$property])) {
-                    return $model->unmappedProperties[$property];
-                }
-            }
-        }
-
-        // Can not find the property, throw error. Note false and null can not be returned instead as they can be
-        // valid values for properties.
-        throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($model, true)));
-    }
-
-    /**
-     * Set Model Property
-     *
-     * @param $model
-     * @param $property
-     * @param $value
-     * @throws \RuntimeException
-     */
-    protected function setModelProperty($model, $property, $value)
-    {
-        if (is_object($model)) {
-            if (property_exists($model, $property)) {
-                $model->$property = $value;
-            } else {
-                $model->unmappedProperties[$property] = $value;
-            }
-        } else {
-            throw new \RuntimeException(sprintf('Model is not an object. Given %s.', var_export($model, true)));
-        }
-    }
-
     public function write(Persistence\Container $container)
     {
         $em = $this->getEventManager();
@@ -550,7 +488,5 @@ class ZendDb extends AbstractAdapter
             $container->detach($model);
             $container->next();
         }
-
-
     }
 }
