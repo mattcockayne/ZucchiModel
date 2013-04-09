@@ -24,14 +24,19 @@ use ZucchiModel\Query\Criteria;
  */
 class ZendDb extends AbstractAdapter
 {
-    public $constraints = array();
-
     /**
      * Cache of columns found for this model
      *
      * @var array
      */
     protected $columnMap = array();
+
+    /**
+     * Cache of constraints found for this model
+     *
+     * @var array
+     */
+    protected $constraints = array();
 
     /**
      * Cache of target hierarchy found for this model
@@ -48,6 +53,8 @@ class ZendDb extends AbstractAdapter
     protected $targets = array();
 
     /**
+     * Add to criteria to find a relationship
+     *
      * @param $model
      * @param Criteria $criteria
      * @param array $relationship
@@ -94,9 +101,11 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * @param $target
-     * @param null $type
-     * @return array
+     * Return all constraints or a selection by type.
+     * False if none are set.
+     *
+     * @param string|null $type
+     * @return array|bool
      */
     public function getConstraints($target, $type = null)
     {
