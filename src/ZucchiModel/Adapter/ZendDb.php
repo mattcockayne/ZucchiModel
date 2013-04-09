@@ -462,14 +462,14 @@ class ZendDb extends AbstractAdapter
      * Update given model.
      *
      * @param $dataSource
-     * @param $updateColumns
-     * @param $primaryKeys
+     * @param $columnMap
+     * @param $primary
      */
-    private function update($dataSource, $updateColumns, $primaryKeys)
+    private function update($dataSource, $columnMap, $primary)
     {
         $query = $this->sql->update($dataSource);
-        $query->set($updateColumns);
-        $query->where($primaryKeys[$dataSource]);
+        $query->set($columnMap);
+        $query->where($primary[$dataSource]);
         $result = $this->execute($query);
     }
 
