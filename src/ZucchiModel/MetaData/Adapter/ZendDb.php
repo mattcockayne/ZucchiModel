@@ -27,6 +27,13 @@ class ZendDb extends AbstractAdapter
     public $constraints = array();
 
     /**
+     * Cache of columns found for this model
+     *
+     * @var array
+     */
+    protected $columnMap = array();
+
+    /**
      * Cache of target hierarchy found for this model
      *
      * @var array
@@ -62,6 +69,21 @@ class ZendDb extends AbstractAdapter
         }
 
         return $criteria;
+    }
+
+    /**
+     * Return all columns. False if none
+     * are set.
+     *
+     * @return array|bool
+     */
+    public function getColumnMap()
+    {
+        if (!empty($this->columnMap)) {
+            return $this->columnMap;
+        }
+
+        return false;
     }
 
     /**
