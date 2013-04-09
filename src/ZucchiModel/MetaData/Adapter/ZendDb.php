@@ -216,9 +216,9 @@ class ZendDb extends AbstractAdapter
                 function ($constraint) use (&$foreign, &$primary) {
                     switch ($constraint->getType()) {
                         case 'FOREIGN KEY':
-                            $foreign[$constraint->getReferencedTableName()] = array(
-                                'tableName' => $constraint->getTableName(),
-                                'columnReferenceMap' => array_combine($constraint->getReferencedColumns(), $constraint->getColumns()),
+                            $foreign[$constraint->getTableName()] = array(
+                                'tableTo' => $constraint->getReferencedTableName(),
+                                'columnReferenceMap' => array_combine($constraint->getColumns(), $constraint->getReferencedColumns()),
                             );
                             break;
                         case 'PRIMARY KEY':
