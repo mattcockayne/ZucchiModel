@@ -85,7 +85,7 @@ class ZendDb extends AbstractAdapter
         }
 
         $adapterMetadata = new AdapterMetadata();
-        $adapterMetadata->exchangeArray($metadata);
+        $adapterMetadata->prepare($metadata);
 
         return $adapterMetadata;
     }
