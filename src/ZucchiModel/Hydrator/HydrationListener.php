@@ -106,7 +106,7 @@ class HydrationListener
         $data = $event->getParam('data');
 
         // If metadata is given, cast values by type
-        if ($fields = $metadata['fields']) {
+        if ($fields = $metadata->getFields()) {
             foreach ($data as $key => $value) {
                 if ($type = $fields[$key]) {
                     // Metadata exists for this value, trigger event

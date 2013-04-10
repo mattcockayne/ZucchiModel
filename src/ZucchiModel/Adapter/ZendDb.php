@@ -67,10 +67,10 @@ class ZendDb extends AbstractAdapter
      * Retrieve metadata for class
      *
      * @param array $tables
-     * @return array|mixed
-     * @throws \RuntimeException
+     * @return \ZucchiModel\Metadata\Adapter\ZendDb
+     * @throws \Exception if table does not exist
      */
-    public function getMetaData($tables = array())
+    public function getMetaData(Array $tables = array())
     {
         $dbMeta = new Metadata($this->getDataSource());
         $metadata = array();
@@ -79,13 +79,8 @@ class ZendDb extends AbstractAdapter
             $metadata[$table] = $dbMeta->getTable($table);
         }
 
-        // Check we have matched the given dataSource to a Table Name
-        if (empty($metadata)) {
-            throw new \RuntimeException(sprintf('Data Source mapping not found for %s.', var_export($tables, true)));
-        }
-
         $adapterMetadata = new AdapterMetadata();
-        $adapterMetadata->exchangeArray($metadata);
+        $adapterMetadata->prepare($metadata);
 
         return $adapterMetadata;
     }
@@ -99,45 +94,14 @@ class ZendDb extends AbstractAdapter
      */
     public function buildQuery(Criteria $criteria, MetaDataContainer $metadata)
     {
-        // List of Data Source Names
-        $dataSources = array();
+        // Create a look up for all the foreign keys
+        $foreign = $metadata->getAdapter()->getConstraints('foreign');
 
         // Fields to select
-        $selectColumns = array();
+        $columnMap = $metadata->getAdapter()->getColumnMap();
 
-        // Create a look up for all the foreign keys
-        $foreignKeys = array();
-
-        foreach ($metadata->getAdapter() as $dataSource => $targetMetadata) {
-            // Create list of Data Sources
-            $dataSources[] = $dataSource;
-
-            // Build up an array of all the Columns to select
-            $columns = $targetMetadata->getColumns();
-            array_walk(
-                $columns,
-                function ($column) use (&$selectColumns, $dataSource) {
-                    if (!isset($selectColumns[$column->getName()])) {
-                        $selectColumns[$column->getName()] = $dataSource;
-                    }
-                }
-            );
-
-            // Build up an array of all the Foreign Key Relationships
-            $constraints = $targetMetadata->getConstraints();
-            array_walk(
-                $constraints,
-                function ($constraint) use (&$foreignKeys) {
-                    if ('FOREIGN KEY' == $constraint->getType()) {
-                        $foreignKeys[$constraint->getReferencedTableName()] = array(
-                            'tableName' => $constraint->getTableName(),
-                            'columns' => $constraint->getColumns(),
-                            'referencedColumns' => $constraint->getReferencedColumns()
-                        );
-                    }
-                }
-            );
-        }
+        // List of Data Source Names
+        $dataSources = $metadata->getAdapter()->getTargets();
 
         // Get the first Data Source which will be the From Table
         $from = array_shift($dataSources);
@@ -147,16 +111,16 @@ class ZendDb extends AbstractAdapter
 
         // Set form Table and Columns if present
         $select->from(array('t0' => $from));
-        $columns = array_keys($selectColumns, $from);
+        $columns = array_keys($columnMap, $from);
         if (!empty($columns)) {
             $select->columns($columns);
         }
 
-        $dataSources = array_keys($this->getTargetHierarchy($from, $foreignKeys));
-        array_shift($dataSources);
+        $dataSources = array_keys($metadata->getAdapter()->getHierarchy());
+        array_pop($dataSources);
 
         // Get array of any joins
-        $joins = $this->determineJoins($dataSources, $from, $selectColumns, $foreignKeys);
+        $joins = $this->determineJoins($dataSources, $from, $columnMap, $foreign);
 
         // Add any additional joins to join array
         $joins = array_merge($joins, $this->determineAdditionalJoins($criteria));
@@ -196,10 +160,10 @@ class ZendDb extends AbstractAdapter
      * Build and return a count query object from criteria
      *
      * @param Criteria $criteria
-     * @param array $metadata
+     * @param MetaDataContainer $metadata
      * @return \Zend\Db\Sql\Select
      */
-    public function buildCountQuery(Criteria $criteria, Array $metadata)
+    public function buildCountQuery(Criteria $criteria, MetaDataContainer $metadata)
     {
         // Create normal Select Query object
         $select = $this->buildQuery($criteria, $metadata);
@@ -230,13 +194,13 @@ class ZendDb extends AbstractAdapter
      *
      * @param $dataSources
      * @param $from
-     * @param $selectColumns
-     * @param $foreignKeys
+     * @param $columnMap
+     * @param $foreign
      * @return array
      * @throws \RuntimeException
      * @todo: add select column lookup on where
      */
-    protected function determineJoins($dataSources, $from, $selectColumns, $foreignKeys)
+    protected function determineJoins($dataSources, $from, $columnMap, $foreign)
     {
         // Create lookup to match Table name to alias
         $tableNameLookup = array($from => 0);
@@ -245,44 +209,42 @@ class ZendDb extends AbstractAdapter
         $joins = array();
 
         // Building Join references
-        foreach ($dataSources as $referencedTableName) {
+        foreach ($dataSources as $tableFromName) {
             // Make sure required Metadata is present
-            if (empty($foreignKeys[$referencedTableName]['tableName']) ||
-                empty($foreignKeys[$referencedTableName]['columns']) ||
-                empty($foreignKeys[$referencedTableName]['referencedColumns']) ||
-                (count($foreignKeys[$referencedTableName]['columns']) != count($foreignKeys[$referencedTableName]['referencedColumns']))
+            if (empty($foreign[$tableFromName]['tableTo']) ||
+                empty($foreign[$tableFromName]['columnReferenceMap'])
             ) {
-                throw new \RuntimeException(sprintf('Invalid Foreign Key Metadata defined for %s.', $referencedTableName));
+                throw new \RuntimeException(sprintf('Invalid Foreign Key Metadata defined for %s.', $tableFromName));
             }
 
-            $tableName = $foreignKeys[$referencedTableName]['tableName'];
-            $columns = $foreignKeys[$referencedTableName]['columns'];
-            $referencedColumns = $foreignKeys[$referencedTableName]['referencedColumns'];
+            $tableToName = $foreign[$tableFromName]['tableTo'];
+            $columnReferenceMap = $foreign[$tableFromName]['columnReferenceMap'];
+
 
             // If not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$tableName])) {
-                $tableNameLookup[$tableName] = count($tableNameLookup);
+            if (!isset($tableNameLookup[$tableFromName])) {
+                $tableNameLookup[$tableFromName] = count($tableNameLookup);
             }
-            $tableFrom = $tableNameLookup[$tableName];
+            $tableFrom = $tableNameLookup[$tableFromName];
 
             // If referenced table has not used before add table to temporary lookup
-            if (!isset($tableNameLookup[$referencedTableName])) {
-                $tableNameLookup[$referencedTableName] = count($tableNameLookup);
+            if (!isset($tableNameLookup[$tableToName])) {
+                $tableNameLookup[$tableToName] = count($tableNameLookup);
             }
-            $tableTo = $tableNameLookup[$referencedTableName];
+            $tableTo = $tableNameLookup[$tableToName];
 
             // Create array of map on for join
             $on = array();
-            for ($i = 0; $i < count($columns); $i++) {
-                $on[] = 't' . $tableFrom . '.' . $columns[$i] . ' = t' . $tableTo . '.' . $referencedColumns[$i];
+            foreach ($columnReferenceMap as $column => $referencedColumn) {
+                $on[] = 't' . $tableFrom . '.' . $column . ' = t' . $tableTo . '.' . $referencedColumn;
             }
 
             // Find all columns to "select" for this join
-            $columns = array_keys($selectColumns, $referencedTableName);
+            $columns = array_keys($columnMap, $tableToName);
 
             // Setting join reference
             $joins[$tableTo] = array(
-                'table' => array('t' . $tableTo => $referencedTableName),
+                'table' => array('t' . $tableTo => $tableToName),
                 'on' => implode(' AND ', $on),
                 'columns' => (!empty($columns)) ? $columns : array()
             );
@@ -329,29 +291,11 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * Get full Target Hierarchy
-     * 
-     * @param $current
-     * @param $foreignKeys
-     * @return array
-     */
-    public function getTargetHierarchy($current, $foreignKeys) {
-        $h = array();
-        foreach ($foreignKeys as $fkTable => $fk) {
-            if ($fk['tableName'] == $current) {
-                $h[$current][] = $fkTable;
-                $h[$fkTable] = array();
-                $h = array_merge($h, $this->getTargetHierarchy($fkTable, $foreignKeys));
-            }
-        }
-        return $h;
-    }
-
-    /**
      * Persist given model.
      *
      * @param $model
      * @param array $metadata
+     * @return bool
      * @throws \RuntimeException
      */
     public function persist($model, Array $metadata)
@@ -362,80 +306,45 @@ class ZendDb extends AbstractAdapter
             }
         }
 
-        // List of Data Source Names
-        $dataSources = array();
-
-        // Fields to select
-        $selectColumns = array();
+        // Create a look up for all the primary keys
+        $primary = $metadata->getAdapter()->getConstraints('primary');
 
         // Create a look up for all the foreign keys
-        $foreignKeys = array();
+        $foreign = $metadata->getAdapter()->getConstraints('foreign');
 
-        $primaryKeys = array();
+        // Fields to select
+        $columnMap = $metadata->getAdapter()->getColumnMap();
 
-        foreach ($metadata->getAdapter() as $dataSource => $targetMetadata) {
-            // Create list of Data Sources
-            $dataSources[] = $dataSource;
-
-            // Build up an array of all the columns and the table to write to
-            $columns = $targetMetadata->getColumns();
-            array_walk(
-                $columns,
-                function ($column) use (&$selectColumns, $dataSource) {
-                    if (!isset($selectColumns[$column->getName()])) {
-                        $selectColumns[$column->getName()] = $dataSource;
-                    }
-                }
-            );
-
-            // Build up an array of all the Foreign Key Relationships
-            $constraints = $targetMetadata->getConstraints();
-            array_walk(
-                $constraints,
-                function ($constraint) use (&$foreignKeys, &$primaryKeys) {
-                    switch ($constraint->getType()) {
-                        case 'FOREIGN KEY':
-                            $foreignKeys[$constraint->getReferencedTableName()] = array(
-                                'tableName' => $constraint->getTableName(),
-                                'columnReferenceMap' => array_combine($constraint->getReferencedColumns(), $constraint->getColumns()),
-                            );
-                            break;
-                        case 'PRIMARY KEY':
-                            if (!isset($primaryKeys[$constraint->getTableName()])) {
-                                $primaryKeys[$constraint->getTableName()] = array_fill_keys($constraint->getColumns(), null);
-                            } else {
-                                $primaryKeys[$constraint->getTableName()] = array_merge($primaryKeys[$constraint->getTableName()], array_fill_keys($constraint->getColumns(), null));
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            );
-        }
-
-        $current = reset($dataSources);
-        $dataSources = $this->getTargetHierarchy($current, $foreignKeys);
+        // List of Data Source Names
+        $dataSources = $metadata->getAdapter()->getHierarchy();
         $dataSources = array_reverse($dataSources, true);
 
+        if (property_exists($model, 'getProperty')) {
+            $getProperty = $model->getProperty;
+        }
+
+        if (property_exists($model, 'setProperty')) {
+            $setProperty = $model->setProperty;
+        }
+
         foreach ($dataSources as $dataSource => $related) {
-            $columns = array_keys($selectColumns, $dataSource);
+            $columns = array_keys($columnMap, $dataSource);
             $updateColumns = array();
-            if (isset($primaryKeys[$dataSource])) {
-                foreach ($primaryKeys[$dataSource] as $primaryKey => $value) {
-                    if (isset($foreignKeys[$dataSource]['columnReferenceMap'][$primaryKey])) {
+            if (isset($primary[$dataSource])) {
+                foreach ($primary[$dataSource] as $primaryKey => $value) {
+                    if (isset($foreign[$dataSource]['columnReferenceMap'][$primaryKey])) {
                         try {
-                            $primaryKeys[$dataSource][$primaryKey] = $value = $this->getModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$primaryKey]);
+                            $primary[$dataSource][$primaryKey] = $value = $getProperty($foreign[$dataSource]['columnReferenceMap'][$primaryKey]);
                         } catch (\RuntimeException $e) {
-                            $this->setModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$primaryKey], null);
-                            $primaryKeys[$dataSource][$primaryKey] = $value = null;
+                            $setProperty($foreign[$dataSource]['columnReferenceMap'][$primaryKey], null);
+                            $primary[$dataSource][$primaryKey] = $value = null;
                         }
                     } else {
                         try {
-                            $primaryKeys[$dataSource][$primaryKey] = $value = $this->getModelProperty($model, $primaryKey);
+                            $primary[$dataSource][$primaryKey] = $value = $getProperty($primaryKey);
                         } catch (\RuntimeException $e) {
-                            $this->setModelProperty($model, $primaryKey, null);
-                            $primaryKeys[$dataSource][$primaryKey] = $value = null;
+                            $setProperty($primary, null);
+                            $primary[$dataSource][$primaryKey] = $value = null;
                         }
                     }
                     $updateColumns[$primaryKey] = $value;
@@ -445,43 +354,43 @@ class ZendDb extends AbstractAdapter
             }
 
             foreach ($columns as $column) {
-                if (!in_array($column, $primaryKeys[$dataSource]) && $column != 'createdAt' && $column != 'updatedAt') {
-                    if (isset($foreignKeys[$dataSource]['columnReferenceMap'][$column])) {
-                        $updateColumns[$column] = $this->getModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$column]);
+                if (!in_array($column, $primary[$dataSource]) && $column != 'createdAt' && $column != 'updatedAt') {
+                    if (isset($foreign[$dataSource]['columnReferenceMap'][$column])) {
+                        $updateColumns[$column] = $getProperty($foreign[$dataSource]['columnReferenceMap'][$column]);
                     } else {
-                        $updateColumns[$column] = $this->getModelProperty($model, $column);
+                        $updateColumns[$column] = $getProperty($column);
                     }
                 }
             }
 
-            if (array_search(null, $primaryKeys[$dataSource])) {
+            if (array_search(null, $primary[$dataSource])) {
                 // insert
-                $this->insert($dataSource, $updateColumns, $foreignKeys, $primaryKeys, $model);
+                $this->insert($dataSource, $updateColumns, $foreign, $primary, $model);
             } else {
                 if (in_array('ZucchiModel\Behaviour\ChangeTrackingTrait', class_uses($model))) {
                     $changes = $model->getChanges();
-                    if (array_keys($changes, array_keys($primaryKeys[$dataSource]))) {
+                    if (array_keys($changes, array_keys($primary[$dataSource]))) {
                         //insert
-                        $this->insert($dataSource, $updateColumns, $foreignKeys, $primaryKeys, $model);
+                        $this->insert($dataSource, $updateColumns, $foreign, $primary, $model);
                         //delete?
                     } else {
                         //update
-                        $this->update($dataSource, $updateColumns, $primaryKeys);
+                        $this->update($dataSource, $updateColumns, $primary);
                     }
                 } else {
                     //select
                     $select = $this->sql->select($dataSource);
                     $select->columns(array('count' => new Expression('COUNT(*)')));
-                    $select->where($primaryKeys[$dataSource]);
+                    $select->where($primary[$dataSource]);
                     $result = $this->execute($select);
                     if ($count = $result->current()) {
                         if ($count['count'] > 0) {
                             //update
-                            $this->update($dataSource, $updateColumns, $primaryKeys);
+                            $this->update($dataSource, $updateColumns, $primary);
                         }
                     }
                     //insert
-                    $this->insert($dataSource, $updateColumns, $foreignKeys, $primaryKeys, $model);
+                    $this->insert($dataSource, $updateColumns, $foreign, $primary, $model);
                 }
             }
         }
@@ -491,28 +400,32 @@ class ZendDb extends AbstractAdapter
      * Insert given model
      *
      * @param $dataSource
-     * @param $insertColumns
-     * @param $foreignKeys
-     * @param $primaryKeys
+     * @param $columnMap
+     * @param $foreign
+     * @param $primary
      * @param $model
      */
-    private function insert($dataSource, $insertColumns, $foreignKeys, &$primaryKeys, &$model)
+    private function insert($dataSource, $columnMap, $foreign, &$primary, &$model)
     {
+        if (property_exists($model, 'setProperty')) {
+            $setProperty = $model->setProperty;
+        }
+
         $query = $this->sql->insert($dataSource);
-        $query->values($insertColumns);
+        $query->values($columnMap);
         $result = $this->execute($query);
         if ($ids = $result->getGeneratedValue()) {
             if (is_array($ids)) {
-                $primaryKeys[$dataSource] = $ids;
+                $primary[$dataSource] = $ids;
                 foreach ($ids as $key => $value) {
                     // set model values.
-                    $this->setModelProperty($model, $key, $value);
+                    $setProperty($key, $value);
                 }
             } else {
-                foreach ($primaryKeys[$dataSource] as $key=>$value) {
+                foreach ($primary[$dataSource] as $key=>$value) {
                     $primaryKeys[$dataSource][$key] = $ids;
-                    if (isset($foreignKeys[$dataSource]['columnReferenceMap'][$key])) {
-                        $this->setModelProperty($model, $foreignKeys[$dataSource]['columnReferenceMap'][$key], $ids);
+                    if (isset($foreign[$dataSource]['columnReferenceMap'][$key])) {
+                        $setProperty($foreign[$dataSource]['columnReferenceMap'][$key], $ids);
                     }
                 }
             }
@@ -523,63 +436,20 @@ class ZendDb extends AbstractAdapter
      * Update given model.
      *
      * @param $dataSource
-     * @param $updateColumns
-     * @param $primaryKeys
+     * @param $columnMap
+     * @param $primary
      */
-    private function update($dataSource, $updateColumns, $primaryKeys)
+    private function update($dataSource, $columnMap, $primary)
     {
         $query = $this->sql->update($dataSource);
-        $query->set($updateColumns);
-        $query->where($primaryKeys[$dataSource]);
+        $query->set($columnMap);
+        $query->where($primary[$dataSource]);
         $result = $this->execute($query);
     }
 
     /**
-     * Get Model Property
-     *
-     * @param $model
-     * @param $property
-     * @return mixed
-     * @throws \RuntimeException
+     * @param Persistence\Container $container
      */
-    protected function getModelProperty($model, $property)
-    {
-        if (is_object($model)) {
-            if (property_exists($model, $property)) {
-                return $model->$property;
-            } else {
-                if (property_exists($model, 'unmappedProperties') && !empty($model->unmappedProperties[$property])) {
-                    return $model->unmappedProperties[$property];
-                }
-            }
-        }
-
-        // Can not find the property, throw error. Note false and null can not be returned instead as they can be
-        // valid values for properties.
-        throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($model, true)));
-    }
-
-    /**
-     * Set Model Property
-     *
-     * @param $model
-     * @param $property
-     * @param $value
-     * @throws \RuntimeException
-     */
-    protected function setModelProperty($model, $property, $value)
-    {
-        if (is_object($model)) {
-            if (property_exists($model, $property)) {
-                $model->$property = $value;
-            } else {
-                $model->unmappedProperties[$property] = $value;
-            }
-        } else {
-            throw new \RuntimeException(sprintf('Model is not an object. Given %s.', var_export($model, true)));
-        }
-    }
-
     public function write(Persistence\Container $container)
     {
         $em = $this->getEventManager();
@@ -611,7 +481,5 @@ class ZendDb extends AbstractAdapter
             $container->detach($model);
             $container->next();
         }
-
-
     }
 }

@@ -9,6 +9,10 @@
 
 namespace ZucchiModel\Adapter;
 
+use ZucchiModel\Metadata\MetaDataContainer;
+use ZucchiModel\Persistence;
+use ZucchiModel\Query\Criteria;
+
 /**
  * Mongo
  *
@@ -16,8 +20,8 @@ namespace ZucchiModel\Adapter;
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @package ZucchiModel\Adapter
- * @subpackage 
- * @category 
+ * @subpackage
+ * @category
  */
 class Mongo extends AbstractAdapter
 {
@@ -35,10 +39,10 @@ class Mongo extends AbstractAdapter
      * build and return query object from criteria
      *
      * @param Criteria $criteria
-     * @param Array $metadata
-     * @return mixed
+     * @param MetaDataContainer $metadata
+     * @return mixed|void
      */
-    public function buildQuery(Criteria $criteria, Array $metadata)
+    public function buildQuery(Criteria $criteria, MetaDataContainer $metadata)
     {
 
     }
@@ -49,6 +53,15 @@ class Mongo extends AbstractAdapter
      * @return mixed
      */
     public function execute($query)
+    {
+
+    }
+
+    /**
+     * @param Persistence\Container $container
+     * @return mixed|void
+     */
+    public function write(Persistence\Container $container)
     {
 
     }

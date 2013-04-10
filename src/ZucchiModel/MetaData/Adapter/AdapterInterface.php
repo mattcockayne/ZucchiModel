@@ -21,5 +21,5 @@ namespace ZucchiModel\Metadata\Adapter;
  */
 interface AdapterInterface 
 {
-
+    public function prepare($data);
 }

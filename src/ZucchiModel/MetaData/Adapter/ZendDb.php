@@ -18,15 +18,44 @@ use ZucchiModel\Query\Criteria;
  * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
+ * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Metadata
  * @category
  */
 class ZendDb extends AbstractAdapter
 {
-    public $constraints = array();
+    /**
+     * Cache of columns found for this model
+     *
+     * @var array
+     */
+    protected $columnMap = array();
 
     /**
+     * Cache of constraints found for this model
+     *
+     * @var array
+     */
+    protected $constraints = array();
+
+    /**
+     * Cache of target hierarchy found for this model
+     *
+     * @var array
+     */
+    protected $hierarchy = array();
+
+    /**
+     * List of all the targets
+     *
+     * @var array
+     */
+    protected $targets = array();
+
+    /**
+     * Add to criteria to find a relationship
+     *
      * @param $model
      * @param Criteria $criteria
      * @param array $relationship
@@ -58,30 +87,138 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * @param $target
-     * @param null $type
+     * Return all columns. False if none
+     * are set.
+     *
+     * @return array|bool
+     */
+    public function getColumnMap()
+    {
+        if (!empty($this->columnMap)) {
+            return $this->columnMap;
+        }
+
+        return false;
+    }
+
+    /**
+     * Return all constraints or a selection by type.
+     * False if none are set.
+     *
+     * @param string|null $type
+     * @return array|bool
+     */
+    public function getConstraints($type = null)
+    {
+        if (!empty($this->constraints)) {
+            if (!$type) {
+                return $this->constraints;
+            } else {
+                return $this->constraints[$type];
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Return hierarchy. False if not
+     * are set.
+     *
+     * @return array|bool
+     */
+    public function getHierarchy()
+    {
+        if (!empty($this->hierarchy)) {
+            return $this->hierarchy;
+        }
+
+        return false;
+    }
+    
+    /**
+     * Return list of all the targets.
+     * False if not are set.
+     *
+     * @return array|bool
+     */
+    public function getTargets()
+    {
+        if (!empty($this->targets)) {
+            return $this->targets;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get full Table Hierarchy from given target
+     *
+     * @param $currentTable
+     * @param $foreignKeys
      * @return array
      */
-    public function getConstraints($target, $type = null)
+    protected function getTargetHierarchy($currentTable, $foreignKeys)
     {
-        if (!isset($this->constraints[$target])) {
+        $hierarchy = array();
+        foreach ($foreignKeys as $foreignKeyTable => $foreignKey) {
+            if ($foreignKeyTable == $currentTable) {
+                $hierarchy[$currentTable][] = $foreignKey['tableTo'];
+                $hierarchy[$foreignKey['tableTo']] = array();
+                $hierarchy = array_merge($hierarchy, $this->getTargetHierarchy($foreignKey['tableTo'], $foreignKeys));
+            }
+        }
 
-            $tableMetadata = $this->offsetGet($target);
+        return $hierarchy;
+    }
 
-            $primary = array();
-            $foreign = array();
-            $unique = array();
+    /**
+     * Prepare data, and set columnMap, constraints,
+     * hierarchy and targets.
+     *
+     * @param $data
+     * @return $this
+     */
+    public function prepare($data)
+    {
+        $this->exchangeArray($data);
+
+        $columnMap = array();
+        $primary = array();
+        $foreign = array();
+        $unique = array();
+        $dataSources = array();
+        $iterator = $this->getIterator();
+
+        $iterator->rewind();
+
+        while ($iterator->valid()) {
+            $dataSource = $iterator->key();
+            $dataSources[] = $dataSource;
+            $targetMetadata = $iterator->current();
 
             // Build up an array of all the Foreign Key Relationships
-            $constraints = $tableMetadata->getConstraints();
+            $constraints = $targetMetadata->getConstraints();
+
+            // Build up an array of all the Columns to select from or write to
+            $columns = $targetMetadata->getColumns();
+            array_walk(
+                $columns,
+                function ($column) use (&$columnMap, $dataSource) {
+                    if (!isset($columnMap[$column->getName()])) {
+                        $columnMap[$column->getName()] = $dataSource;
+                    }
+                }
+            );
+
             array_walk(
                 $constraints,
-                function ($constraint) use (&$foreign, &$primary, &$unique) {
+                function ($constraint) use (&$foreign, &$primary) {
                     switch ($constraint->getType()) {
                         case 'FOREIGN KEY':
-                            $foreign[$constraint->getReferencedTableName()] = array(
-                                'tableName' => $constraint->getTableName(),
-                                'columnReferenceMap' => array_combine($constraint->getReferencedColumns(), $constraint->getColumns()),
+                            $foreign[$constraint->getTableName()] = array(
+                                'tableTo' => $constraint->getReferencedTableName(),
+                                'columnReferenceMap' => array_combine($constraint->getColumns(), $constraint->getReferencedColumns()),
                             );
                             break;
                         case 'PRIMARY KEY':
@@ -91,23 +228,24 @@ class ZendDb extends AbstractAdapter
                                 $primary[$constraint->getTableName()] = array_merge($primary[$constraint->getTableName()], array_fill_keys($constraint->getColumns(), null));
                             }
                             break;
-                        case 'UNIQUE':
-                            break;
                         default:
                             break;
                     }
                 }
             );
-            $this->constraints[$target] = array(
-                'primary' => $primary,
-                'foreign' => $foreign,
-                'unique' => $unique,
-            );
+            $iterator->next();
         }
+        $this->constraints = array(
+            'primary' => $primary,
+            'foreign' => $foreign,
+            'unique' => $unique,
+        );
 
-        if ($type) {
-            return $this->constraints[$target][$type];
-        }
-        return $this->constraints;
+        $this->columnMap = $columnMap;
+        $this->targets = $dataSources;
+        $target = array_shift($dataSources);
+        $this->hierarchy = $this->getTargetHierarchy($target, $foreign);
+
+        return $this;
     }
 }

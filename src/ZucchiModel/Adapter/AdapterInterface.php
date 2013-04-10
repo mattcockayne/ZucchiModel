@@ -11,6 +11,7 @@ namespace ZucchiModel\Adapter;
 
 use ZucchiModel\Query\Criteria;
 use ZucchiModel\Persistence\Container;
+use ZucchiModel\Metadata\MetaDataContainer;
 
 /**
  * AdapterInterface
@@ -28,19 +29,19 @@ interface AdapterInterface
     /**
      * Retrieve metadata for class
      *
-     * @param $class
+     * @param Array $class
      * @return mixed
      */
-    public function getMetaData($class);
+    public function getMetaData(Array $class);
 
     /**
      * Build and return query object from criteria
      *
      * @param Criteria $criteria
-     * @param Array $metadata
+     * @param MetaDataContainer $metadata
      * @return mixed
      */
-    public function buildQuery(Criteria $criteria, Array $metadata);
+    public function buildQuery(Criteria $criteria, MetaDataContainer $metadata);
 
     /**
      * Execute supplied query and return result

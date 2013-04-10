@@ -52,12 +52,25 @@ class ObjectProperty extends PropertyHydrator
                     return $this->unmappedProperties[$property];
                 }
             }
+
             // Can not find the property, throw error. Note false and null can not be returned instead as they can be
             // valid values for properties.
             throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($this, true)));
         };
-        Closure::bind($object->getUnmappedProperty, $object);
+        \Closure::bind($object->getProperty, $object);
 
+        $object->setProperty = function($property, $value) {
+            if (property_exists($this, $property)) {
+                $this->$property = $value;
+            } else {
+                $this->unmappedProperties[$property] = $value;
+            }
+
+            // Can not find the property, throw error. Note false and null can not be returned instead as they can be
+            // valid values for properties.
+            throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($this, true)));
+        };
+        \Closure::bind($object->setProperty, $object);
 
         foreach ($data as $property => $value) {
             // Check property to stop misc data being mapped to the Model.

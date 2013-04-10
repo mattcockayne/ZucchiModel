@@ -7,14 +7,12 @@
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
 
-namespace ZucchiModel\MetaAdapter;
+namespace ZucchiModel\Adapter;
 
 use Zucchi\Event\EventProviderTrait;
 
 /**
  * AbstractAdapter
- *
- * Description of class
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
@@ -54,5 +52,4 @@ abstract class AbstractAdapter implements AdapterInterface
     {
         return $this->dataSource;
     }
-
 }
