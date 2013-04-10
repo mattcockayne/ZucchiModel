@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<project name="ZucchiModel" description="Build file for ZucchiModel" default="build" >
+
+    <target name="build" depends="generate-classmap, report, codeception, phpdoc, manual" description="Build ZucchiModel"></target>
+
+    <target name="phpdoc" description="Generate PHP API Docs">
+        <phpdoc2 title="ZucchiModel"
+                 destdir="docs/php"
+                 quiet="false"
+                 template="responsive">
+            <fileset dir="./src">
+                <include name="**/*.php" />
+            </fileset>
+        </phpdoc2>
+    </target>
+
+    <target name="report" description="Run Various Reports against source">
+        <phplint haltonfailure="true" tofile="docs/reports/lint.txt">
+            <fileset dir="src/">
+                <include name="**/*.php"/>
+            </fileset>
+        </phplint>
+
+        <phpmd file="src/">
+            <formatter type="html" outfile="docs/reports/mess-detection.html"/>
+        </phpmd>
+
+        <phpdepend file="src/">
+            <logger type="phpunit-xml" outfile="docs/reports/phpdepend.xml"/>
+        </phpdepend>
+
+        <phpcpd file="src">
+            <formatter type="pmd" outfile="docs/reports/pmd-cpd.xml"/>
+        </phpcpd>
+
+        <phploc countTests="true" reportType="xml" reportName="phploc" reportDirectory="docs/reports/">
+            <fileset dir="src/">
+                <include name="**/*.php" />
+                <include name="*.php" />
+            </fileset>
+        </phploc>
+
+
+    </target>
+
+
+
+    <target name="codeception" description="Run Codeception tests">
+        <exec command="vendor/bin/codecept run --coverage --html" passthru="true" />
+        <if>
+            <available file='tests/_log/coverage' type='dir' />
+            <then>
+                <move file="tests/_log/coverage" todir="docs/" includeemptydirs="true" />
+            </then>
+        </if>
+    </target>
+
+
+    <target name="generate-classmap" description="Generate Classmaps">
+        <exec command="vendor/bin/classmap_generator.php -l src/ -l tests/unit/ -o autoload_classmap.php -w" passthru="true" />
+    </target>
+
+    <target name="manual" description="Generate User Manual">
+        <exec command="make html" dir="docs/manual" passthru="true" />
+    </target>
+
+</project>
