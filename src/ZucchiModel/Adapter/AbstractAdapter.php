@@ -14,8 +14,6 @@ use Zucchi\Event\EventProviderTrait;
 /**
  * AbstractAdapter
  *
- * Description of class
- *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel\Adapter
@@ -54,5 +52,4 @@ abstract class AbstractAdapter implements AdapterInterface
     {
         return $this->dataSource;
     }
-
 }
