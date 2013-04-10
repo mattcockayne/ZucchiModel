@@ -67,10 +67,10 @@ class ZendDb extends AbstractAdapter
      * Retrieve metadata for class
      *
      * @param array $tables
-     * @return array|mixed
+     * @return \ZucchiModel\Metadata\Adapter\ZendDb
      * @throws \RuntimeException
      */
-    public function getMetaData($tables = array())
+    public function getMetaData(Array $tables = array())
     {
         $dbMeta = new Metadata($this->getDataSource());
         $metadata = array();
