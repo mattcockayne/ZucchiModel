@@ -67,21 +67,16 @@ class ZendDb extends AbstractAdapter
      * Retrieve metadata for class
      *
      * @param array $tables
-     * @return array|mixed
-     * @throws \RuntimeException
+     * @return \ZucchiModel\Metadata\Adapter\ZendDb
+     * @throws \Exception if table does not exist
      */
-    public function getMetaData($tables = array())
+    public function getMetaData(Array $tables = array())
     {
         $dbMeta = new Metadata($this->getDataSource());
         $metadata = array();
         // populate datasource details
         foreach ($tables as $table) {
             $metadata[$table] = $dbMeta->getTable($table);
-        }
-
-        // Check we have matched the given dataSource to a Table Name
-        if (empty($metadata)) {
-            throw new \RuntimeException(sprintf('Data Source mapping not found for %s.', var_export($tables, true)));
         }
 
         $adapterMetadata = new AdapterMetadata();
