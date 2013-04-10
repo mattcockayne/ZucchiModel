@@ -3,13 +3,47 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ZucchiModel's documentation!
-=======================================
+ZucchiModel lightweight ORM
+===========================
 
-Contents:
+ZucchiModel is a lightweight ORM created to work as a Zend Framework 2 module.
+
+
+About
 
 .. toctree::
    :maxdepth: 2
+
+   about/requirements
+   about/methodology
+   about/installation
+   about/database
+   about/adapters
+   about/models
+   about/annotation
+
+
+Usage
+
+.. toctree::
+   :maxdepth: 2
+
+   usage/modelmanager
+   usage/hydrator
+   usage/resultsets
+
+
+Behaviours
+
+.. toctree::
+   :maxdepth: 2
+
+   behaviours/audit
+   behaviours/changetracking
+   behaviours/identity
+   behaviours/softdelete
+   behaviours/timestamp
+   behaviours/version
 
 
 
