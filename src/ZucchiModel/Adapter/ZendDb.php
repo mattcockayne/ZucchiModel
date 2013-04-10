@@ -17,6 +17,7 @@ use ZucchiModel\Persistence;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
+use Zend\Db\Sql\Select;
 
 use ZucchiModel\Metadata\Adapter\ZendDb as AdapterMetadata;
 
@@ -169,7 +170,15 @@ class ZendDb extends AbstractAdapter
         $select = $this->buildQuery($criteria, $metadata);
 
         // Replace column select with Count(*)
-        $select->reset('columns')->columns(array('count' => new Expression('COUNT(*)')));
+        $select->reset(Select::COLUMNS)->columns(array('count' => new Expression('COUNT(*)')));
+
+        // get join information, clear, and repopulate without columns
+        if ($joins = $select->getRawState(Select::JOINS)) {
+            $select->reset(Select::JOINS);
+            foreach ($joins as $join) {
+                $select->join($join['name'], $join['on'], array(), $join['type']);
+            }
+        }
 
         return $select;
     }
