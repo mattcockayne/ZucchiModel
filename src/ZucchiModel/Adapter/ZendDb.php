@@ -211,6 +211,10 @@ class ZendDb extends AbstractAdapter
      */
     protected function determineJoins($dataSources, $from, $columnMap, $foreign)
     {
+        if (empty($from) || !is_string($from)) {
+            throw new \RuntimeException(sprintf('From must be set and a string. %s given.', var_export($from, true)));
+        }
+
         // Create lookup to match Table name to alias
         $tableNameLookup = array($from => 0);
 
@@ -228,7 +232,6 @@ class ZendDb extends AbstractAdapter
 
             $tableToName = $foreign[$tableFromName]['tableTo'];
             $columnReferenceMap = $foreign[$tableFromName]['columnReferenceMap'];
-
 
             // If not used before add table to temporary lookup
             if (!isset($tableNameLookup[$tableFromName])) {
