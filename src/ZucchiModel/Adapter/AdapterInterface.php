@@ -27,7 +27,7 @@ use ZucchiModel\Metadata\MetaDataContainer;
 interface AdapterInterface
 {
     /**
-     * Retrieve metadata for class
+     * Retrieve metadata for class.
      *
      * @param Array $class
      * @return mixed
@@ -35,7 +35,7 @@ interface AdapterInterface
     public function getMetaData(Array $class);
 
     /**
-     * Build and return query object from criteria
+     * Build and return query object from criteria.
      *
      * @param Criteria $criteria
      * @param MetaDataContainer $metadata
