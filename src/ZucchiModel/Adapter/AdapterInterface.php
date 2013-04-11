@@ -61,7 +61,17 @@ interface AdapterInterface
     public function execute($query);
 
     /**
-     * Method to write models from container to database
+     * Find and return hydrated result set.
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return mixed
+     */
+    public function find(Criteria $criteria, MetaDataContainer $metadata);
+
+    /**
+     * Method to write models from container to database.
+     *
      * @param Container $container
      * @return mixed
      */
