@@ -117,11 +117,14 @@ class ZendDb extends AbstractAdapter
             $select->columns($columns);
         }
 
-        $dataSources = array_keys($metadata->getAdapter()->getHierarchy());
-        array_pop($dataSources);
+        $joins = array();
+        if ($hierarchy = $metadata->getAdapter()->getHierarchy()) {
+            $dataSources = array_keys($hierarchy);
+            array_pop($dataSources);
 
-        // Get array of any joins
-        $joins = $this->determineJoins($dataSources, $from, $columnMap, $foreign);
+            // Get array of any joins
+            $joins = $this->determineJoins($dataSources, $from, $columnMap, $foreign);
+        }
 
         // Add any additional joins to join array
         $joins = array_merge($joins, $this->determineAdditionalJoins($criteria));
