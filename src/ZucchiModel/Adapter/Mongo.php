@@ -26,11 +26,12 @@ use ZucchiModel\Query\Criteria;
 class Mongo extends AbstractAdapter
 {
     /**
-     * retrieve metadata for class
-     * @param $class
+     * Retrieve metadata for given targets.
+     *
+     * @param array $targets
      * @return mixed
      */
-    public function getMetaData($class)
+    public function getMetaData(Array $targets)
     {
 
     }
