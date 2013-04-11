@@ -44,7 +44,7 @@ class ObjectProperty extends PropertyHydrator
         $populated = array();
         $unmappedProperties = array();
 
-        $object->getProperty = function($property) {
+        $getProperty = function($property) {
             if (property_exists($this, $property)) {
                 return $this->$property;
             } else {
@@ -57,7 +57,7 @@ class ObjectProperty extends PropertyHydrator
             // valid values for properties.
             throw new \RuntimeException(sprintf('Property of %s not found on %s.', $property, var_export($this, true)));
         };
-        \Closure::bind($object->getProperty, $object);
+        $object->getProperty = \Closure::bind($getProperty, $object);
 
         $object->setProperty = function($property, $value) {
             if (property_exists($this, $property)) {
