@@ -355,20 +355,7 @@ class ModelManager implements EventManagerAwareInterface
         if ($paginatedPageSize > 0) {
             $resultSet = new ResultSet\PaginatedResultSet($this, $criteria, $paginatedPageSize);
         } else {
-            $query = $this->getAdapter()->buildQuery($criteria, $metadata);
-
-            $results = $this->getAdapter()->execute($query);
-
-            if (!$results instanceof \Iterator) {
-                // if not an iterator then return false
-                return false;
-            }
-
-            $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
-            if (method_exists($results, 'buffer')) {
-                $results->buffer();
-            }
-            $resultSet->initialize($results);
+            $resultSet = $this->getAdapter()->find($criteria, $metadata);
         }
 
         return $resultSet;
