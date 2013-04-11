@@ -44,7 +44,16 @@ interface AdapterInterface
     public function buildQuery(Criteria $criteria, MetaDataContainer $metadata);
 
     /**
-     * Execute supplied query and return result
+     * Build and return a count query object from criteria
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return \Zend\Db\Sql\Select
+     */
+    public function buildCountQuery(Criteria $criteria, MetaDataContainer $metadata);
+
+    /**
+     * Execute supplied query and return result.
      *
      * @param $query
      * @return mixed
