@@ -373,7 +373,7 @@ class ZendDb extends AbstractAdapter
             $setProperty = $model->setProperty;
         }
 
-        foreach ($dataSources as $dataSource => $related) {
+        foreach (array_keys($dataSources) as $dataSource) {
             $columns = array_keys($columnMap, $dataSource);
             $updateColumns = array();
             if (isset($primary[$dataSource])) {
