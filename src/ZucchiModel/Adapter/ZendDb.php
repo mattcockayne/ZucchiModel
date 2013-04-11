@@ -309,7 +309,7 @@ class ZendDb extends AbstractAdapter
      * @param array $joins
      * @return array
      */
-    public function determineAdditionalJoins(Criteria $criteria, $joins = array())
+    protected function determineAdditionalJoins(Criteria $criteria, $joins = array())
     {
         if ($additionalJoins = $criteria->getJoin()) {
             $where = $criteria->getWhere() ?: new Where();
