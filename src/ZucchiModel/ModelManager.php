@@ -68,6 +68,11 @@ class ModelManager implements EventManagerAwareInterface
      */
     protected $modelMetadata = array();
 
+    /**
+     * Container of models to persist
+     *
+     * @var Persistence\PersistenceContainer
+     */
     protected $persistenceContainer;
 
     /**
