@@ -67,19 +67,24 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * Retrieve metadata for class
+     * Retrieve metadata for given targets
      *
-     * @param array $tables
-     * @return \ZucchiModel\Metadata\Adapter\ZendDb
-     * @throws \Exception if table does not exist
+     * @param array $targets
+     * @return mixed|AdapterMetadata
+     * @throws \InvalidArgumentException
      */
-    public function getMetaData(Array $tables = array())
+    public function getMetaData(Array $targets)
     {
+        if (empty($targets)) {
+            throw new \InvalidArgumentException('Supplied Targets must contain values.');
+        }
+
         $dbMeta = new Metadata($this->getDataSource());
         $metadata = array();
+
         // populate datasource details
-        foreach ($tables as $table) {
-            $metadata[$table] = $dbMeta->getTable($table);
+        foreach ($targets as $target) {
+            $metadata[$target] = $dbMeta->getTable($target);
         }
 
         $adapterMetadata = new AdapterMetadata();
