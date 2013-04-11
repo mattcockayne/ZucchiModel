@@ -221,11 +221,6 @@ class ZendDb extends AbstractAdapter
 
         $results = $this->execute($query);
 
-        if (!$results instanceof \Iterator) {
-            // if not an iterator then return false
-            return false;
-        }
-
         $model = $criteria->getModel();
 
         $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
