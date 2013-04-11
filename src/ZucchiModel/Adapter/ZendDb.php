@@ -11,15 +11,17 @@ namespace ZucchiModel\Adapter;
 
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
-use ZucchiModel\Metadata\MetaDataContainer;
-use ZucchiModel\Query\Criteria;
-use ZucchiModel\Persistence;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
 use Zend\Db\Sql\Select;
 
 use ZucchiModel\Metadata\Adapter\ZendDb as AdapterMetadata;
+use ZucchiModel\Metadata\MetaDataContainer;
+use ZucchiModel\Persistence;
+use ZucchiModel\Query\Criteria;
+use ZucchiModel\ResultSet;
+
 
 /**
  * ZendDb
@@ -199,6 +201,35 @@ class ZendDb extends AbstractAdapter
         $results = $statememt->execute();
 
         return $results;
+    }
+
+    /**
+     * Find and return hydrated result set
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return bool|ResultSet\HydratingResultSet
+     */
+    public function find(Criteria $criteria, MetaDataContainer $metadata)
+    {
+        $query = $this->buildQuery($criteria, $metadata);
+
+        $results = $this->execute($query);
+
+        if (!$results instanceof \Iterator) {
+            // if not an iterator then return false
+            return false;
+        }
+
+        $model = $criteria->getModel();
+
+        $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
+        if (method_exists($results, 'buffer')) {
+            $results->buffer();
+        }
+        $resultSet->initialize($results);
+
+        return $resultSet;
     }
 
     /**
