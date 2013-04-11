@@ -29,10 +29,10 @@ interface AdapterInterface
     /**
      * Retrieve metadata for class.
      *
-     * @param Array $class
+     * @param Array $targets
      * @return mixed
      */
-    public function getMetaData(Array $class);
+    public function getMetaData(Array $targets);
 
     /**
      * Build and return query object from criteria.
