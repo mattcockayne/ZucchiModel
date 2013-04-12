@@ -17,6 +17,16 @@ use ZucchiModel\ModelManager;
 use ZucchiModel\Adapter\ZendDb;
 use ZucchiModel\Query\Criteria;
 
+/**
+ * ZendDbTest
+ *
+ * Tests on the ZendDb Class.
+ *
+ * @author Rick Nicol <rick@zucchi.co.uk>
+ * @package ZucchiModelTest
+ * @subpackage Adapter
+ * @category
+ */
 class ZendDbTest extends \Codeception\TestCase\Test
 {
     /**
