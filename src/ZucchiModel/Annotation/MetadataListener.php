@@ -59,13 +59,31 @@ class MetadataListener
      * Event to build Model Metadata for given model.
      *
      * @param Event $event
+     * @throws \UnexpectedValueException
      */
     public function prepareModelMetadata(Event $event)
     {
-        $model = $event->getParam('model');
-        $relationships = $event->getParam('relationships');
         $target = array();
+        $model = $event->getParam('model');
+
+        // Check model is the correct type
+        if (!($model instanceof \Traversable)) {
+            throw new \UnexpectedValueException(sprintf('Model must be Traversable. Given %s.', var_export($model, true)));
+        }
+
+        $relationships = $event->getParam('relationships');
+
+        // Check relationships is the correct type
+        if (!($relationships instanceof \Traversable)) {
+            throw new \UnexpectedValueException(sprintf('Relationship must be Traversable. Given %s.', var_export($model, true)));
+        }
+
         $annotations = $event->getTarget();
+
+        // Annotations must be traversable
+        if (!($annotations instanceof \Traversable)) {
+            throw new \UnexpectedValueException(sprintf('Annotations must be Traversable. Given %s.', var_export($model, true)));
+        }
 
         foreach ($annotations as $annotation) {
             if ($annotation instanceof Annotation\Relationship) {
