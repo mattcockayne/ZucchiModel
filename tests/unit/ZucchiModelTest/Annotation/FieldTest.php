@@ -12,6 +12,16 @@ use Codeception\Util\Stub;
 
 use \ZucchiModel\Annotation\Field;
 
+/**
+ * FieldTest
+ *
+ * Tests on the Field Class.
+ *
+ * @author Rick Nicol <rick@zucchi.co.uk>
+ * @package ZucchiModelTest
+ * @subpackage Annotation
+ * @category
+ */
 class FieldTest extends \Codeception\TestCase\Test
 {
    /**
