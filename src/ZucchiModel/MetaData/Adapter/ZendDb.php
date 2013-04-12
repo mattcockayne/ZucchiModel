@@ -15,7 +15,7 @@ use ZucchiModel\Query\Criteria;
 /**
  * ZendDb
  *
- * Description of class
+ * MetaData ZendDB Adapter.
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
