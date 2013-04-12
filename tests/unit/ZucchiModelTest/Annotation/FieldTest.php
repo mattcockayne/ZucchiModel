@@ -176,10 +176,10 @@ class FieldTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Check Field throws \Zend\Form\Exception\DomainException when given
+     * Check Field throws \ErrorException when given
      * invalid array.
      *
-     * @expectedException \Zend\Form\Exception\DomainException
+     * @expectedException \ErrorException
      */
     public function testFieldWithInvalidDataParam()
     {
