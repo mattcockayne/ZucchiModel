@@ -45,7 +45,8 @@ class MetadataListener
     }
 
     /**
-     * remove listeners from events
+     * Remove listeners from events.
+     *
      * @param EventManagerInterface $events
      */
     public function detach(EventManagerInterface $events)
@@ -54,6 +55,11 @@ class MetadataListener
         $this->listeners = array();
     }
 
+    /**
+     * Event to build Model Metadata for given model.
+     *
+     * @param Event $event
+     */
     public function prepareModelMetadata(Event $event)
     {
         $model = $event->getParam('model');
@@ -75,6 +81,11 @@ class MetadataListener
         $model['target'] = $target;
     }
 
+    /**
+     * Event to build Field Metadata for given model.
+     *
+     * @param Event $event
+     */
     public function prepareFieldMetadata(Event $event)
     {
         $metadata = $event->getTarget();
