@@ -51,7 +51,7 @@ class MetadataListener
      */
     public function detach(EventManagerInterface $events)
     {
-        array_walk($this->listeners, array($events,'detach'));
+        array_walk($this->listeners, array($events, 'detach'));
         $this->listeners = array();
     }
 
@@ -92,7 +92,7 @@ class MetadataListener
         $property = $event->getParam('property');
         $annotations = $event->getParam('annotation');
         foreach ($annotations as $annotation) {
-            if ($annotation instanceof \ZucchiModel\Annotation\Field) {
+            if ($annotation instanceof Annotation\Field) {
                 $metadata[$property] = $annotation->getField();
             }
         }
