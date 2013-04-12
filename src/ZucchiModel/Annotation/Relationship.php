@@ -54,7 +54,7 @@ class Relationship extends AbstractArrayAnnotation
 
         $foundKeys = array_keys($this->value);
 
-        if (!($type = $this->value['type'])){
+        if (!isset($this->value['type']) || !($type = $this->value['type'])) {
             throw new \RuntimeException(sprintf('Required type missing from Relationship annotation. Given "%s".', (implode(',',$foundKeys))));
         }
 
@@ -73,7 +73,6 @@ class Relationship extends AbstractArrayAnnotation
                 throw new \RuntimeException(sprintf('Invalid definition of "%s" in Relationship annotation.', $key));
             }
         }
-
     }
 
     /**
