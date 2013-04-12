@@ -37,7 +37,7 @@ class Field extends AbstractArrayOrStringAnnotation
      * @param array $data
      * @throws \RuntimeException if no valid type is given in annotation
      */
-    public function __construct(array $data)
+    public function __construct(Array $data)
     {
         parent::__construct($data);
         $type = $this->getField();
