@@ -22,20 +22,44 @@ use Zend\Form\Annotation\AbstractArrayAnnotation;
  */
 class Relationship extends AbstractArrayAnnotation
 {
+    /**
+     * Constant to One relationship.
+     */
     const TO_ONE = 'toOne';
 
+    /**
+     * Constant to Many relationship.
+     */
     const TO_MANY = 'toMany';
 
+    /**
+     * Constant Many to Many relationship.
+     */
     const MANY_TO_MANY = 'ManytoMany';
 
+    /**
+     * List of Valid Keys that can be supplied.
+     *
+     * @var array
+     */
     protected $validKeys = array(
         'name','model','type','mappedKey','mappedBy','foreignKey','foreignBy','referencedBy','referencedOrder'
     );
 
+    /**
+     * List of Valid Types.
+     *
+     * @var array
+     */
     protected $validTypes = array(
         self::TO_ONE, self::TO_MANY, self::MANY_TO_MANY
     );
 
+    /**
+     * List of Required Keys per Type.
+     *
+     * @var array
+     */
     protected $requiredKeys = array(
         self::TO_ONE => array(
             'name','model','type','mappedKey','mappedBy'
@@ -48,6 +72,12 @@ class Relationship extends AbstractArrayAnnotation
         )
     );
 
+    /**
+     * Construct this Relationship.
+     *
+     * @param array $data
+     * @throws \RuntimeException if no type set or given relationship is invalid
+     */
     public function __construct(Array $data)
     {
         parent::__construct($data);
