@@ -45,7 +45,7 @@ class Field extends AbstractArrayOrStringAnnotation
         // Test the given type is a valid allowed type
         // If not throw
         if (!in_array($type, $this->allowedTypes)) {
-            throw new \RuntimeException(sprintf('%s is not a valid Field definition"', var_export($type, true)));
+            throw new \RuntimeException(sprintf('%s is not a valid Field definition.', var_export($type, true)));
         }
     }
 
