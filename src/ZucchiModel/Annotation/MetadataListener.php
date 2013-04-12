@@ -24,7 +24,14 @@ use ZucchiModel\Annotation;
 class MetadataListener
 {
     /**
-     * Attach listeners
+     * List of attached events.
+     *
+     * @var array
+     */
+    protected $listeners = array();
+
+    /**
+     * Attach listeners.
      *
      * @param  EventManagerInterface $events
      * @return void
