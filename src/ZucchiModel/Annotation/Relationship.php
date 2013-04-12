@@ -48,7 +48,7 @@ class Relationship extends AbstractArrayAnnotation
         )
     );
 
-    public function __construct(array $data)
+    public function __construct(Array $data)
     {
         parent::__construct($data);
 
