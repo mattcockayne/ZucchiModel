@@ -103,12 +103,31 @@ class MetadataListener
      * Event to build Field Metadata for given model.
      *
      * @param Event $event
+     * @throws \UnexpectedValueException
      */
     public function prepareFieldMetadata(Event $event)
     {
         $metadata = $event->getTarget();
+
+        // Check model is the correct type
+        if (!($metadata instanceof \Traversable)) {
+            throw new \UnexpectedValueException(sprintf('Metadata must be Traversable. Given %s.', var_export($metadata, true)));
+        }
+
         $property = $event->getParam('property');
+
+        // Check model is the correct type
+        if (!is_string($property) || $property == '') {
+            throw new \UnexpectedValueException(sprintf('Model array expected. Given %s.', var_export($property, true)));
+        }
+
         $annotations = $event->getParam('annotation');
+
+        // Annotations must be traversable
+        if (!($annotations instanceof \Traversable)) {
+            throw new \UnexpectedValueException(sprintf('Annotations must be Traversable. Given %s.', var_export($annotations, true)));
+        }
+
         foreach ($annotations as $annotation) {
             if ($annotation instanceof Annotation\Field) {
                 $metadata[$property] = $annotation->getField();
