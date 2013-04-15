@@ -18,7 +18,6 @@ use ZucchiModel\Behaviour;
  */
 class EliteCustomer extends PremierCustomer
 {
-    use Behaviour\ChangeTrackingTrait;
     /**
      * discount
      *
