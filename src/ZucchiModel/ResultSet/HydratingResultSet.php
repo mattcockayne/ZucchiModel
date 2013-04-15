@@ -11,7 +11,7 @@ namespace ZucchiModel\ResultSet;
 
 use Iterator;
 use IteratorAggregate;
-use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zucchi\Event\EventProviderTrait;
 
@@ -51,10 +51,10 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     /**
      * Constructor
      *
-     * @param EventManager $eventManager
+     * @param EventManagerInterface $eventManager
      * @param null $objectPrototype
      */
-    public function __construct(EventManager $eventManager, $objectPrototype = null)
+    public function __construct(EventManagerInterface $eventManager, $objectPrototype = null)
     {
         $this->setEventManager($eventManager);
         $this->setObjectPrototype(($objectPrototype) ?: new ArrayObject);

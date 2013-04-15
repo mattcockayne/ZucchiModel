@@ -26,17 +26,18 @@ use ZucchiModel\Query\Criteria;
 class Mongo extends AbstractAdapter
 {
     /**
-     * retrieve metadata for class
-     * @param $class
+     * Retrieve metadata for given targets.
+     *
+     * @param array $targets
      * @return mixed
      */
-    public function getMetaData($class)
+    public function getMetaData(Array $targets)
     {
 
     }
 
     /**
-     * build and return query object from criteria
+     * Build and return query object from criteria.
      *
      * @param Criteria $criteria
      * @param MetaDataContainer $metadata
@@ -48,7 +49,32 @@ class Mongo extends AbstractAdapter
     }
 
     /**
-     * execute supplied query and return result
+     * Build and return query object from criteria.
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return mixed|void
+     */
+    public function buildCountQuery(Criteria $criteria, MetaDataContainer $metadata)
+    {
+
+    }
+
+    /**
+     * Find and return hydrated result set.
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return mixed|void
+     */
+    public function find(Criteria $criteria, MetaDataContainer $metadata)
+    {
+
+    }
+
+    /**
+     * Execute supplied query and return result.
+     *
      * @param $query
      * @return mixed
      */

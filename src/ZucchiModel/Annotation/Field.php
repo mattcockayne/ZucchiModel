@@ -37,7 +37,7 @@ class Field extends AbstractArrayOrStringAnnotation
      * @param array $data
      * @throws \RuntimeException if no valid type is given in annotation
      */
-    public function __construct(array $data)
+    public function __construct(Array $data)
     {
         parent::__construct($data);
         $type = $this->getField();
@@ -45,7 +45,7 @@ class Field extends AbstractArrayOrStringAnnotation
         // Test the given type is a valid allowed type
         // If not throw
         if (!in_array($type, $this->allowedTypes)) {
-            throw new \RuntimeException(sprintf('%s is not a valid Field definition"', var_export($type, true)));
+            throw new \RuntimeException(sprintf('%s is not a valid Field definition.', var_export($type, true)));
         }
     }
 

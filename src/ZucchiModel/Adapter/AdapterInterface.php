@@ -27,15 +27,15 @@ use ZucchiModel\Metadata\MetaDataContainer;
 interface AdapterInterface
 {
     /**
-     * Retrieve metadata for class
+     * Retrieve metadata for class.
      *
-     * @param Array $class
+     * @param Array $targets
      * @return mixed
      */
-    public function getMetaData(Array $class);
+    public function getMetaData(Array $targets);
 
     /**
-     * Build and return query object from criteria
+     * Build and return query object from criteria.
      *
      * @param Criteria $criteria
      * @param MetaDataContainer $metadata
@@ -44,7 +44,16 @@ interface AdapterInterface
     public function buildQuery(Criteria $criteria, MetaDataContainer $metadata);
 
     /**
-     * Execute supplied query and return result
+     * Build and return a count query object from criteria
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return \Zend\Db\Sql\Select
+     */
+    public function buildCountQuery(Criteria $criteria, MetaDataContainer $metadata);
+
+    /**
+     * Execute supplied query and return result.
      *
      * @param $query
      * @return mixed
@@ -52,7 +61,17 @@ interface AdapterInterface
     public function execute($query);
 
     /**
-     * Method to write models from container to database
+     * Find and return hydrated result set.
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return mixed
+     */
+    public function find(Criteria $criteria, MetaDataContainer $metadata);
+
+    /**
+     * Method to write models from container to database.
+     *
      * @param Container $container
      * @return mixed
      */

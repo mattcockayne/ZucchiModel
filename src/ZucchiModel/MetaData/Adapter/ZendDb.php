@@ -15,7 +15,7 @@ use ZucchiModel\Query\Criteria;
 /**
  * ZendDb
  *
- * Description of class
+ * MetaData ZendDB Adapter.
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
@@ -61,7 +61,7 @@ class ZendDb extends AbstractAdapter
      * @param array $relationship
      * @return Criteria
      */
-    public function addRelationship($model, Criteria $criteria, array $relationship)
+    public function addRelationship($model, Criteria $criteria, Array $relationship)
     {
         // Create where clause with actually value, pointed at by
         // mappedKey, while we have access to the model.

@@ -11,14 +11,17 @@ namespace ZucchiModel\Adapter;
 
 use Zend\Db\Adapter\Adapter;
 use Zend\Db\Metadata\Metadata;
-use ZucchiModel\Metadata\MetaDataContainer;
-use ZucchiModel\Query\Criteria;
-use ZucchiModel\Persistence;
 use Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Where;
 use Zend\Db\Sql\Expression;
+use Zend\Db\Sql\Select;
 
 use ZucchiModel\Metadata\Adapter\ZendDb as AdapterMetadata;
+use ZucchiModel\Metadata\MetaDataContainer;
+use ZucchiModel\Persistence;
+use ZucchiModel\Query\Criteria;
+use ZucchiModel\ResultSet;
+
 
 /**
  * ZendDb
@@ -64,19 +67,24 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * Retrieve metadata for class
+     * Retrieve metadata for given targets
      *
-     * @param array $tables
-     * @return \ZucchiModel\Metadata\Adapter\ZendDb
-     * @throws \Exception if table does not exist
+     * @param array $targets
+     * @return mixed|AdapterMetadata
+     * @throws \InvalidArgumentException
      */
-    public function getMetaData(Array $tables = array())
+    public function getMetaData(Array $targets)
     {
+        if (empty($targets)) {
+            throw new \InvalidArgumentException('Supplied Targets must contain values.');
+        }
+
         $dbMeta = new Metadata($this->getDataSource());
         $metadata = array();
+
         // populate datasource details
-        foreach ($tables as $table) {
-            $metadata[$table] = $dbMeta->getTable($table);
+        foreach ($targets as $target) {
+            $metadata[$target] = $dbMeta->getTable($target);
         }
 
         $adapterMetadata = new AdapterMetadata();
@@ -116,11 +124,14 @@ class ZendDb extends AbstractAdapter
             $select->columns($columns);
         }
 
-        $dataSources = array_keys($metadata->getAdapter()->getHierarchy());
-        array_pop($dataSources);
+        $joins = array();
+        if ($hierarchy = $metadata->getAdapter()->getHierarchy()) {
+            $dataSources = array_keys($hierarchy);
+            array_pop($dataSources);
 
-        // Get array of any joins
-        $joins = $this->determineJoins($dataSources, $from, $columnMap, $foreign);
+            // Get array of any joins
+            $joins = $this->determineJoins($dataSources, $from, $columnMap, $foreign);
+        }
 
         // Add any additional joins to join array
         $joins = array_merge($joins, $this->determineAdditionalJoins($criteria));
@@ -169,7 +180,15 @@ class ZendDb extends AbstractAdapter
         $select = $this->buildQuery($criteria, $metadata);
 
         // Replace column select with Count(*)
-        $select->reset('columns')->columns(array('count' => new Expression('COUNT(*)')));
+        $select->reset(Select::COLUMNS)->columns(array('count' => new Expression('COUNT(*)')));
+
+        // get join information, clear, and repopulate without columns
+        if ($joins = $select->getRawState(Select::JOINS)) {
+            $select->reset(Select::JOINS);
+            foreach ($joins as $join) {
+                $select->join($join['name'], $join['on'], array(), $join['type']);
+            }
+        }
 
         return $select;
     }
@@ -190,6 +209,30 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
+     * Find and return hydrated result set
+     *
+     * @param Criteria $criteria
+     * @param MetaDataContainer $metadata
+     * @return bool|ResultSet\HydratingResultSet
+     */
+    public function find(Criteria $criteria, MetaDataContainer $metadata)
+    {
+        $query = $this->buildQuery($criteria, $metadata);
+
+        $results = $this->execute($query);
+
+        $model = $criteria->getModel();
+
+        $resultSet = new ResultSet\HydratingResultSet($this->getEventManager(), new $model);
+        if (method_exists($results, 'buffer')) {
+            $results->buffer();
+        }
+        $resultSet->initialize($results);
+
+        return $resultSet;
+    }
+
+    /**
      * Determines the required joins for a query
      *
      * @param $dataSources
@@ -202,6 +245,10 @@ class ZendDb extends AbstractAdapter
      */
     protected function determineJoins($dataSources, $from, $columnMap, $foreign)
     {
+        if (empty($from) || !is_string($from)) {
+            throw new \RuntimeException(sprintf('From must be set and a string. %s given.', var_export($from, true)));
+        }
+
         // Create lookup to match Table name to alias
         $tableNameLookup = array($from => 0);
 
@@ -219,7 +266,6 @@ class ZendDb extends AbstractAdapter
 
             $tableToName = $foreign[$tableFromName]['tableTo'];
             $columnReferenceMap = $foreign[$tableFromName]['columnReferenceMap'];
-
 
             // If not used before add table to temporary lookup
             if (!isset($tableNameLookup[$tableFromName])) {
@@ -263,7 +309,7 @@ class ZendDb extends AbstractAdapter
      * @param array $joins
      * @return array
      */
-    public function determineAdditionalJoins(Criteria $criteria, $joins = array())
+    protected function determineAdditionalJoins(Criteria $criteria, $joins = array())
     {
         if ($additionalJoins = $criteria->getJoin()) {
             $where = $criteria->getWhere() ?: new Where();
@@ -327,7 +373,7 @@ class ZendDb extends AbstractAdapter
             $setProperty = $model->setProperty;
         }
 
-        foreach ($dataSources as $dataSource => $related) {
+        foreach (array_keys($dataSources) as $dataSource) {
             $columns = array_keys($columnMap, $dataSource);
             $updateColumns = array();
             if (isset($primary[$dataSource])) {

@@ -24,7 +24,14 @@ use ZucchiModel\Annotation;
 class MetadataListener
 {
     /**
-     * Attach listeners
+     * List of attached events.
+     *
+     * @var array
+     */
+    protected $listeners = array();
+
+    /**
+     * Attach listeners.
      *
      * @param  EventManagerInterface $events
      * @return void
@@ -38,15 +45,21 @@ class MetadataListener
     }
 
     /**
-     * remove listeners from events
+     * Remove listeners from events.
+     *
      * @param EventManagerInterface $events
      */
     public function detach(EventManagerInterface $events)
     {
-        array_walk($this->listeners, array($events,'detach'));
+        array_walk($this->listeners, array($events, 'detach'));
         $this->listeners = array();
     }
 
+    /**
+     * Event to build Model Metadata for given model.
+     *
+     * @param Event $event
+     */
     public function prepareModelMetadata(Event $event)
     {
         $model = $event->getParam('model');
@@ -68,13 +81,18 @@ class MetadataListener
         $model['target'] = $target;
     }
 
+    /**
+     * Event to build Field Metadata for given model.
+     *
+     * @param Event $event
+     */
     public function prepareFieldMetadata(Event $event)
     {
         $metadata = $event->getTarget();
         $property = $event->getParam('property');
         $annotations = $event->getParam('annotation');
         foreach ($annotations as $annotation) {
-            if ($annotation instanceof \ZucchiModel\Annotation\Field) {
+            if ($annotation instanceof Annotation\Field) {
                 $metadata[$property] = $annotation->getField();
             }
         }

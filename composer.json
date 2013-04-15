@@ -29,7 +29,8 @@
     },
     "autoload": {
         "psr-0": {
-            "ZucchiModel": "src/"
+            "ZucchiModel": "src/",
+            "ZucchiModelTest": "tests/unit/"
         },
         "classmap": [
             "./Module.php"
