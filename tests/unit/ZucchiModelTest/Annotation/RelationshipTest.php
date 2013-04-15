@@ -61,7 +61,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
         $relationship = new Relationship($valueOriginal);
         $this->assertInstanceOf('\ZucchiModel\Annotation\Relationship', $relationship);
         $value = $relationship->getRelationship();
-        $this->assertSame($value, $valueOriginal['value']);
+        $this->assertSame($valueOriginal['value'], $value);
     }
 
     /**
@@ -82,7 +82,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
         $relationship = new Relationship($valueOriginal);
         $this->assertInstanceOf('\ZucchiModel\Annotation\Relationship', $relationship);
         $value = $relationship->getRelationship();
-        $this->assertSame($value, $valueOriginal['value']);
+        $this->assertSame($valueOriginal['value'], $value);
     }
 
     /**
@@ -106,7 +106,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
         $relationship = new Relationship($valueOriginal);
         $this->assertInstanceOf('\ZucchiModel\Annotation\Relationship', $relationship);
         $value = $relationship->getRelationship();
-        $this->assertSame($value, $valueOriginal['value']);
+        $this->assertSame($valueOriginal['value'], $value);
     }
 
     /**
@@ -131,7 +131,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
         $relationship = new Relationship($valueOriginal);
         $this->assertInstanceOf('\ZucchiModel\Annotation\Relationship', $relationship);
         $value = $relationship->getRelationship();
-        $this->assertSame($value, $valueOriginal['value']);
+        $this->assertSame($valueOriginal['value'], $value);
     }
 
     /**

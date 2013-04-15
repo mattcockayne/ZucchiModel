@@ -10,7 +10,7 @@ namespace ZucchiModelTest\Annotation;
 
 use Codeception\Util\Stub;
 
-use \ZucchiModel\Annotation\Field;
+use ZucchiModel\Annotation\Field;
 
 /**
  * FieldTest
@@ -38,7 +38,6 @@ class FieldTest extends \Codeception\TestCase\Test
 
     /**
      * Tear down Test
-     * @todo: check with matt if these are needed.
      */
     protected function _after()
     {
@@ -53,7 +52,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -65,7 +64,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -77,7 +76,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -89,7 +88,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -101,7 +100,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -113,7 +112,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -125,7 +124,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -137,7 +136,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -149,7 +148,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
@@ -161,7 +160,7 @@ class FieldTest extends \Codeception\TestCase\Test
         $field = new Field(array('value' => $valueOriginal));
         $this->assertInstanceOf('\ZucchiModel\Annotation\Field', $field);
         $value = $field->getField();
-        $this->assertSame($value, $valueOriginal);
+        $this->assertSame($valueOriginal, $value);
     }
 
     /**
