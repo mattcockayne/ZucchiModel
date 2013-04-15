@@ -16,7 +16,7 @@ services:
 
 before_script:
    - composer self-update
-   - composer install --dev
+   - composer install --dev --prefer-source
    - mysql -e 'create database test_zucchimodel;'
 
 script:
