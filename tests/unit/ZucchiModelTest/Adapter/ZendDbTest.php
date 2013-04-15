@@ -56,14 +56,13 @@ class ZendDbTest extends \Codeception\TestCase\Test
     protected $modelManager;
 
     /**
-     * Setup Zend Db and Zucchi Model Manger
-     * @return void
+     * Setup Zend Db and Zucchi Model Manger for Tests
      */
     protected function _before()
     {
         $this->zendDbAdapter = new ZendDbAdapter(array(
             'driver' => 'Mysqli',
-            'database' => 'moduledev',
+            'database' => 'test_zucchimodel',
             'username' => 'root',
             'password' => 'password',
             'port' => '3306',
@@ -77,8 +76,6 @@ class ZendDbTest extends \Codeception\TestCase\Test
 
     /**
      * Tear down
-     *
-     * @return void
      */
     protected function _after()
     {
@@ -141,7 +138,7 @@ class ZendDbTest extends \Codeception\TestCase\Test
      */
     public function testGetMetaDataWithValidTableParam()
     {
-        $metadata = $this->adapter->getMetaData(array('moduledev_user'));
+        $metadata = $this->adapter->getMetaData(array('test_zucchimodel_user'));
         $this->assertInstanceOf('\ZucchiModel\Metadata\Adapter\ZendDb', $metadata);
     }
 

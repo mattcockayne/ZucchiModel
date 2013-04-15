@@ -13,9 +13,10 @@ use ZucchiModel\Behaviour;
 
 /**
  * @author Rick Nicol <rick@zucchi.co.uk>
- * @Model\Target({"moduledev_role"})
+ * @Model\Target({"test_zucchimodel_role"})
  */
-class Role {
+class Role
+{
     use Behaviour\IdentityTrait;
 
     /**

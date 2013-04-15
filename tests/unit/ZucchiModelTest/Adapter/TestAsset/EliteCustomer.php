@@ -14,11 +14,10 @@ use ZucchiModel\Behaviour;
 
 /**
  * @author Rick Nicol <rick@zucchi.co.uk>
- * @Model\Target({"moduledev_elite_customer", "moduledev_user","moduledev_customer","moduledev_premier_customer"})
+ * @Model\Target({"test_zucchimodel_elite_customer", "test_zucchimodel_user","test_zucchimodel_customer","test_zucchimodel_premier_customer"})
  */
 class EliteCustomer extends PremierCustomer
 {
-    use Behaviour\ChangeTrackingTrait;
     /**
      * discount
      *

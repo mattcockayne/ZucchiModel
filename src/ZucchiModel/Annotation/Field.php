@@ -9,7 +9,7 @@
 
 namespace ZucchiModel\Annotation;
 
-use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
+use Zend\Form\Annotation\AbstractStringAnnotation;
 
 /**
  * Field annotation
@@ -20,7 +20,7 @@ use Zend\Form\Annotation\AbstractArrayOrStringAnnotation;
  * @package ZucchiModel
  * @subpackage Annotation
  */
-class Field extends AbstractArrayOrStringAnnotation
+class Field extends AbstractStringAnnotation
 {
     /**
      * Allowed types for fields

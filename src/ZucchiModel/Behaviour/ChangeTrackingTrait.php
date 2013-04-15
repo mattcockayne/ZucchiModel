@@ -30,14 +30,24 @@ trait ChangeTrackingTrait
      * @param array $data
      * @return $this
      */
-    public function setCleanData(array $data)
+    public function setCleanData(Array $data)
     {
         $this->cleanData = $data;
         return $this;
     }
 
     /**
-     * Function to retrive the changed fields of an entity
+     * Get the clean data
+     *
+     * @return array
+     */
+    public function getCleanData()
+    {
+        return $this->cleanData;
+    }
+
+    /**
+     * Function to retrieve the changed fields of an entity
      *
      * @param bool $original retrieve the original values
      * @return array of changed values
@@ -47,10 +57,14 @@ trait ChangeTrackingTrait
         if ($original) {
             $a = $this->cleanData;
             $b = get_object_vars($this);
+
+            // Ignore cleanData array
             unset($b['cleanData']);
         } else {
             $a = get_object_vars($this);
             $b = $this->cleanData;
+
+            // Ignore cleanData array
             unset($a['cleanData']);
         }
 

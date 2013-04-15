@@ -12,7 +12,7 @@ use ZucchiModel\Annotation as Model;
 
 /**
  * @author Rick Nicol <rick@zucchi.co.uk>
- * @Model\Target({"moduledev_customer","moduledev_user"})
+ * @Model\Target({"test_zucchimodel_customer","test_zucchimodel_user"})
  */
 class Customer extends User
 {

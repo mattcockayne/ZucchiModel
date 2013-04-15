@@ -6,21 +6,27 @@
  * @copyright Copyright (c) 2005-2013 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-
-namespace ZucchiModelTest\Adapter\TestAsset;
+namespace ZucchiModelTest\Behaviour\TestAsset;
 
 use ZucchiModel\Annotation as Model;
 
 /**
  * @author Rick Nicol <rick@zucchi.co.uk>
- * @Model\Target({"test_zucchimodel_premier_customer","test_zucchimodel_user","test_zucchimodel_customer"})
+ * @Model\Target({"test_zucchimodel_customer","test_zucchimodel_user"})
  */
-class PremierCustomer extends Customer
+class Customer extends User
 {
     /**
-     * discount
+     * users forename
      *
-     * @Model\Field("integer")
+     * @Model\Field("string")
      */
-    public $discount;
+    public $forename;
+
+    /**
+     * customer address
+     *
+     * @Model\Field("string")
+     */
+    public $address;
 }
