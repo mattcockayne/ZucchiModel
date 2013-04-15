@@ -199,7 +199,7 @@ class Criteria extends AbstractOptions
      */
     public function setLimit($limit)
     {
-        if ((is_integer($limit) > 0) || is_null($limit)) {
+        if ((is_integer($limit) && $limit > 0) || is_null($limit)) {
             $this->limit = $limit;
         } else {
             $type = gettype($limit);
