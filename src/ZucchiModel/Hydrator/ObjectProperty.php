@@ -28,12 +28,13 @@ class ObjectProperty extends PropertyHydrator
      *
      * Hydrates an object by setting public properties of the object.
      *
-     * @param  array $data
-     * @param  object $object
+     * @param array $data
+     * @param object $object
      * @return object
-     * @throws Exception\BadMethodCallException for a non-object $object
+     * @throws \RuntimeException
+     * @throws \Zend\Stdlib\Exception\BadMethodCallException
      */
-    public function hydrate(array $data, $object)
+    public function hydrate(Array $data, $object)
     {
         if (!is_object($object)) {
             throw new Exception\BadMethodCallException(sprintf(
