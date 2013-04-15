@@ -3,6 +3,9 @@ ZucchiModel
 
 Model management and lightweight ORM overlaying Zend\Db
 
+Build Status
+* Master: [![Build Status](https://secure.travis-ci.org/zucchi/ZucchiModel.png?branch=master)](http://travis-ci.org/zucchi/ZucchiModel)
+
 Installation
 ------------
 
