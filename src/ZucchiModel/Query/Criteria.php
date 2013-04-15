@@ -23,6 +23,7 @@ class Criteria extends AbstractOptions
 {
     /**
      * Model name
+     *
      * @var string
      */
     protected $model;
@@ -126,7 +127,7 @@ class Criteria extends AbstractOptions
      * Set Model with a given string.
      *
      * @param $model
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function setModel($model)
     {
@@ -135,7 +136,7 @@ class Criteria extends AbstractOptions
         } else {
             $type = gettype($model);
             $type = ($type != 'object')?: get_class($model);
-            throw new \RuntimeException(sprintf('Model must be a string and can not be blank. %s given.', $type));
+            throw new \InvalidArgumentException(sprintf('Model must be a string and can not be blank. %s given.', $type));
         }
     }
 
@@ -143,7 +144,7 @@ class Criteria extends AbstractOptions
      * Set Additional Join with a given array.
      *
      * @param $join
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function setJoin($join)
     {
@@ -152,7 +153,7 @@ class Criteria extends AbstractOptions
         } else {
             $type = gettype($join);
             $type = ($type != 'object')?: get_class($join);
-            throw new \RuntimeException(sprintf('Join must be an array or null. %s given.', $type));
+            throw new \InvalidArgumentException(sprintf('Join must be an array or null. %s given.', $type));
         }
     }
 
@@ -160,7 +161,7 @@ class Criteria extends AbstractOptions
      * Set Where with given \Zend\Db\Sql\Where.
      *
      * @param $where
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function setWhere($where)
     {
@@ -169,7 +170,7 @@ class Criteria extends AbstractOptions
         } else {
             $type = gettype($where);
             $type = ($type != 'object')?: get_class($where);
-            throw new \RuntimeException(sprintf('Where must be an instance of Zend\Db\Sql\Where or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Where must be an instance of Zend\Db\Sql\Where or null. %s given', $type));
         }
     }
 
@@ -177,7 +178,7 @@ class Criteria extends AbstractOptions
      * Set offest with given integer.
      *
      * @param $offset
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function setOffset($offset)
     {
@@ -186,7 +187,7 @@ class Criteria extends AbstractOptions
         } else {
             $type = gettype($offset);
             $type = ($type != 'object')?: get_class($offset);
-            throw new \RuntimeException(sprintf('Offset must be a positive integer or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Offset must be a positive integer or null. %s given', $type));
         }
     }
 
@@ -194,7 +195,7 @@ class Criteria extends AbstractOptions
      * Set limit with given integer.
      *
      * @param $limit
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function setLimit($limit)
     {
@@ -203,7 +204,7 @@ class Criteria extends AbstractOptions
         } else {
             $type = gettype($limit);
             $type = ($type != 'object')?: get_class($limit);
-            throw new \RuntimeException(sprintf('Limit must be a positive integer or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Limit must be a positive integer or null. %s given', $type));
         }
     }
 
@@ -211,7 +212,7 @@ class Criteria extends AbstractOptions
      * Set order by with given array.
      *
      * @param $orderBy
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function setOrderBy($orderBy)
     {
@@ -220,7 +221,7 @@ class Criteria extends AbstractOptions
         } else {
             $type = gettype($orderBy);
             $type = ($type != 'object')?: get_class($orderBy);
-            throw new \RuntimeException(sprintf('Order By must be an array or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Order By must be an array or null. %s given', $type));
         }
     }
 }
