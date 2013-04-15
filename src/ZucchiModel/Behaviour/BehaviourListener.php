@@ -77,7 +77,7 @@ class BehaviourListener
     public function attach(EventManagerInterface $events)
     {
         $this->listeners = array(
-            $events->attach('hydrate', array($this, 'setCleanData')),
+            $events->attach('postHydrate', array($this, 'setCleanData')),
         );
     }
 
@@ -88,7 +88,7 @@ class BehaviourListener
      */
     public function detach(EventManagerInterface $events)
     {
-        array_walk($this->listeners, array($events,'detach'));
+        array_walk($this->listeners, array($events, 'detach'));
         $this->listeners = array();
     }
 
