@@ -25,6 +25,13 @@ use ZucchiModel\Annotation;
 class BehaviourListener
 {
     /**
+     * List of attached events.
+     *
+     * @var array
+     */
+    protected $listeners = array();
+
+    /**
      * @var ModelManager
      */
     protected $modelManager;
