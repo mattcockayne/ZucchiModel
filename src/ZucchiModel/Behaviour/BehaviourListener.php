@@ -10,8 +10,9 @@ namespace ZucchiModel\Behaviour;
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
-use ZucchiModel\ModelManager;
 
+use Zucchi\Traits\TraitsUtils;
+use ZucchiModel\ModelManager;
 use ZucchiModel\Annotation;
 
 /**
@@ -100,8 +101,12 @@ class BehaviourListener
     public function setCleanData(Event $event)
     {
         $target = $event->getTarget();
-        if (in_array('ChangeTrackingTrait', class_uses($target))) {
-            $target->setCleanData($event->getData());
+        // Get all traits for given class target
+        $traits = TraitsUtils::getTraits($target);
+
+        // Check if target uses ChangeTrackingTrait
+        if (in_array('ZucchiModel\Behaviour\ChangeTrackingTrait', $traits)) {
+            $target->setCleanData(get_object_vars($target));
         }
     }
 }
