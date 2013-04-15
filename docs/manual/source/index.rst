@@ -17,11 +17,9 @@ About
    about/requirements
    about/methodology
    about/installation
-   about/database
-   about/adapters
-   about/models
+   about/datasources
    about/annotation
-
+   about/models
 
 Usage
 
