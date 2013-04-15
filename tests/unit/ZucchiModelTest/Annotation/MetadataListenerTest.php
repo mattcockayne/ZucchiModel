@@ -58,13 +58,13 @@ class MetadataListenerTest extends \Codeception\TestCase\Test
     protected $modelManager;
 
     /**
-     * Setup Test
+     * Setup Zend Db and Zucchi Model Manger for Tests
      */
     protected function _before()
     {
         $this->zendDbAdapter = new ZendDbAdapter(array(
             'driver' => 'Mysqli',
-            'database' => 'moduledev',
+            'database' => 'test_zucchimodel',
             'username' => 'root',
             'password' => 'password',
             'port' => '3306',

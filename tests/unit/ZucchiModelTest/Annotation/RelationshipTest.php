@@ -100,7 +100,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
                 'mappedBy' => 'User_id',
                 'foreignKey' => 'id',
                 'foreignBy' => 'Role_id',
-                'referencedBy' => 'moduledev_user_role'
+                'referencedBy' => 'test_zucchimodel_user_role'
             )
         );
         $relationship = new Relationship($valueOriginal);
@@ -124,7 +124,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
                 'mappedBy' => 'User_id',
                 'foreignKey' => 'id',
                 'foreignBy' => 'Role_id',
-                'referencedBy' => 'moduledev_user_role',
+                'referencedBy' => 'test_zucchimodel_user_role',
                 'referencedOrder' => 'sort'
             )
         );
@@ -150,7 +150,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
                 'mappedBy' => 'User_id',
                 'foreignKey' => 'id',
                 'foreignBy' => 'Role_id',
-                'referencedBy' => 'moduledev_user_role',
+                'referencedBy' => 'test_zucchimodel_user_role',
                 'referencedOrder' => 'sort'
             )
         );
@@ -174,7 +174,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
                 'mappedBy' => 'User_id',
                 'foreignKey' => 'id',
                 'foreignBy' => 'Role_id',
-                'referencedBy' => 'moduledev_user_role',
+                'referencedBy' => 'test_zucchimodel_user_role',
                 'referencedOrder' => 'sort'
             )
         );
@@ -198,7 +198,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
                 'mappedBy' => 'User_id',
                 'foreignKey' => 'id',
                 'foreignBy' => 'Role_id',
-                'referencedBy' => 'moduledev_user_role',
+                'referencedBy' => 'test_zucchimodel_user_role',
                 'referencedOrder' => 'sort'
             )
         );
@@ -259,7 +259,7 @@ class RelationshipTest extends \Codeception\TestCase\Test
                 'mappedKey' => 'id',
                 'mappedBy' => 'User_id',
                 'foreignBy' => 'Role_id',
-                'referencedBy' => 'moduledev_user_role',
+                'referencedBy' => 'test_zucchimodel_user_role',
                 'referencedOrder' => 'sort'
             )
         );

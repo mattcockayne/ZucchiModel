@@ -12,8 +12,8 @@ use ZucchiModel\Annotation as Model;
 use ZucchiModel\Behaviour;
 /**
  * @author Rick Nicol <rick@zucchi.co.uk>
- * @Model\Target({"moduledev_user"})
- * @Model\Relationship({"name": "Roles", "model": "Application\Entity\Role", "type": "ManytoMany", "mappedKey": "id", "mappedBy": "User_id", "foreignKey": "id", "foreignBy": "Role_id", "referencedBy": "moduledev_user_role", "referencedOrder": "sort"})
+ * @Model\Target({"test_zucchimodel_user"})
+ * @Model\Relationship({"name": "Roles", "model": "Application\Entity\Role", "type": "ManytoMany", "mappedKey": "id", "mappedBy": "User_id", "foreignKey": "id", "foreignBy": "Role_id", "referencedBy": "test_zucchimodel_user_role", "referencedOrder": "sort"})
  */
 class User
 {

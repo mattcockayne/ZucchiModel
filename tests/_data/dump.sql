@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 5.5.29, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: moduledev
+-- Host: localhost    Database: test_zucchimodel
 -- ------------------------------------------------------
 -- Server version	5.5.29-0ubuntu0.12.10.1
 
@@ -16,95 +16,95 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `moduledev_customer`
+-- Table structure for table `test_zucchimodel_customer`
 --
 
-DROP TABLE IF EXISTS `moduledev_customer`;
+DROP TABLE IF EXISTS `test_zucchimodel_customer`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `moduledev_customer` (
+CREATE TABLE `test_zucchimodel_customer` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `forename` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
   `User_Id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `User_Id` (`User_Id`),
-  CONSTRAINT `moduledev_customer_ibfk_1` FOREIGN KEY (`User_Id`) REFERENCES `moduledev_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `test_zucchimodel_customer_ibfk_1` FOREIGN KEY (`User_Id`) REFERENCES `test_zucchimodel_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `moduledev_customer`
+-- Dumping data for table `test_zucchimodel_customer`
 --
 
-LOCK TABLES `moduledev_customer` WRITE;
-/*!40000 ALTER TABLE `moduledev_customer` DISABLE KEYS */;
-INSERT INTO `moduledev_customer` (`id`, `forename`, `address`, `User_Id`) VALUES (1,'Bob','Eaton House',1),(2,'James','Parkfield Road',2),(3,'Dave','Knutsford',3);
-/*!40000 ALTER TABLE `moduledev_customer` ENABLE KEYS */;
+LOCK TABLES `test_zucchimodel_customer` WRITE;
+/*!40000 ALTER TABLE `test_zucchimodel_customer` DISABLE KEYS */;
+INSERT INTO `test_zucchimodel_customer` (`id`, `forename`, `address`, `User_Id`) VALUES (1,'Matt','Reichstag, Platz der Republik 1, 10557 Berlin',1),(2,'Rick','Sir Matt Busby Way, Old Trafford, Manchester, M16 0RA.',2),(3,'Dave','21 Hunts Bank, Victoria Station, Manchester, M3 1AR.',3);
+/*!40000 ALTER TABLE `test_zucchimodel_customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `moduledev_elite_customer`
+-- Table structure for table `test_zucchimodel_elite_customer`
 --
 
-DROP TABLE IF EXISTS `moduledev_elite_customer`;
+DROP TABLE IF EXISTS `test_zucchimodel_elite_customer`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `moduledev_elite_customer` (
+CREATE TABLE `test_zucchimodel_elite_customer` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `surname` varchar(255) NOT NULL,
   `PremierCustomer_Id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `PremierCustomer_id` (`PremierCustomer_Id`),
-  CONSTRAINT `moduledev_elite_customer_ibfk_1` FOREIGN KEY (`PremierCustomer_Id`) REFERENCES `moduledev_premier_customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `test_zucchimodel_elite_customer_ibfk_1` FOREIGN KEY (`PremierCustomer_Id`) REFERENCES `test_zucchimodel_premier_customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `moduledev_elite_customer`
+-- Dumping data for table `test_zucchimodel_elite_customer`
 --
 
-LOCK TABLES `moduledev_elite_customer` WRITE;
-/*!40000 ALTER TABLE `moduledev_elite_customer` DISABLE KEYS */;
-INSERT INTO `moduledev_elite_customer` (`id`, `surname`, `PremierCustomer_Id`) VALUES (1,'something',1);
-/*!40000 ALTER TABLE `moduledev_elite_customer` ENABLE KEYS */;
+LOCK TABLES `test_zucchimodel_elite_customer` WRITE;
+/*!40000 ALTER TABLE `test_zucchimodel_elite_customer` DISABLE KEYS */;
+INSERT INTO `test_zucchimodel_elite_customer` (`id`, `surname`, `PremierCustomer_Id`) VALUES (1,'Black',1);
+/*!40000 ALTER TABLE `test_zucchimodel_elite_customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `moduledev_premier_customer`
+-- Table structure for table `test_zucchimodel_premier_customer`
 --
 
-DROP TABLE IF EXISTS `moduledev_premier_customer`;
+DROP TABLE IF EXISTS `test_zucchimodel_premier_customer`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `moduledev_premier_customer` (
+CREATE TABLE `test_zucchimodel_premier_customer` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `discount` int(11) NOT NULL,
   `Customer_Id` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `Customer_Id` (`Customer_Id`),
-  CONSTRAINT `moduledev_premier_customer_ibfk_1` FOREIGN KEY (`Customer_Id`) REFERENCES `moduledev_customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `test_zucchimodel_premier_customer_ibfk_1` FOREIGN KEY (`Customer_Id`) REFERENCES `test_zucchimodel_customer` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `moduledev_premier_customer`
+-- Dumping data for table `test_zucchimodel_premier_customer`
 --
 
-LOCK TABLES `moduledev_premier_customer` WRITE;
-/*!40000 ALTER TABLE `moduledev_premier_customer` DISABLE KEYS */;
-INSERT INTO `moduledev_premier_customer` (`id`, `discount`, `Customer_Id`) VALUES (1,15,1);
-/*!40000 ALTER TABLE `moduledev_premier_customer` ENABLE KEYS */;
+LOCK TABLES `test_zucchimodel_premier_customer` WRITE;
+/*!40000 ALTER TABLE `test_zucchimodel_premier_customer` DISABLE KEYS */;
+INSERT INTO `test_zucchimodel_premier_customer` (`id`, `discount`, `Customer_Id`) VALUES (1,15,1);
+/*!40000 ALTER TABLE `test_zucchimodel_premier_customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `moduledev_role`
+-- Table structure for table `test_zucchimodel_role`
 --
 
-DROP TABLE IF EXISTS `moduledev_role`;
+DROP TABLE IF EXISTS `test_zucchimodel_role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `moduledev_role` (
+CREATE TABLE `test_zucchimodel_role` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -112,23 +112,23 @@ CREATE TABLE `moduledev_role` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `moduledev_role`
+-- Dumping data for table `test_zucchimodel_role`
 --
 
-LOCK TABLES `moduledev_role` WRITE;
-/*!40000 ALTER TABLE `moduledev_role` DISABLE KEYS */;
-INSERT INTO `moduledev_role` (`id`, `name`) VALUES (1,'test role 1'),(2,'test role 2');
-/*!40000 ALTER TABLE `moduledev_role` ENABLE KEYS */;
+LOCK TABLES `test_zucchimodel_role` WRITE;
+/*!40000 ALTER TABLE `test_zucchimodel_role` DISABLE KEYS */;
+INSERT INTO `test_zucchimodel_role` (`id`, `name`) VALUES (1,'Power'),(2,'Normal');
+/*!40000 ALTER TABLE `test_zucchimodel_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `moduledev_user`
+-- Table structure for table `test_zucchimodel_user`
 --
 
-DROP TABLE IF EXISTS `moduledev_user`;
+DROP TABLE IF EXISTS `test_zucchimodel_user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `moduledev_user` (
+CREATE TABLE `test_zucchimodel_user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `forename` varchar(255) NOT NULL,
   `surname` varchar(255) NOT NULL,
@@ -141,41 +141,41 @@ CREATE TABLE `moduledev_user` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `moduledev_user`
+-- Dumping data for table `test_zucchimodel_user`
 --
 
-LOCK TABLES `moduledev_user` WRITE;
-/*!40000 ALTER TABLE `moduledev_user` DISABLE KEYS */;
-INSERT INTO `moduledev_user` (`id`, `forename`, `surname`, `email`, `createdAt`, `updatedAt`) VALUES (1,'test','4','rick@zucchi.co.uk','2012-11-28 01:01:01','2012-11-28 11:11:11'),(2,'Bill','Cash','bill@jones.me','2012-11-29 02:02:02','2012-11-29 12:12:12'),(3,'Bill','Jones','tom@jones.me','2012-11-30 03:03:03','2012-11-30 13:13:13');
-/*!40000 ALTER TABLE `moduledev_user` ENABLE KEYS */;
+LOCK TABLES `test_zucchimodel_user` WRITE;
+/*!40000 ALTER TABLE `test_zucchimodel_user` DISABLE KEYS */;
+INSERT INTO `test_zucchimodel_user` (`id`, `forename`, `surname`, `email`, `createdAt`, `updatedAt`) VALUES (1,'James','Hetfield','james@me.co.uk','2012-11-28 01:01:01','2012-11-28 11:11:11'),(2,'Kimi','Raikkonen','kimi@me.co.uk','2012-11-29 02:02:02','2012-11-29 12:12:12'),(3,'Eric','Cantona','eric@me.co.uk','2012-11-30 03:03:03','2012-11-30 13:13:13');
+/*!40000 ALTER TABLE `test_zucchimodel_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Table structure for table `moduledev_user_role`
+-- Table structure for table `test_zucchimodel_user_role`
 --
 
-DROP TABLE IF EXISTS `moduledev_user_role`;
+DROP TABLE IF EXISTS `test_zucchimodel_user_role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `moduledev_user_role` (
+CREATE TABLE `test_zucchimodel_user_role` (
   `User_id` int(11) unsigned NOT NULL,
   `Role_id` int(11) unsigned NOT NULL,
   `sort` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`User_id`,`Role_id`),
   KEY `fk_userrole_role` (`Role_id`),
-  CONSTRAINT `fk_userrole_role` FOREIGN KEY (`Role_id`) REFERENCES `moduledev_role` (`id`),
-  CONSTRAINT `fk_userrole_user` FOREIGN KEY (`User_id`) REFERENCES `moduledev_user` (`id`)
+  CONSTRAINT `fk_userrole_role` FOREIGN KEY (`Role_id`) REFERENCES `test_zucchimodel_role` (`id`),
+  CONSTRAINT `fk_userrole_user` FOREIGN KEY (`User_id`) REFERENCES `test_zucchimodel_user` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `moduledev_user_role`
+-- Dumping data for table `test_zucchimodel_user_role`
 --
 
-LOCK TABLES `moduledev_user_role` WRITE;
-/*!40000 ALTER TABLE `moduledev_user_role` DISABLE KEYS */;
-INSERT INTO `moduledev_user_role` (`User_id`, `Role_id`, `sort`) VALUES (1,1,2),(1,2,1),(2,1,1);
-/*!40000 ALTER TABLE `moduledev_user_role` ENABLE KEYS */;
+LOCK TABLES `test_zucchimodel_user_role` WRITE;
+/*!40000 ALTER TABLE `test_zucchimodel_user_role` DISABLE KEYS */;
+INSERT INTO `test_zucchimodel_user_role` (`User_id`, `Role_id`, `sort`) VALUES (1,1,2),(1,2,1),(2,1,1);
+/*!40000 ALTER TABLE `test_zucchimodel_user_role` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
