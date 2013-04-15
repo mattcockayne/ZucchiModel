@@ -14,7 +14,7 @@ coverage:
 modules:
     config:
         Db:
-            dsn: 'mysql:host=localhost;dbname=test_zucchimodel'
+            dsn: 'mysql:host=127.0.0.1;dbname=test_zucchimodel'
             user: 'root'
             password: null
             dump: tests/_data/dump.sql
