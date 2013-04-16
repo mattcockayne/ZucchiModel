@@ -75,14 +75,14 @@ class MetadataListener
 
         // Check relationships is the correct type
         if (!($relationships instanceof \Traversable)) {
-            throw new \UnexpectedValueException(sprintf('Relationship must be Traversable. Given %s.', var_export($model, true)));
+            throw new \UnexpectedValueException(sprintf('Relationship must be Traversable. Given %s.', var_export($relationships, true)));
         }
 
         $annotations = $event->getTarget();
 
         // Annotations must be traversable
         if (!($annotations instanceof \Traversable)) {
-            throw new \UnexpectedValueException(sprintf('Annotations must be Traversable. Given %s.', var_export($model, true)));
+            throw new \UnexpectedValueException(sprintf('Annotations must be Traversable. Given %s.', var_export($annotations, true)));
         }
 
         foreach ($annotations as $annotation) {
@@ -118,7 +118,7 @@ class MetadataListener
 
         // Check model is the correct type
         if (!is_string($property) || $property == '') {
-            throw new \UnexpectedValueException(sprintf('Model array expected. Given %s.', var_export($property, true)));
+            throw new \UnexpectedValueException(sprintf('A string of Property is expected. Given %s.', var_export($property, true)));
         }
 
         $annotations = $event->getParam('annotation');
