@@ -22,6 +22,13 @@ namespace ZucchiModel\Persistence;
 class PersistenceListener
 {
     /**
+     * List of attached events.
+     *
+     * @var array
+     */
+    protected $listeners = array();
+
+    /**
      * Attach listeners
      *
      * @param  EventManagerInterface $events
