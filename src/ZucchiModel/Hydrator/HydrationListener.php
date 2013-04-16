@@ -199,7 +199,7 @@ class HydrationListener
      * If so, cast to array or object.
      *
      * @param Event $event
-     * @return array|object|string
+     * @return array|object|mixed
      * @throws \UnexpectedValueException
      */
     public function castJson(Event $event)
