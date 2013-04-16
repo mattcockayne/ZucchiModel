@@ -163,9 +163,14 @@ class HydratingResultSet implements Iterator, ResultSetInterface
      *
      * @link http://php.net/manual/en/iterator.next.php
      * @return void Any returned value is ignored.
+     * @throws \RuntimeException
      */
     public function next()
     {
+        if (!$this->iterator instanceof Iterator) {
+            throw new \RuntimeException(sprintf('Iterator is not instance of \Iterator. Given %s.', var_export($this->iterator, true)));
+        }
+
         $this->iterator->next();
         $this->position++;
     }
