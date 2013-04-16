@@ -26,6 +26,13 @@ use ZucchiModel\Annotation;
 class HydrationListener
 {
     /**
+     * List of attached events.
+     *
+     * @var array
+     */
+    protected $listeners = array();
+
+    /**
      * @var ModelManager
      */
     protected $modelManager;
