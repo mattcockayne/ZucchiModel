@@ -160,11 +160,17 @@ class HydrationListener
      *
      * @param Event $event
      * @return \Datetime|object|string
+     * @throws \UnexpectedValueException
      */
     public function castDateTime(Event $event)
     {
         $value = $event->getTarget();
         $type = $event->getParam('type');
+
+        // Check type is a non empty string
+        if (!is_string($type) || $type == '') {
+            throw new \UnexpectedValueException(sprintf('A string of Type is expected. Given %s.', var_export($type, true)));
+        }
 
         // Check if this is a datetime column
         if ('datetime' == strtolower($type)) {
