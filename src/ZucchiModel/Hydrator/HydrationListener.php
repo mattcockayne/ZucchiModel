@@ -160,6 +160,7 @@ class HydrationListener
      *
      * @param Event $event
      * @return \Datetime|object|string
+     * @throws \RuntimeException
      * @throws \UnexpectedValueException
      */
     public function castDateTime(Event $event)
@@ -183,10 +184,13 @@ class HydrationListener
                 // All done, stop all other events and return
                 $event->stopPropagation(true);
                 return $dt;
+            } else {
+                // DateTime String is malformed
+                throw new \RuntimeException(sprintf('Malformed DateTime Value. Given %s.', var_export($value, true)));
             }
         }
 
-        // Return original just incase
+        // Return original just in case
         return $value;
     }
 
