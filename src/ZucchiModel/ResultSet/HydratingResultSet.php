@@ -29,16 +29,23 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     use EventProviderTrait;
 
     /**
+     * Current position of the iterator.
+     *
      * @var int
      */
     protected $position = 0;
 
     /**
+     * Prototype object to return for each found
+     * record.
+     *
      * @var null
      */
     protected $objectPrototype = null;
 
     /**
+     * Iterator for records.
+     *
      * @var Iterator|IteratorAggregate|ResultSetInterface
      */
     protected $iterator = null;
@@ -187,6 +194,7 @@ class HydratingResultSet implements Iterator, ResultSetInterface
         if ($this->iterator instanceof Iterator) {
             $this->iterator->rewind();
         }
+
         $this->position = 0;
     }
 
