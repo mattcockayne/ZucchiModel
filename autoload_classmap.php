@@ -51,6 +51,8 @@ return array(
     'ZucchiModelTest\Behaviour\ChangeTrackingTraitTest' => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/ChangeTrackingTraitTest.php',
     'ZucchiModelTest\Behaviour\IdentityTraitTest'       => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/IdentityTraitTest.php',
     'ZucchiModelTest\Behaviour\SoftDeleteTraitTest'     => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/SoftDeleteTraitTest.php',
+    'ZucchiModelTest\Behaviour\TestAsset\Customer'      => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/TestAsset/Customer.php',
+    'ZucchiModelTest\Behaviour\TestAsset\User'          => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/TestAsset/User.php',
     'ZucchiModelTest\Behaviour\TimestampTraitTest'      => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/TimestampTraitTest.php',
     'ZucchiModelTest\Behaviour\VersionTraitTest'        => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/VersionTraitTest.php',
     'ZucchiModelTest\Hydrator\HydrationListenerTest'    => __DIR__ . '/tests/unit/ZucchiModelTest/Hydrator/HydrationListenerTest.php',
