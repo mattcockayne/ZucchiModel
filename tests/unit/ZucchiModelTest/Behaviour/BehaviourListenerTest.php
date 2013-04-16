@@ -82,7 +82,7 @@ class BehaviourListenerTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Check Behaviour Listener can be instantiated when supplied with valid
+     * Check BehaviourListener can be instantiated when supplied with valid
      * Model Manager.
      */
     public function testBehaviourListenerWithValidModelManager()
@@ -92,7 +92,7 @@ class BehaviourListenerTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Check getModelManager throws an \ErrorException when supplied with
+     * Check BehaviourListener throws an \ErrorException when supplied with
      * invalid Model Manager.
      *
      * @expectedException \ErrorException
