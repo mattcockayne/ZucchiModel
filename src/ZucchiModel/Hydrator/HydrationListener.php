@@ -16,7 +16,7 @@ use ZucchiModel\Annotation;
 use ZucchiModel\ModelManager;
 
 /**
- * Metadata Listener
+ * Hydration Listener
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
