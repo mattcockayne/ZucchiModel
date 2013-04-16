@@ -34,11 +34,6 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     protected $position = 0;
 
     /**
-     * @var null|int
-     */
-    protected $count = null;
-
-    /**
      * @var null
      */
     protected $objectPrototype = null;
@@ -196,17 +191,16 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     }
 
     /**
-     * Always returns false as count can not be performed
-     * on Unbuffered Result Sets.
+     * Returns count of number of records.
      *
-     * @return bool
+     * @return bool|int if no iterator set return false
      */
     public function count()
     {
-        if ($this->count !== null) {
-            return $this->count;
+        if ($this->iterator instanceof Iterator) {
+            return count($this->iterator);
         }
-        $this->count = count($this->iterator);
-        return $this->count;
+
+        return false;
     }
 }
