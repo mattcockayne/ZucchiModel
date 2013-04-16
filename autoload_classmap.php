@@ -57,6 +57,7 @@ return array(
     'ZucchiModelTest\Behaviour\VersionTraitTest'        => __DIR__ . '/tests/unit/ZucchiModelTest/Behaviour/VersionTraitTest.php',
     'ZucchiModelTest\Hydrator\HydrationListenerTest'    => __DIR__ . '/tests/unit/ZucchiModelTest/Hydrator/HydrationListenerTest.php',
     'ZucchiModelTest\Hydrator\ObjectPropertyTest'       => __DIR__ . '/tests/unit/ZucchiModelTest/Hydrator/ObjectPropertyTest.php',
+    'ZucchiModelTest\Hydrator\TestAsset\User'           => __DIR__ . '/tests/unit/ZucchiModelTest/Hydrator/TestAsset/User.php',
     'ZucchiModelTest\MetaDataFieldsTest'                => __DIR__ . '/tests/unit/ZucchiModelTest/MetaData/FieldsTest.php',
     'ZucchiModelTest\MetaDataModelTest'                 => __DIR__ . '/tests/unit/ZucchiModelTest/MetaData/ModelTest.php',
     'ZucchiModelTest\MetaDataRelationshipsTest'         => __DIR__ . '/tests/unit/ZucchiModelTest/MetaData/RelationshipsTest.php',
@@ -64,4 +65,7 @@ return array(
     'ZucchiModelTest\Query\CriteriaTest'                => __DIR__ . '/tests/unit/ZucchiModelTest/Query/CriteriaTest.php',
     'ZucchiModelTest\ResultSet\HydratingResultSetTest'  => __DIR__ . '/tests/unit/ZucchiModelTest/ResultSet/HydratingResultSetTest.php',
     'ZucchiModelTest\ResultSet\PaginatedResultSetTest'  => __DIR__ . '/tests/unit/ZucchiModelTest/ResultSet/PaginatedResultSetTest.php',
+    'ZucchiModelTest\ResultSet\TestAsset\Customer'      => __DIR__ . '/tests/unit/ZucchiModelTest/ResultSet/TestAsset/Customer.php',
+    'ZucchiModelTest\ResultSet\TestAsset\MyData'        => __DIR__ . '/tests/unit/ZucchiModelTest/ResultSet/TestAsset/MyData.php',
+    'ZucchiModelTest\ResultSet\TestAsset\User'          => __DIR__ . '/tests/unit/ZucchiModelTest/ResultSet/TestAsset/User.php',
 );
