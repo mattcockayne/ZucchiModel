@@ -73,6 +73,16 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     }
 
     /**
+     * Get the row object prototype
+     *
+     * @return mixed|null
+     */
+    public function getObjectPrototype()
+    {
+        return $this->objectPrototype;
+    }
+
+    /**
      * Set the row object prototype
      *
      * @param object $objectPrototype
