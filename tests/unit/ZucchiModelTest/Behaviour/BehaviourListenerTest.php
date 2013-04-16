@@ -11,14 +11,11 @@ namespace ZucchiModelTest\Behaviour;
 use Codeception\Util\Stub;
 
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
-use Zend\EventManager\Event;
 
 use ZucchiModel\ModelManager;
 use ZucchiModel\Adapter\ZendDb;
 use ZucchiModel\Behaviour\BehaviourListener;
 use ZucchiModel\Metadata;
-
-use ZucchiModelTest\Behaviour\TestAsset\User;
 
 /**
  * MetadataListenerTest
