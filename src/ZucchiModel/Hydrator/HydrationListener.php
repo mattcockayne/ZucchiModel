@@ -11,9 +11,9 @@ namespace ZucchiModel\Hydrator;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Json\Json;
-use ZucchiModel\ModelManager;
 
 use ZucchiModel\Annotation;
+use ZucchiModel\ModelManager;
 
 /**
  * Metadata Listener
