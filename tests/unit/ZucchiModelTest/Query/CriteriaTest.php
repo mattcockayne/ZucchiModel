@@ -16,7 +16,7 @@ use ZucchiModel\Query\Criteria;
 /**
  * CriteriaTest
  *
- * Tests on the CriteriaTest Class.
+ * Tests on the Criteria Class.
  *
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModelTest
