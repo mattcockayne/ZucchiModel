@@ -196,11 +196,17 @@ class HydrationListener
      *
      * @param Event $event
      * @return array|object|string
+     * @throws \UnexpectedValueException
      */
     public function castJson(Event $event)
     {
         $value = $event->getTarget();
         $type = $event->getParam('type');
+
+        // Check type is a non empty string
+        if (!is_string($type) || $type == '') {
+            throw new \UnexpectedValueException(sprintf('A string of Type is expected. Given %s.', var_export($type, true)));
+        }
 
         switch (strtolower($type)) {
             case 'json_array':
