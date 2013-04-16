@@ -16,20 +16,20 @@ use Zend\EventManager\Event;
 
 use ZucchiModel\ModelManager;
 use ZucchiModel\Adapter\ZendDb;
-use ZucchiModel\Annotation\MetadataListener;
+use ZucchiModel\Annotation\AnnotationListener;
 use ZucchiModel\Metadata;
 
 /**
- * MetadataListenerTest
+ * AnnotationListenerTest
  *
- * Tests on the MetadataListener Class.
+ * Tests on the AnnotationListener Class.
  *
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModelTest
  * @subpackage Annotation
  * @category
  */
-class MetadataListenerTest extends \Codeception\TestCase\Test
+class AnnotationListenerTest extends \Codeception\TestCase\Test
 {
    /**
     * @var \CodeGuy
@@ -84,15 +84,15 @@ class MetadataListenerTest extends \Codeception\TestCase\Test
     }
 
     /**
-     * Check MetadataListener Events can be attached and detached from Event
+     * Check AnnotationListener Events can be attached and detached from Event
      * Manager.
      */
-    public function testDetachMetadataListenerWithValidEventManager()
+    public function testDetachAnnotationListenerWithValidEventManager()
     {
         $em = $this->modelManager->getEventManager();
-        $metadataListener = new MetadataListener();
-        $metadataListener->attach($em);
-        $metadataListener->detach($em);
+        $annotationListener = new AnnotationListener();
+        $annotationListener->attach($em);
+        $annotationListener->detach($em);
     }
 
     /**
@@ -103,8 +103,8 @@ class MetadataListenerTest extends \Codeception\TestCase\Test
      */
     public function testAttachWithInvalidEventManagerParam()
     {
-        $metadataListener = new MetadataListener();
-        $metadataListener->attach('string monkey');
+        $annotationListener = new AnnotationListener();
+        $annotationListener->attach('string monkey');
     }
 
     /**
@@ -115,8 +115,8 @@ class MetadataListenerTest extends \Codeception\TestCase\Test
      */
     public function testDetachWithInvalidEventManagerParam()
     {
-        $metadataListener = new MetadataListener();
-        $metadataListener->detach('string monkey');
+        $annotationListener = new AnnotationListener();
+        $annotationListener->detach('string monkey');
     }
 
     /**
@@ -228,8 +228,8 @@ class MetadataListenerTest extends \Codeception\TestCase\Test
      */
     public function testPrepareModelMetadataWithInvalidEventParam()
     {
-        $metadataListener = new MetadataListener();
-        $metadataListener->prepareModelMetadata('string monkey');
+        $annotationListener = new AnnotationListener();
+        $annotationListener->prepareModelMetadata('string monkey');
     }
 
     /**
@@ -387,7 +387,7 @@ class MetadataListenerTest extends \Codeception\TestCase\Test
      */
     public function testPrepareFieldMetadataWithInvalidEventParam()
     {
-        $metadataListener = new MetadataListener();
-        $metadataListener->prepareFieldMetadata('string monkey');
+        $annotationListener = new AnnotationListener();
+        $annotationListener->prepareFieldMetadata('string monkey');
     }
 }

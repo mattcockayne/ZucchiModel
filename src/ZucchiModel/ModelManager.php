@@ -20,7 +20,7 @@ use Zend\EventManager\EventManagerAwareTrait;
 
 use ZucchiModel\Adapter\AdapterInterface;
 use ZucchiModel\Hydrator;
-use ZucchiModel\Annotation\MetadataListener;
+use ZucchiModel\Annotation\AnnotationListener;
 use ZucchiModel\Metadata;
 use ZucchiModel\Persistence;
 use ZucchiModel\Query\Criteria;
@@ -144,8 +144,8 @@ class ModelManager implements EventManagerAwareInterface
             __CLASS__,
             get_class($this),
         ));
-        $metadataListener = new MetadataListener();
-        $metadataListener->attach($events);
+        $annotationListener = new AnnotationListener();
+        $annotationListener->attach($events);
 
         $hydrationListener = new Hydrator\HydrationListener($this);
         $hydrationListener->attach($events);

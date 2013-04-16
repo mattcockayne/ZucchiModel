@@ -14,14 +14,14 @@ use Zend\EventManager\EventManagerInterface;
 use ZucchiModel\Annotation;
 
 /**
- * Metadata Listener
+ * Annotation Listener
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
  * @subpackage Annotation
  */
-class MetadataListener
+class AnnotationListener
 {
     /**
      * List of attached events.
