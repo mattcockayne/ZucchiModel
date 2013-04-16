@@ -128,10 +128,14 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     /**
      * Iterator: get current item
      *
-     * @return object
+     * @return object|bool if no iterator set return false
      */
     public function current()
     {
+        if (!$this->iterator instanceof Iterator || !is_object($this->getObjectPrototype())) {
+            return false;
+        }
+
         $object = clone $this->objectPrototype;
         $data = $this->iterator->current();
 
