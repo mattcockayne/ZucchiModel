@@ -17,72 +17,80 @@ use ZucchiModel\Query\Criteria;
 /**
  * PaginatedResultSet
  *
- * Description of class
+ * Paginated Result Set gets one Page Size worth of results at a time.
+ * However from outside this class acts like it contains all the results.
+ * This means only the current page of results is in memory at any one time,
+ * thus allowing for batch processing on huge Result Sets.
+ * Note it uses HydratingResultSet internally to hold the current
+ * page of results.
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
- * @package ZucchiModel\ResultSet
- * @subpackage
+ * @package ZucchiModel
+ * @subpackage ResultSet
  * @category
  */
 class PaginatedResultSet implements Iterator, Countable
 {
     /**
-     * Reference to ModelManager
+     * Reference to ModelManager.
      *
      * @var ModelManager
      */
     protected $modelManager;
 
     /**
-     * The original supplied Critera for lookup
+     * The original supplied Criteria for lookup.
      *
      * @var Criteria
      */
     protected $criteria;
 
     /**
-     * Actual position of current result in complete result set
+     * Actual position of current result in complete result set.
      *
      * @var int
      */
     protected $position = 0;
 
     /**
-     * @var HydratingRowset
+     * The internal Result Set, contains one Page Size worth of
+     * results.
+     *
+     * @var HydratingResultSet
      */
     protected $resultSet;
 
     /**
-     * Maximum Page size
+     * Maximum Page size.
      *
      * @var int
      */
     protected $pageSize;
 
     /**
-     * Current Page of results
+     * Current Page of results.
      *
      * @var int
      */
     protected $page = 0;
 
     /**
-     * Total count of selected results
+     * Total count of selected results.
      *
      * @var bool
      */
     protected $count = false;
 
     /**
-     * Custom Limit 0 = Not set
+     * Custom Limit 0 = Not set.
      *
      * @var int
      */
     protected $limit = 0;
 
     /**
-     * Current offset of page
+     * Current offset of page.
      *
      * @var int
      */
@@ -104,7 +112,7 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * Initialise the results
+     * Initialise the result set.
      *
      * @return void
      */
@@ -127,7 +135,86 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * Get current result from result set
+     * Set Criteria.
+     *
+     * @param Criteria $criteria
+     * @return $this
+     */
+    public function setCriteria(Criteria $criteria)
+    {
+        $this->criteria = $criteria;
+
+        if ($limit = $criteria->getLimit()) {
+            $this->limit = $limit;
+        }
+
+        if ($offset = $criteria->getOffset()) {
+            $this->offset = $offset;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get Criteria.
+     *
+     * @return Criteria
+     */
+    public function getCriteria()
+    {
+        return $this->criteria;
+    }
+
+    /**
+     * Set Model Manager.
+     *
+     * @param ModelManager $modelManager
+     * @return $this
+     */
+    public function setModelManager(ModelManager $modelManager)
+    {
+        $this->modelManager = $modelManager;
+        return $this;
+    }
+
+    /**
+     * Get Model Manager.
+     *
+     * @return ModelManager
+     */
+    public function getModelManager()
+    {
+        return $this->modelManager;
+    }
+
+    /**
+     * Set Page Size.
+     *
+     * @param int $pageSize
+     * @return $this
+     * @throws \UnexpectedValueException
+     */
+    public function setPageSize($pageSize)
+    {
+        if (!is_int($pageSize)) {
+            throw new \UnexpectedValueException(sprintf('Set Page Size expects parameter to be an Integer. Given %s.', var_export($pageSize, true)));
+        }
+        $this->pageSize = $pageSize;
+        return $this;
+    }
+
+    /**
+     * Get Page Size.
+     *
+     * @return int
+     */
+    public function getPageSize()
+    {
+        return $this->pageSize;
+    }
+
+    /**
+     * Get current result from result set.
      *
      * @return mixed
      */
@@ -137,10 +224,10 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * Move to the next result in the
-     * result set
+     * Move to the next result in the result set.
      *
-     * @return void
+     * @link http://php.net/manual/en/iterator.next.php
+     * @return void Any returned value is ignored.
      */
     public function next()
     {
@@ -149,15 +236,23 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * Get current key
+     * Return the key of the current element.
      *
-     * @return int
+     * @link http://php.net/manual/en/iterator.key.php
+     * @return mixed scalar on success, or null on failure.
      */
     public function key()
     {
         return $this->position;
     }
 
+    /**
+     * Checks if current position is valid
+     *
+     * @link http://php.net/manual/en/iterator.valid.php
+     * @return boolean The return value will be casted to boolean and then evaluated.
+     * Returns true on success or false on failure.
+     */
     public function valid()
     {
         if (!$this->resultSet->valid()) {
@@ -180,7 +275,10 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * Rewind result set to the beginning
+     * Rewind the Iterator to the first element
+     *
+     * @link http://php.net/manual/en/iterator.rewind.php
+     * @return void Any returned value is ignored.
      */
     public function rewind()
     {
@@ -190,7 +288,7 @@ class PaginatedResultSet implements Iterator, Countable
     /**
      * Get count of result set
      *
-     * @return bool|int
+     * @return bool|int if no  set return false
      */
     public function count()
     {
@@ -201,84 +299,5 @@ class PaginatedResultSet implements Iterator, Countable
         $this->count = $this->getModelManager()->countAll(clone $this->getCriteria());
 
         return $this->count;
-    }
-
-    /**
-     * Set Model Manager
-     *
-     * @param ModelManager $modelManager
-     * @return $this
-     */
-    public function setModelManager(ModelManager $modelManager)
-    {
-        $this->modelManager = $modelManager;
-        return $this;
-    }
-
-    /**
-     * Get Model Manager
-     *
-     * @return ModelManager
-     */
-    public function getModelManager()
-    {
-        return $this->modelManager;
-    }
-
-    /**
-     * Set Page Size
-     *
-     * @param int $pageSize
-     * @return $this
-     * @throws \UnexpectedValueException
-     */
-    public function setPageSize($pageSize)
-    {
-        if (!is_int($pageSize)) {
-            throw new \UnexpectedValueException(sprintf('Set Page Size expects parameter to be an Integer. Given %s.', var_export($pageSize, true)));
-        }
-        $this->pageSize = $pageSize;
-        return $this;
-    }
-
-    /**
-     * Set Criteria
-     *
-     * @param Criteria $criteria
-     * @return $this
-     */
-    public function setCriteria(Criteria $criteria)
-    {
-        $this->criteria = $criteria;
-
-        if ($limit = $criteria->getLimit()) {
-            $this->limit = $limit;
-        }
-
-        if ($offset = $criteria->getOffset()) {
-            $this->offset = $offset;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get Criteria
-     *
-     * @return Criteria
-     */
-    public function getCriteria()
-    {
-        return $this->criteria;
-    }
-
-    /**
-     * Get Page Size
-     *
-     * @return int
-     */
-    public function getPageSize()
-    {
-        return $this->pageSize;
     }
 }
