@@ -65,4 +65,7 @@
         <exec command="make html" dir="docs/manual" passthru="true" />
     </target>
 
+    <target name="travis" description="Run Travis Tests">
+        <exec command="vendor/bin/codecept run -c codeception.travis.yml" passthru="true" />
+    </target>
 </project>
