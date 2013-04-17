@@ -244,10 +244,10 @@ class PaginatedResultSet implements Iterator, Countable
     /**
      * Set Criteria
      *
-     * @param $criteria
+     * @param Criteria $criteria
      * @return $this
      */
-    public function setCriteria($criteria)
+    public function setCriteria(Criteria $criteria)
     {
         $this->criteria = $criteria;
 
