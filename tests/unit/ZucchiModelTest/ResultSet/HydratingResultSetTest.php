@@ -30,7 +30,7 @@ use ZucchiModelTest\ResultSet\TestAsset\User;
  *
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModelTest
- * @subpackage Query
+ * @subpackage ResultSet
  * @category
  */
 class HydratingResultSetTest extends \Codeception\TestCase\Test
@@ -113,7 +113,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
      * Check getIterator returns instance of Iterator after
      * findAll is called.
      */
-    public function testGetIteratorOnValidResultSet()
+    public function testGetIteratorOnValidHydratingResultSet()
     {
         $results = $this->modelManager->findAll(
             new Criteria(
@@ -225,7 +225,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
      * Check current returns false when iterator has
      * no data to iterate over.
      */
-    public function testCurrentWithEmptyResultSet()
+    public function testCurrentWithEmptyHydratingResultSet()
     {
         $where = new Where();
         $where->like('email', 'test');
@@ -246,7 +246,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
     /**
      * Check next returns the next result.
      */
-    public function testNextOnValidUserResultSet()
+    public function testNextOnValidUserHydratingResultSet()
     {
         $results = $this->modelManager->findAll(
             new Criteria(
@@ -286,7 +286,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
      * Check rewind returns the first result, after looping
      * through all the results.
      */
-    public function testRewindOnValidUserResultSet()
+    public function testRewindOnValidUserHydratingResultSet()
     {
         $results = $this->modelManager->findAll(
             new Criteria(
@@ -318,7 +318,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
     /**
      * Check key returns the right count.
      */
-    public function testKeyOnValidUserResultSet()
+    public function testKeyOnValidUserHydratingResultSet()
     {
         $results = $this->modelManager->findAll(
             new Criteria(
@@ -356,7 +356,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
      * Check count returns correct value when
      * supplied valid User ResultSet.
      */
-    public function testCountOnValidUserResultSet()
+    public function testCountOnValidUserHydratingResultSet()
     {
         $results = $this->modelManager->findAll(
             new Criteria(
