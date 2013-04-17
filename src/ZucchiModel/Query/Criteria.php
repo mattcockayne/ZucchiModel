@@ -134,9 +134,7 @@ class Criteria extends AbstractOptions
         if (is_string($model) && $model != '') {
             $this->model = $model;
         } else {
-            $type = gettype($model);
-            $type = ($type != 'object')?: get_class($model);
-            throw new \InvalidArgumentException(sprintf('Model must be a string and can not be blank. %s given.', $type));
+            throw new \InvalidArgumentException(sprintf('Model must be a string and can not be blank. Given %s.', var_export($model, true)));
         }
     }
 
@@ -151,9 +149,7 @@ class Criteria extends AbstractOptions
         if (is_array($join) || is_null($join)) {
             $this->join = $join;
         } else {
-            $type = gettype($join);
-            $type = ($type != 'object')?: get_class($join);
-            throw new \InvalidArgumentException(sprintf('Join must be an array or null. %s given.', $type));
+            throw new \InvalidArgumentException(sprintf('Join must be an array or null. Given %s.', var_export($join, true)));
         }
     }
 
@@ -168,9 +164,7 @@ class Criteria extends AbstractOptions
         if ($where instanceof Where || is_null($where)) {
             $this->where = $where;
         } else {
-            $type = gettype($where);
-            $type = ($type != 'object')?: get_class($where);
-            throw new \InvalidArgumentException(sprintf('Where must be an instance of Zend\Db\Sql\Where or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Where must be an instance of Zend\Db\Sql\Where or null. Given %s.', var_export($where, true)));
         }
     }
 
@@ -185,9 +179,7 @@ class Criteria extends AbstractOptions
         if ((is_integer($offset) && $offset >= 0) || is_null($offset)) {
             $this->offset = $offset;
         } else {
-            $type = gettype($offset);
-            $type = ($type != 'object')?: get_class($offset);
-            throw new \InvalidArgumentException(sprintf('Offset must be a positive integer or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Offset must be a positive integer or null. Given %s.', var_export($offset, true)));
         }
     }
 
@@ -202,9 +194,7 @@ class Criteria extends AbstractOptions
         if ((is_integer($limit) && $limit > 0) || is_null($limit)) {
             $this->limit = $limit;
         } else {
-            $type = gettype($limit);
-            $type = ($type != 'object')?: get_class($limit);
-            throw new \InvalidArgumentException(sprintf('Limit must be a positive integer or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Limit must be a positive integer or null. Given %s.', var_export($limit, true)));
         }
     }
 
@@ -219,9 +209,7 @@ class Criteria extends AbstractOptions
         if (is_array($orderBy) || is_null($orderBy)) {
             $this->orderBy = $orderBy;
         } else {
-            $type = gettype($orderBy);
-            $type = ($type != 'object')?: get_class($orderBy);
-            throw new \InvalidArgumentException(sprintf('Order By must be an array or null. %s given', $type));
+            throw new \InvalidArgumentException(sprintf('Order By must be an array or null. Given %s.', var_export($orderBy, true)));
         }
     }
 }
