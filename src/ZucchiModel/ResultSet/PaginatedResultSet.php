@@ -228,11 +228,15 @@ class PaginatedResultSet implements Iterator, Countable
     /**
      * Set Page Size
      *
-     * @param $pageSize
+     * @param int $pageSize
      * @return $this
+     * @throws \UnexpectedValueException
      */
     public function setPageSize($pageSize)
     {
+        if (!is_int($pageSize)) {
+            throw new \UnexpectedValueException(sprintf('Set Page Size expects parameter to be an Integer. Given %s.', var_export($pageSize, true)));
+        }
         $this->pageSize = $pageSize;
         return $this;
     }
