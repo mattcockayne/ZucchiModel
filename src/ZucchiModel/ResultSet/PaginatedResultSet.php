@@ -124,7 +124,6 @@ class PaginatedResultSet implements Iterator, Countable
         $criteria->setOffset($this->offset);
 
         $this->resultSet = $this->getModelManager()->findAll($criteria);
-
     }
 
     /**
@@ -207,10 +206,10 @@ class PaginatedResultSet implements Iterator, Countable
     /**
      * Set Model Manager
      *
-     * @param $modelManager
+     * @param ModelManager $modelManager
      * @return $this
      */
-    public function setModelManager($modelManager)
+    public function setModelManager(ModelManager $modelManager)
     {
         $this->modelManager = $modelManager;
         return $this;
