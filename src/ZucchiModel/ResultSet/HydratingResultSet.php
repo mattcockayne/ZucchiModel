@@ -63,6 +63,31 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     }
 
     /**
+     * Set the data source for the result set.
+     *
+     * @param  Iterator|IteratorAggregate|ResultSetInterface $iterator
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    public function initialize($iterator)
+    {
+        switch (true) {
+            case ($iterator instanceof ResultSetInterface):
+            case ($iterator instanceof Iterator):
+                $this->iterator = $iterator;
+                break;
+            case ($iterator instanceof IteratorAggregate):
+                $this->iterator = $iterator->getIterator();
+                break;
+            default:
+                throw new \InvalidArgumentException('DataSource provided does not implement ResultInterface, Iterator or IteratorAggregate');
+                break;
+        }
+
+        return $this;
+    }
+
+    /**
      * Get Iterator
      *
      * @return Iterator|IteratorAggregate|null|ResultSetInterface
@@ -101,33 +126,9 @@ class HydratingResultSet implements Iterator, ResultSetInterface
     }
 
     /**
-     * Set the data source for the result set
+     * Return the current element.
      *
-     * @param  Iterator|IteratorAggregate|ResultSetInterface $iterator
-     * @return $this
-     * @throws \InvalidArgumentException
-     */
-    public function initialize($iterator)
-    {
-        switch (true) {
-            case ($iterator instanceof ResultSetInterface):
-            case ($iterator instanceof Iterator):
-                $this->iterator = $iterator;
-                break;
-            case ($iterator instanceof IteratorAggregate):
-                $this->iterator = $iterator->getIterator();
-                break;
-            default:
-                throw new \InvalidArgumentException('DataSource provided does not implement ResultInterface, Iterator or IteratorAggregate');
-                break;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Iterator: get current item
-     *
+     * @link http://php.net/manual/en/iterator.current.php
      * @return object|bool if no iterator set return false
      */
     public function current()
