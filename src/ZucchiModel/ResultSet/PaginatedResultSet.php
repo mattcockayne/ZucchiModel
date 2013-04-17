@@ -40,11 +40,22 @@ class PaginatedResultSet implements Iterator, Countable
     protected $modelManager;
 
     /**
-     * The original supplied Criteria for lookup.
+     * Clone of original Criteria, but is used to
+     * select each page. Thus becoming different to
+     * the original. Starts as null until valid is called.
      *
      * @var Criteria
      */
-    protected $criteria;
+    protected $paginateCriteria = null;
+
+    /**
+     * The original supplied Criteria for lookup.
+     * This used to reset back to the start of the
+     * Result Set with the rewind command.
+     *
+     * @var Criteria
+     */
+    protected $originalCriteria;
 
     /**
      * Actual position of current result in complete result set.
@@ -83,86 +94,57 @@ class PaginatedResultSet implements Iterator, Countable
     protected $count = false;
 
     /**
-     * Custom Limit 0 = Not set.
-     *
-     * @var int
-     */
-    protected $limit = 0;
-
-    /**
-     * Current offset of page.
-     *
-     * @var int
-     */
-    protected $offset = 0;
-
-    /**
-     * Constructor
+     * Constructor used to set ModelManager, Original Criteria and
+     * Page Size.
      *
      * @param ModelManager $modelManager
      * @param Criteria $criteria
-     * @param $pageSize
+     * @param int $pageSize
+     * @throws \InvalidArgumentException if pageSize is not a positive integer.
      */
     public function __construct(ModelManager $modelManager, Criteria $criteria, $pageSize = 10)
     {
         $this->setModelManager($modelManager);
-        $this->setCriteria($criteria);
-        $this->setPageSize($pageSize);
-        $this->position = 0;
-    }
 
-    /**
-     * Initialise the result set.
-     *
-     * @return void
-     */
-    public function initialize()
-    {
-        $this->page = 0;
-        $this->position = $this->offset;
+        // Can't use setter as it will cause unnecessary reset.
+        $this->originalCriteria = $criteria;
 
-        $criteria = $this->getCriteria();
-
-        if ($this->limit != 0 && $this->limit < $this->getPageSize()) {
-            $criteria->setLimit($this->limit);
-        } else {
-            $criteria->setLimit($this->getPageSize());
+        // Check pageSize is positive int
+        if (!is_int($pageSize)) {
+            throw new \InvalidArgumentException(sprintf('Set Page Size expects parameter to be an Integer. Given %s.', var_export($pageSize, true)));
         }
 
-        $criteria->setOffset($this->offset);
+        if ($pageSize < 1) {
+            throw new \InvalidArgumentException(sprintf('Page Size must be greater than 0. Given %s.', var_export($pageSize, true)));
+        }
 
-        $this->resultSet = $this->getModelManager()->findAll($criteria);
+        // All ok, set it.
+        // Can't use setter as it will cause unnecessary reset.
+        $this->pageSize = $pageSize;
     }
 
     /**
-     * Set Criteria.
+     * Set Original Criteria, which in turn causes reset().
      *
      * @param Criteria $criteria
      * @return $this
      */
     public function setCriteria(Criteria $criteria)
     {
-        $this->criteria = $criteria;
-
-        if ($limit = $criteria->getLimit()) {
-            $this->limit = $limit;
-        }
-
-        if ($offset = $criteria->getOffset()) {
-            $this->offset = $offset;
-        }
+        $this->originalCriteria = $criteria;
+        $this->reset();
 
         return $this;
     }
 
     /**
-     * Get Criteria.
+     * Get Paginated Criteria.
      *
      * @return Criteria
      */
     public function getCriteria()
     {
-        return $this->criteria;
+        return $this->paginateCriteria;
     }
 
     /**
@@ -188,18 +170,29 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * Set Page Size.
+     * Set Page Size, which in turn causes reset().
      *
      * @param int $pageSize
      * @return $this
-     * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException if pageSize is not a positive integer.
      */
     public function setPageSize($pageSize)
     {
+        // Check pageSize is positive int
         if (!is_int($pageSize)) {
-            throw new \UnexpectedValueException(sprintf('Set Page Size expects parameter to be an Integer. Given %s.', var_export($pageSize, true)));
+            throw new \InvalidArgumentException(sprintf('Set Page Size expects parameter to be an Integer. Given %s.', var_export($pageSize, true)));
         }
+
+        if ($pageSize < 1) {
+            throw new \InvalidArgumentException(sprintf('Page Size must be greater than 0. Given %s.', var_export($pageSize, true)));
+        }
+
+        // All ok, set it.
         $this->pageSize = $pageSize;
+
+        // Reset with new pageSize.
+        $this->reset();
+
         return $this;
     }
 
@@ -247,7 +240,7 @@ class PaginatedResultSet implements Iterator, Countable
     }
 
     /**
-     * Checks if current position is valid
+     * Checks if current position is valid.
      *
      * @link http://php.net/manual/en/iterator.valid.php
      * @return boolean The return value will be casted to boolean and then evaluated.
@@ -255,14 +248,35 @@ class PaginatedResultSet implements Iterator, Countable
      */
     public function valid()
     {
+        // If current result set is valid.
         if (!$this->resultSet->valid()) {
-
-            // assume end of page
+            // Assume end of page.
             $criteria = $this->getCriteria();
 
-            $criteria->setOffset($this->offset + ($this->pageSize * ($this->page+1)));
+            // Create new offset.
+            $newOffset = $criteria->getOffset() + $this->pageSize;
 
+            // If limit is set check new offset is not beyond it
+            // And Set limit. Else return false, no more results.
+            // Else no limit is set then set limit to pageSize.
+            if ($limit = $this->originalCriteria->getLimit()) {
+                if ($newOffset > $limit) {
+                    return false;
+                }
+                if ($newOffset + $criteria->getLimit() > $limit) {
+                    $criteria->setLimit($limit - $newOffset);
+                }
+            } else {
+                $criteria->setLimit($this->pageSize);
+            }
+
+            // Set new offset.
+            $criteria->setOffset($newOffset);
+
+            // Find results.
             $resultSet = $this->getModelManager()->findAll($criteria);
+
+            // If no results are returned, return false.
             if ($resultSet->count() == 0) {
                 return false;
             } else {
@@ -271,33 +285,68 @@ class PaginatedResultSet implements Iterator, Countable
             }
         }
 
+        // Else current result set is still valid.
         return true;
     }
 
     /**
-     * Rewind the Iterator to the first element
+     * Reset this Result Set, used by rewind(), setPageSize
+     * and setCriteria.
+     */
+    protected function reset()
+    {
+        // Reset internal counters etc.
+        $this->position = 0;
+        $this->page = 0;
+        $this->count = false;
+
+        // Clone original criteria to override current paginated criteria.
+        $this->paginateCriteria = clone $this->originalCriteria;
+
+        // If limit is set in current paginated criteria.
+        if ($limit = $this->getCriteria()->getLimit()) {
+            // Set limit or Page Size, which ever is smaller.
+            if ($limit > $this->getPageSize()) {
+                $this->getCriteria()->setLimit($this->getPageSize());
+            }
+            // If offset is not set, set to 0.
+            if (!($offset = $this->getCriteria()->getOffset())) {
+                $this->getCriteria()->setOffset(0);
+            }
+        } else {
+            // Else no limit, set to pageSize and reset offset.
+            $this->getCriteria()->setLimit($this->pageSize);
+            // If offset is not set, set to 0.
+            if (!($offset = $this->getCriteria()->getOffset())) {
+                $this->getCriteria()->setOffset(0);
+            }
+        }
+
+        // Set count.
+        $this->count = $this->getModelManager()->countAll(clone $this->getCriteria());
+
+        // Call findAll to return a HydratingResultSet. The first page.
+        $this->resultSet = $this->getModelManager()->findAll($this->getCriteria());
+    }
+
+    /**
+     * Rewind this to the first element.
      *
      * @link http://php.net/manual/en/iterator.rewind.php
      * @return void Any returned value is ignored.
      */
     public function rewind()
     {
-        $this->initialize();
+        $this->reset();
     }
 
     /**
-     * Get count of result set
+     * Get count of result set.
      *
-     * @return bool|int if no  set return false
+     * @return bool|int if not set return false
      */
     public function count()
     {
-        if ($this->count !== false) {
-            return $this->count;
-        }
-
-        $this->count = $this->getModelManager()->countAll(clone $this->getCriteria());
-
         return $this->count;
     }
 }
