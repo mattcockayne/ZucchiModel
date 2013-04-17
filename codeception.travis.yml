@@ -15,7 +15,7 @@ modules:
     config:
         Db:
             dsn: 'mysql:host=127.0.0.1;dbname=test_zucchimodel'
-            user: 'root'
+            user: 'root3'
             password: null
             dump: tests/_data/dump.sql
             populate: true
