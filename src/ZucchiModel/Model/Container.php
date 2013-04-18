@@ -7,7 +7,7 @@
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
 
-namespace ZucchiModel\Persistence;
+namespace ZucchiModel\Model;
 
 /**
  * Container

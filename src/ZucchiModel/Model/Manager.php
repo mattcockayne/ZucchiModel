@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2005-2013 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-namespace ZucchiModel;
+namespace ZucchiModel\Model;
 
 use Zend\Code\Annotation\AnnotationManager;
 use Zend\Code\Annotation\Parser;
@@ -22,7 +22,6 @@ use ZucchiModel\Adapter\AdapterInterface;
 use ZucchiModel\Hydrator;
 use ZucchiModel\Annotation\AnnotationListener;
 use ZucchiModel\Metadata;
-use ZucchiModel\Persistence;
 use ZucchiModel\Query\Criteria;
 use ZucchiModel\ResultSet;
 
@@ -35,7 +34,7 @@ use ZucchiModel\ResultSet;
  * @subpackage ModelManager
  * @category
  */
-class ModelManager implements EventManagerAwareInterface
+class Manager implements EventManagerAwareInterface
 {
     /**
      * Zend Db Adapter used for connecting to the database.
@@ -71,9 +70,32 @@ class ModelManager implements EventManagerAwareInterface
     /**
      * Container of models to persist
      *
-     * @var Persistence\PersistenceContainer
+     * @var Container
      */
-    protected $persistenceContainer;
+    protected $modelContainer;
+
+    /**
+     * Queue of models to create
+     *
+     * @var ArrayObject
+     */
+    protected $createQueue;
+
+    /**
+     * Queue of models to update
+     *
+     * @var ArrayObject
+     */
+    protected $updateQueue;
+
+    /**
+     * Queue of models to remove
+     *
+     * @var \ArrayObject
+     */
+    protected $removeQueue;
+
+
 
     /**
      * Collection of know Annotations related to ModelManager
@@ -94,6 +116,25 @@ class ModelManager implements EventManagerAwareInterface
     public function __construct(AdapterInterface $adapter)
     {
         $this->setAdapter($adapter);
+        $this->resetQueue('create');
+        $this->resetQueue('update');
+        $this->resetQueue('remove');
+
+    }
+
+    /**
+     * reset the relevant queue
+     *
+     * @param string $queue
+     */
+    protected function resetQueue($queue)
+    {
+        switch ($queue) {
+            case 'create':
+            case 'update':
+            case 'remove':
+                $this->{$queue . 'Queue'} = new \ArrayObject();;
+        }
     }
 
     /**
@@ -401,35 +442,65 @@ class ModelManager implements EventManagerAwareInterface
     }
 
     /**
-     * Add model to persistenceContainer for later writing to datasource
+     * Add model to modelContainer for later writing to datasource
      *
      * @param $model
      */
-    public function persist($model)
+    public function persist($model, $related = array())
     {
-        if (!$this->persistenceContainer) {
-            $this->persistenceContainer = new Persistence\Container();
+        if (!is_array($related) && !($related instanceof Traversable)) {
+            throw new \InvalidArgumentException(sprintf('Related models must be an array or Traversable. Given: %s', var_export($related, true)));
         }
 
-        // if container doe not already have a reference to the model
-        if (!$this->persistenceContainer->contains($model)) {
+        if (!$this->modelContainer) {
+            $this->modelContainer = new Container();
+        }
 
-            // Get metadata for the given model
-            $metadata = $this->getMetadata(get_class($model));
+        $metadata = $this->getMetadata(get_class($model));
 
-            // Trigger Persistence events for behaviours
-            $event = new Event('prePersist', $this->persistenceContainer, array(
-                'model' => $model,
+        $modelRelations = array();
+
+        foreach ($related as $name => $relations) {
+            if (!$relationship = $metadata->getRelationship($name)) {
+                throw new \UnexpectedValueException(sprintf('Invalid relationship of "%s" defined to persist', $name));
+            }
+
+            foreach ($relations as $relation) {
+                if (!$this->modelContainer->contains($relation)) {
+                    $this->modelContainer->attach($relation, array(
+                        'metadata' => $this->getMetadata($relationship['model']),
+                        'relationships' => array(),
+                    ));
+                }
+                $hash = $this->modelContainer->getHash($relation);
+                $modelRelations[$name][] = $hash;
+            }
+
+        }
+
+        $hash = $this->modelContainer->getHash($model);
+
+        if (!$this->modelContainer->contains($model)) {
+            $this->modelContainer->attach($model, array(
                 'metadata' => $metadata,
+                'relationships' => $modelRelations,
             ));
-            $this->getEventManager()->trigger($event);
-
-            $this->persistenceContainer->attach($model, $metadata);
-
-            $event->setName('postPersist');
-            $this->getEventManager()->trigger($event);
-
+        } else {
+            $originalMeta = $this->modelContainer->offsetSet($model);
+            $this->modelContainer->offsetSet($model, array(
+                'metadata' => $metadata,
+                'relationships' => array_merge($originalMeta['relationships'], $modelRelations),
+            ));
         }
+
+        // move to end of queue
+        if (false !== strpos($hash, get_class($model))) {
+            $this->updateQueue[$hash] = true;
+        } else {
+            $this->createQueue[$hash] = true;
+        }
+
+
     }
 
     /**
@@ -437,12 +508,12 @@ class ModelManager implements EventManagerAwareInterface
      */
     public function write()
     {
-        if ($this->persistenceContainer instanceof Persistence\Container) {
-            $this->getAdapter()->write($this->persistenceContainer);
+        if ($this->modelContainer instanceof Container) {
+            $this->getAdapter()->write($this->modelContainer);
         }
 
         // clean out Persistence Container
-        unset($this->persistenceContainer);
-        $this->persistenceContainer = null;
+        unset($this->modelContainer);
+        $this->modelContainer = null;
     }
 }
