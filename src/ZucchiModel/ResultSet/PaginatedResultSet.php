@@ -121,6 +121,7 @@ class PaginatedResultSet implements Iterator, Countable
         // All ok, set it.
         // Can't use setter as it will cause unnecessary reset.
         $this->pageSize = $pageSize;
+        $this->reset();
     }
 
     /**
