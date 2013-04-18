@@ -12,7 +12,7 @@ use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 
 use Zucchi\Traits\TraitsUtils;
-use ZucchiModel\ModelManager;
+use ZucchiModel\Model\Manager;
 use ZucchiModel\Annotation;
 
 /**
@@ -33,16 +33,16 @@ class BehaviourListener
     protected $listeners = array();
 
     /**
-     * @var ModelManager
+     * @var Manager
      */
     protected $modelManager;
 
     /**
      * Constructor
      *
-     * @param ModelManager $modelManager
+     * @param Manager $modelManager
      */
-    public function __construct(ModelManager $modelManager)
+    public function __construct(Manager $modelManager)
     {
         $this->setModelManager($modelManager);
     }
@@ -50,7 +50,7 @@ class BehaviourListener
     /**
      * Set Model Manager
      *
-     * @param ModelManager $modelManager
+     * @param Manager $modelManager
      * @return $this
      */
     public function setModelManager(ModelManager $modelManager)
@@ -62,7 +62,7 @@ class BehaviourListener
     /**
      * Get Model Manager
      *
-     * @return ModelManager
+     * @return Manager
      */
     public function getModelManager()
     {

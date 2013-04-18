@@ -11,7 +11,7 @@ namespace ZucchiModel\ResultSet;
 
 use \Iterator;
 use \Countable;
-use ZucchiModel\ModelManager;
+use ZucchiModel\Model\Manager;
 use ZucchiModel\Query\Criteria;
 
 /**
@@ -35,7 +35,7 @@ class PaginatedResultSet implements Iterator, Countable
     /**
      * Reference to ModelManager.
      *
-     * @var ModelManager
+     * @var Manager
      */
     protected $modelManager;
 
@@ -97,12 +97,12 @@ class PaginatedResultSet implements Iterator, Countable
      * Constructor used to set ModelManager, Original Criteria and
      * Page Size.
      *
-     * @param ModelManager $modelManager
+     * @param Manager $modelManager
      * @param Criteria $criteria
      * @param int $pageSize
      * @throws \InvalidArgumentException if pageSize is not a positive integer.
      */
-    public function __construct(ModelManager $modelManager, Criteria $criteria, $pageSize = 10)
+    public function __construct(Manager $modelManager, Criteria $criteria, $pageSize = 10)
     {
         $this->setModelManager($modelManager);
 
@@ -154,7 +154,7 @@ class PaginatedResultSet implements Iterator, Countable
      * @param ModelManager $modelManager
      * @return $this
      */
-    public function setModelManager(ModelManager $modelManager)
+    public function setModelManager(Manager $modelManager)
     {
         $this->modelManager = $modelManager;
         return $this;

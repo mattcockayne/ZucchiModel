@@ -25,7 +25,7 @@ return array(
     'ZucchiModel\Metadata\MetaDataContainer'            => __DIR__ . '/src/ZucchiModel/MetaData/MetaDataContainer.php',
     'ZucchiModel\Metadata\Model'                        => __DIR__ . '/src/ZucchiModel/MetaData/Model.php',
     'ZucchiModel\Metadata\Relationships'                => __DIR__ . '/src/ZucchiModel/MetaData/Relationships.php',
-    'ZucchiModel\ModelManager'                          => __DIR__ . '/src/ZucchiModel/ModelManager.php',
+    'ZucchiModel\ModelManager'                          => __DIR__ . '/src/ZucchiModel/Model/Manager.php',
     'ZucchiModel\Persistence\Chain'                     => __DIR__ . '/src/ZucchiModel/Persistence/Chain.php',
     'ZucchiModel\Persistence\Container'                 => __DIR__ . '/src/ZucchiModel/Persistence/Container.php',
     'ZucchiModel\Persistence\PersistenceListener'       => __DIR__ . '/src/ZucchiModel/Persistence/PersistenceListener.php',

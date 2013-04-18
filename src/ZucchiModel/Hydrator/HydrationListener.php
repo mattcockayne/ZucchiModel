@@ -13,7 +13,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\Json\Json;
 
 use ZucchiModel\Annotation;
-use ZucchiModel\ModelManager;
+use ZucchiModel\Model\Manager;
 
 /**
  * Hydration Listener
@@ -33,16 +33,16 @@ class HydrationListener
     protected $listeners = array();
 
     /**
-     * @var ModelManager
+     * @var Manager
      */
     protected $modelManager;
 
     /**
      * Constructor
      *
-     * @param ModelManager $modelManager
+     * @param Manager $modelManager
      */
-    public function __construct(ModelManager $modelManager)
+    public function __construct(Manager $modelManager)
     {
         $this->setModelManager($modelManager);
     }
@@ -50,10 +50,10 @@ class HydrationListener
     /**
      * Set Model Manager
      *
-     * @param ModelManager $modelManager
+     * @param Manager $modelManager
      * @return $this
      */
-    public function setModelManager(ModelManager $modelManager)
+    public function setModelManager(Manager $modelManager)
     {
         $this->modelManager = $modelManager;
         return $this;
