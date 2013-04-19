@@ -229,15 +229,19 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-        $criteria = $metadata->getAdapter()->addRelationship(
-     * Get Metadata for a specified class.
+     * Get Metadata for a specified given class name.
      *
      * @param string $class
      * @return mixed
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function getMetadata($class)
     {
+        // Class name must be a string
+        if (!is_string($class)) {
+            throw new \InvalidArgumentException(sprintf('Class must be a string. Given: %s.', var_export($class, true)));
+        }
+
         if (!array_key_exists($class, $this->modelMetadata)) {
             // Add class to cache
             $this->modelMetadata[$class] = $md = new Metadata\MetaDataContainer();
@@ -281,27 +285,45 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Get Relationships
+     * Get given Relationships.
      *
-     * @param $model
      * @param $relationship
+     * @param $model
      * @param int $paginatedPageSize
-     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
+     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet false if nothing can be found
      */
-    public function getRelationship($model, $relationship, $paginatedPageSize = 0)
+    public function getRelationship($relationship, $model, $paginatedPageSize = 0)
     {
+        // Check relationship is a string.
+        if (!is_string($relationship) || empty($relationship)) {
+            throw new \InvalidArgumentException(sprintf('Relationship must be a non empty string. Given: %s', var_export($relationship, true)));
+        }
+
+        // Check model is an object.
+        if (!is_object($model)) {
+            throw new \InvalidArgumentException(sprintf('Models must be an object. Given: %s', var_export($model, true)));
+        }
+
+        // Check paginatedPageSize is an integer.
+        if (!is_int($paginatedPageSize) || $paginatedPageSize < 0) {
+            throw new \InvalidArgumentException(sprintf('Paginated Page Size must be a positive integer. Given: %s', var_export($paginatedPageSize, true)));
+        }
+
         $metadata = $this->getMetadata(get_class($model));
         $relationship = $metadata->getRelationships()->getRelationship($relationship);
 
+        // Create Criteria for the find.
         $criteria = new Criteria(array(
             'model' => $relationship['model'],
         ));
+        // Add relationship details to criteria.
         $criteria = $metadata->getAdapter()->addRelationship(
             $model,
             $criteria,
             $relationship
         );
 
+        // Find related models by join type.
         switch ($relationship['type']) {
             case 'toOne':
                 return $this->findOne($criteria);
@@ -312,6 +334,7 @@ class Manager implements EventManagerAwareInterface
                 break;
         }
 
+        // Nothing found.
         return false;
     }
 
@@ -330,7 +353,7 @@ class Manager implements EventManagerAwareInterface
         // Get model and check it exists
         $model = $criteria->getModel();
         if (!class_exists($model)) {
-            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('Model does not exist. Given: %s', var_export($model, true)));
         }
 
         // Get metadata for the given model
@@ -338,7 +361,7 @@ class Manager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!$metadata->getAdapter()) {
-            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. Given: %s', var_export($model, true)));
         }
 
         $criteria->setLimit(1);
@@ -383,7 +406,7 @@ class Manager implements EventManagerAwareInterface
         $model = $criteria->getModel();
 
         if (!class_exists($model)) {
-            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('Model does not exist. Given %s', var_export($model, true)));
         }
 
         // Get metadata for the given model
@@ -391,7 +414,7 @@ class Manager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!$metadata->getAdapter()) {
-            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. Given: %s', var_export($model, true)));
         }
 
         // Check if a Paginated Result Set is wanted,
@@ -418,7 +441,7 @@ class Manager implements EventManagerAwareInterface
         $model = $criteria->getModel();
 
         if (!class_exists($model)) {
-            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('Model does not exist. Given: %s', var_export($model, true)));
         }
 
         // Get metadata for the given model
@@ -426,7 +449,7 @@ class Manager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!$metadata->getAdapter()) {
-            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. Given: %s', var_export($model, true)));
         }
 
         // Force limit and offset to null
@@ -454,23 +477,35 @@ class Manager implements EventManagerAwareInterface
      */
     public function persist($model, $related = array())
     {
-        if (!is_array($related) && !($related instanceof Traversable)) {
+        // Check model is an object.
+        if (!is_object($model)) {
+            throw new \InvalidArgumentException(sprintf('Models must be an object. Given: %s', var_export($model, true)));
+        }
+
+        // Check $related is an array or Traversable.
+        if (!is_array($related) && !($related instanceof \Traversable)) {
             throw new \InvalidArgumentException(sprintf('Related models must be an array or Traversable. Given: %s', var_export($related, true)));
         }
 
+        // Create new container if not yet set.
         if (!$this->modelContainer) {
             $this->modelContainer = new Container();
         }
 
         $metadata = $this->getMetadata(get_class($model));
 
+        // Build up a list of related model hashes.
         $modelRelations = array();
 
         foreach ($related as $name => $relations) {
+            // Check this is a relationship on the given model.
             if (!$relationship = $metadata->getRelationship($name)) {
-                throw new \UnexpectedValueException(sprintf('Invalid relationship of "%s" defined to persist', $name));
+                throw new \UnexpectedValueException(sprintf('Invalid relationship of "%s" defined to persist.', $name));
             }
 
+            // Attach each related model to model container, if not
+            // already in modelContainer. Build list of hashes for
+            // related models.
             foreach ($relations as $relation) {
                 if (!$this->modelContainer->contains($relation)) {
                     $this->modelContainer->attach($relation, array(
@@ -481,11 +516,13 @@ class Manager implements EventManagerAwareInterface
                 $hash = $this->modelContainer->getHash($relation);
                 $modelRelations[$name][] = $hash;
             }
-
         }
 
+        // Attach this model to modelContainer.
         $hash = $this->modelContainer->getHash($model);
 
+        // If it does not exists in modelContainer, attach with
+        // related model hashes. Else merged related model hashes.
         if (!$this->modelContainer->contains($model)) {
             $this->modelContainer->attach($model, array(
                 'metadata' => $metadata,
@@ -499,14 +536,13 @@ class Manager implements EventManagerAwareInterface
             ));
         }
 
-        // move to end of queue
+        // If hash contains fully qualified name, it is an
+        // update. Else create. See Model\Container->getHash().
         if (false !== strpos($hash, get_class($model))) {
             $this->updateQueue[$hash] = true;
         } else {
             $this->createQueue[$hash] = true;
         }
-
-
     }
 
     /**
