@@ -10,7 +10,7 @@
 namespace ZucchiModel\Adapter;
 
 use ZucchiModel\Metadata\MetaDataContainer;
-use ZucchiModel\Persistence;
+use ZucchiModel\Model;
 use ZucchiModel\Query\Criteria;
 
 /**
@@ -84,10 +84,10 @@ class Mongo extends AbstractAdapter
     }
 
     /**
-     * @param Persistence\Container $container
+     * @param Model\Container $container
      * @return mixed|void
      */
-    public function write(Persistence\Container $container)
+    public function write(Model\Container $container)
     {
 
     }

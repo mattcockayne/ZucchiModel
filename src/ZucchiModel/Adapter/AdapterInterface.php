@@ -10,7 +10,7 @@
 namespace ZucchiModel\Adapter;
 
 use ZucchiModel\Query\Criteria;
-use ZucchiModel\Persistence\Container;
+use ZucchiModel\Model\Container;
 use ZucchiModel\Metadata\MetaDataContainer;
 
 /**

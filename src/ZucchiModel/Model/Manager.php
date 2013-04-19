@@ -554,8 +554,8 @@ class Manager implements EventManagerAwareInterface
             $this->getAdapter()->write($this->modelContainer);
         }
 
-        // clean out Persistence Container
-        unset($this->modelContainer);
-        $this->modelContainer = null;
+        // Clean out Model Container and Queues.
+        unset($this->modelContainer, $this->createQueue, $this->updateQueue, $this->removeQueue);
+        $this->modelContainer = $this->createQueue = $this->updateQueue = $this->removeQueue = null;
     }
 }

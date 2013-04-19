@@ -18,7 +18,7 @@ use Zend\Db\Sql\Select;
 
 use ZucchiModel\Metadata\Adapter\ZendDb as AdapterMetadata;
 use ZucchiModel\Metadata\MetaDataContainer;
-use ZucchiModel\Persistence;
+use ZucchiModel\Model;
 use ZucchiModel\Query\Criteria;
 use ZucchiModel\ResultSet;
 
@@ -494,9 +494,9 @@ class ZendDb extends AbstractAdapter
     }
 
     /**
-     * @param Persistence\Container $container
+     * @param Model\Container $container
      */
-    public function write(Persistence\Container $container)
+    public function write(Model\Container $container)
     {
         $em = $this->getEventManager();
 
