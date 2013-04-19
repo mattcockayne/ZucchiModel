@@ -281,14 +281,14 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Get Relationships
+     * Get given Relationships.
      *
-     * @param $model
      * @param $relationship
+     * @param $model
      * @param int $paginatedPageSize
-     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet
+     * @return bool|ResultSet\HydratingResultSet|ResultSet\PaginatedResultSet false if nothing can be found
      */
-    public function getRelationship($model, $relationship, $paginatedPageSize = 0)
+    public function getRelationship($relationship, $model, $paginatedPageSize = 0)
     {
         $metadata = $this->getMetadata(get_class($model));
         $relationship = $metadata->getRelationships()->getRelationship($relationship);
