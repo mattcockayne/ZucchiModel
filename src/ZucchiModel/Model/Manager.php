@@ -529,7 +529,7 @@ class Manager implements EventManagerAwareInterface
                 'relationships' => $modelRelations,
             ));
         } else {
-            $originalMeta = $this->modelContainer->offsetSet($model);
+            $originalMeta = $this->modelContainer->offsetGet($model);
             $this->modelContainer->offsetSet($model, array(
                 'metadata' => $metadata,
                 'relationships' => array_merge($originalMeta['relationships'], $modelRelations),
