@@ -18,5 +18,7 @@ before_script:
    - composer self-update
    - composer install --dev --prefer-source
    - mysql -e 'create database test_zucchimodel;'
+   - pwd
+   - ls -al
 
-script: "./vendor/bin/codecept run -c ../../../codeception.travis.yml"
+script: "./vendor/Codeception/Codeception/codecept run -c `pwd`/codeception.travis.yml"

@@ -33,7 +33,8 @@
             "ZucchiModelTest": "tests/unit/"
         },
         "classmap": [
-            "./Module.php"
+            "src/",
+            "Module.php"
         ]
     }
 }
