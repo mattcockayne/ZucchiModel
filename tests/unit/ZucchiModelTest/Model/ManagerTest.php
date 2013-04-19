@@ -6,19 +6,20 @@
  * @copyright Copyright (c) 2005-2013 Zucchi Limited. (http://zucchi.co.uk)
  * @license   http://zucchi.co.uk/legals/bsd-license New BSD License
  */
-namespace ZucchiModelTest;
+namespace ZucchiModelTest\Model;
+
 use Codeception\Util\Stub;
 
 /**
- * ModelManagerTest
+ * ManagerTest
  *
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
- * @package ZucchiModelTest\Adapter
- * @subpackage
+ * @package ZucchiModelTest
+ * @subpackage Model
  * @category
  */
-class ModelManagerTest extends \Codeception\TestCase\Test
+class ManagerTest extends \Codeception\TestCase\Test
 {
     /**
      * @var \CodeGuy

@@ -19,6 +19,7 @@ use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
 
 use ZucchiModel\Adapter\AdapterInterface;
+use ZucchiModel\Behaviour;
 use ZucchiModel\Hydrator;
 use ZucchiModel\Annotation\AnnotationListener;
 use ZucchiModel\Metadata;
@@ -31,7 +32,7 @@ use ZucchiModel\ResultSet;
  * @author Matt Cockayne <matt@zucchi.co.uk>
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
- * @subpackage ModelManager
+ * @subpackage Model
  * @category
  */
 class Manager implements EventManagerAwareInterface
@@ -51,54 +52,56 @@ class Manager implements EventManagerAwareInterface
     protected $sql;
 
     /**
+     * Event Manager.
+     *
      * @var EventManager
      */
     protected $eventManager;
 
     /**
+     * Annatation Manager.
+     *
      * @var AnnotationManager;
      */
     protected $annotationManager;
 
     /**
-     * Mapping data for loaded models
+     * Mapping data for loaded models.
      *
      * @var array
      */
     protected $modelMetadata = array();
 
     /**
-     * Container of models to persist
+     * Container of models to persist.
      *
      * @var Container
      */
     protected $modelContainer;
 
     /**
-     * Queue of models to create
+     * Queue of models to create.
      *
      * @var ArrayObject
      */
     protected $createQueue;
 
     /**
-     * Queue of models to update
+     * Queue of models to update.
      *
      * @var ArrayObject
      */
     protected $updateQueue;
 
     /**
-     * Queue of models to remove
+     * Queue of models to remove.
      *
      * @var \ArrayObject
      */
     protected $removeQueue;
 
-
-
     /**
-     * Collection of know Annotations related to ModelManager
+     * Collection of know Annotations related to Model Manager.
      *
      * @var array
      */
@@ -109,7 +112,7 @@ class Manager implements EventManagerAwareInterface
     );
 
     /**
-     * Construct ModelManager with supplied ZucchiModel Adapter
+     * Construct Model Manager with supplied ZucchiModel Adapter.
      *
      * @param AdapterInterface $adapter
      */
@@ -119,11 +122,10 @@ class Manager implements EventManagerAwareInterface
         $this->resetQueue('create');
         $this->resetQueue('update');
         $this->resetQueue('remove');
-
     }
 
     /**
-     * reset the relevant queue
+     * Reset the relevant queue.
      *
      * @param string $queue
      */
@@ -138,7 +140,7 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Get ZucchiModel Adapter
+     * Get ZucchiModel Adapter.
      *
      * @return \ZucchiModel\Adapter\AdapterInterface
      */
@@ -148,10 +150,10 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Set Zend Db Adapter
+     * Set Zend Db Adapter.
      *
      * @param \ZucchiModel\Adapter\AdapterInterface $adapter
-     * @return ModelManager
+     * @return Manager
      */
     public function setAdapter(AdapterInterface $adapter)
     {
@@ -161,7 +163,7 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Get event manager
+     * Get Event Manager.
      *
      * @return EventManagerInterface
      */
@@ -174,10 +176,10 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Set event manager instance
+     * Set Event Manager.
      *
-     * @param  EventManagerInterface $events
-     * @return AnnotationBuilder
+     * @param EventManagerInterface $events
+     * @return $this
      */
     public function setEventManager(EventManagerInterface $events)
     {
@@ -199,7 +201,7 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Get Annotation Manager
+     * Get Annotation Manager.
      *
      * @return \Zend\Code\Annotation\AnnotationManager
      */
@@ -217,7 +219,7 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Set Annotation Manager
+     * Set Annotation Manager.
      *
      * @param \Zend\Code\Annotation\AnnotationManager $annotationManager
      */
@@ -227,7 +229,8 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Get Metadata for a specified class
+        $criteria = $metadata->getAdapter()->addRelationship(
+     * Get Metadata for a specified class.
      *
      * @param string $class
      * @return mixed
@@ -313,14 +316,14 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Find and return a single model
+     * Find and return a single model.
      *
      * @param Criteria $criteria
      * @return bool
      * @throws \RuntimeException
      * @todo: take into account schema and table names in foreignKeys
      * @todo: store results in mapCache
-     * @todo: add listener for converting JSON, currency etc.
+     * @todo: add listener for converting currency etc.
      */
     public function findOne(Criteria $criteria)
     {
@@ -367,7 +370,7 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Find and return a collection of models
+     * Find and return a collection of models.
      *
      * @param Criteria $criteria
      * @param int $paginatedPageSize if greater than 1 then paginate results using this as Page Size
@@ -403,7 +406,7 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Return row count
+     * Return row count.
      *
      * @param Criteria $criteria
      * @return int|bool
@@ -442,9 +445,12 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Add model to modelContainer for later writing to datasource
+     * Add model to modelContainer for later writing to datasource.
      *
      * @param $model
+     * @param array $related
+     * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
      */
     public function persist($model, $related = array())
     {
@@ -504,7 +510,7 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-     * Write persisted models to dataSource
+     * Write persisted models to dataSource.
      */
     public function write()
     {

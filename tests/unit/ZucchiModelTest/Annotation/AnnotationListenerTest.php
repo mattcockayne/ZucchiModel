@@ -14,7 +14,7 @@ use Zend\Code\Reflection\ClassReflection;
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 use Zend\EventManager\Event;
 
-use ZucchiModel\ModelManager;
+use ZucchiModel\Model\Manager;
 use ZucchiModel\Adapter\ZendDb;
 use ZucchiModel\Annotation\AnnotationListener;
 use ZucchiModel\Metadata;
@@ -51,9 +51,9 @@ class AnnotationListenerTest extends \Codeception\TestCase\Test
     protected $adapter;
 
     /**
-     * ModelManager
+     * Model\Manager
      *
-     * @var \ZucchiModel\ModelManager
+     * @var \ZucchiModel\Model\Manager
      */
     protected $modelManager;
 
@@ -73,7 +73,7 @@ class AnnotationListenerTest extends \Codeception\TestCase\Test
             'profiler' => true
         ));
         $this->adapter = new ZendDb($this->zendDbAdapter);
-        $this->modelManager = new ModelManager($this->adapter);
+        $this->modelManager = new Manager($this->adapter);
     }
 
     /**

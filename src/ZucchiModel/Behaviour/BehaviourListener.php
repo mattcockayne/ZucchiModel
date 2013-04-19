@@ -53,7 +53,7 @@ class BehaviourListener
      * @param Manager $modelManager
      * @return $this
      */
-    public function setModelManager(ModelManager $modelManager)
+    public function setModelManager(Manager $modelManager)
     {
         $this->modelManager = $modelManager;
         return $this;

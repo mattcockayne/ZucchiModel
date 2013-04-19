@@ -16,7 +16,7 @@ use Zend\Db\Sql\Where;
  *
  * @author Rick Nicol <rick@zucchi.co.uk>
  * @package ZucchiModel
- * @subpackage ModelManager
+ * @subpackage Model
  * @category
  */
 class Criteria extends AbstractOptions
