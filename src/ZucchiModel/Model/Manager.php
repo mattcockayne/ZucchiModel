@@ -489,7 +489,7 @@ class Manager implements EventManagerAwareInterface
 
         // Create new container if not yet set.
         if (!$this->modelContainer) {
-            $this->modelContainer = new Container();
+            $this->modelContainer = new Container($this);
         }
 
         $metadata = $this->getMetadata(get_class($model));
