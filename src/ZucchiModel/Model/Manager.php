@@ -458,23 +458,35 @@ class Manager implements EventManagerAwareInterface
      */
     public function persist($model, $related = array())
     {
-        if (!is_array($related) && !($related instanceof Traversable)) {
+        // Check model is an object.
+        if (!is_object($model)) {
+            throw new \InvalidArgumentException(sprintf('Models must be an object. Given: %s', var_export($model, true)));
+        }
+
+        // Check $related is an array or Traversable.
+        if (!is_array($related) && !($related instanceof \Traversable)) {
             throw new \InvalidArgumentException(sprintf('Related models must be an array or Traversable. Given: %s', var_export($related, true)));
         }
 
+        // Create new container if not yet set.
         if (!$this->modelContainer) {
             $this->modelContainer = new Container();
         }
 
         $metadata = $this->getMetadata(get_class($model));
 
+        // Build up a list of related model hashes.
         $modelRelations = array();
 
         foreach ($related as $name => $relations) {
+            // Check this is a relationship on the given model.
             if (!$relationship = $metadata->getRelationship($name)) {
                 throw new \UnexpectedValueException(sprintf('Invalid relationship of "%s" defined to persist', $name));
             }
 
+            // Attach each related model to model container, if not
+            // already in modelContainer. Build list of hashes for
+            // related models.
             foreach ($relations as $relation) {
                 if (!$this->modelContainer->contains($relation)) {
                     $this->modelContainer->attach($relation, array(
@@ -485,11 +497,13 @@ class Manager implements EventManagerAwareInterface
                 $hash = $this->modelContainer->getHash($relation);
                 $modelRelations[$name][] = $hash;
             }
-
         }
 
+        // Attach this model to modelContainer.
         $hash = $this->modelContainer->getHash($model);
 
+        // If it does not exists in modelContainer, attach with
+        // related model hashes. Else merged related model hashes.
         if (!$this->modelContainer->contains($model)) {
             $this->modelContainer->attach($model, array(
                 'metadata' => $metadata,
@@ -503,14 +517,13 @@ class Manager implements EventManagerAwareInterface
             ));
         }
 
-        // move to end of queue
+        // If hash contains fully qualified name, it is an
+        // update. Else create. See Model\Container->getHash().
         if (false !== strpos($hash, get_class($model))) {
             $this->updateQueue[$hash] = true;
         } else {
             $this->createQueue[$hash] = true;
         }
-
-
     }
 
     /**
