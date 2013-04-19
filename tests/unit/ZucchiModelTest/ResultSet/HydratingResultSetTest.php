@@ -13,7 +13,7 @@ use Codeception\Util\Stub;
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 
 use Zend\Db\Sql\Where;
-use ZucchiModel\ModelManager;
+use ZucchiModel\Model\Manager;
 use ZucchiModel\Adapter\ZendDb;
 use ZucchiModel\Metadata;
 use ZucchiModel\Query\Criteria;
@@ -57,7 +57,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
     /**
      * ModelManager
      *
-     * @var \ZucchiModel\ModelManager
+     * @var \ZucchiModel\Model\Manager
      */
     protected $modelManager;
 
@@ -77,7 +77,7 @@ class HydratingResultSetTest extends \Codeception\TestCase\Test
             'profiler' => true
         ));
         $this->adapter = new ZendDb($this->zendDbAdapter);
-        $this->modelManager = new ModelManager($this->adapter);
+        $this->modelManager = new Manager($this->adapter);
     }
 
     /**

@@ -62,7 +62,7 @@ class HydrationListener
     /**
      * Get Model Manager
      *
-     * @return ModelManager
+     * @return Manager
      */
     public function getModelManager()
     {

@@ -33,7 +33,7 @@ use ZucchiModel\Query\Criteria;
 class PaginatedResultSet implements Iterator, Countable
 {
     /**
-     * Reference to ModelManager.
+     * Reference to Model Manager.
      *
      * @var Manager
      */
@@ -94,7 +94,7 @@ class PaginatedResultSet implements Iterator, Countable
     protected $count = false;
 
     /**
-     * Constructor used to set ModelManager, Original Criteria and
+     * Constructor used to set Model Manager, Original Criteria and
      * Page Size.
      *
      * @param Manager $modelManager
@@ -151,7 +151,7 @@ class PaginatedResultSet implements Iterator, Countable
     /**
      * Set Model Manager.
      *
-     * @param ModelManager $modelManager
+     * @param Manager $modelManager
      * @return $this
      */
     public function setModelManager(Manager $modelManager)
@@ -163,7 +163,7 @@ class PaginatedResultSet implements Iterator, Countable
     /**
      * Get Model Manager.
      *
-     * @return ModelManager
+     * @return Manager
      */
     public function getModelManager()
     {
