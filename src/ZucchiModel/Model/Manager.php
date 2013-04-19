@@ -353,7 +353,7 @@ class Manager implements EventManagerAwareInterface
         // Get model and check it exists
         $model = $criteria->getModel();
         if (!class_exists($model)) {
-            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('Model does not exist. Given: %s', var_export($model, true)));
         }
 
         // Get metadata for the given model
@@ -361,7 +361,7 @@ class Manager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!$metadata->getAdapter()) {
-            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. Given: %s', var_export($model, true)));
         }
 
         $criteria->setLimit(1);
@@ -406,7 +406,7 @@ class Manager implements EventManagerAwareInterface
         $model = $criteria->getModel();
 
         if (!class_exists($model)) {
-            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('Model does not exist. Given %s', var_export($model, true)));
         }
 
         // Get metadata for the given model
@@ -414,7 +414,7 @@ class Manager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!$metadata->getAdapter()) {
-            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. Given: %s', var_export($model, true)));
         }
 
         // Check if a Paginated Result Set is wanted,
@@ -441,7 +441,7 @@ class Manager implements EventManagerAwareInterface
         $model = $criteria->getModel();
 
         if (!class_exists($model)) {
-            throw new \RuntimeException(sprintf('Model does not exist. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('Model does not exist. Given: %s', var_export($model, true)));
         }
 
         // Get metadata for the given model
@@ -449,7 +449,7 @@ class Manager implements EventManagerAwareInterface
 
         // Check dataSource and metadata exist
         if (!$metadata->getAdapter()) {
-            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. %s given.', var_export($model, true)));
+            throw new \RuntimeException(sprintf('No Adapter Specific Metadata can be found for this Model. Given: %s', var_export($model, true)));
         }
 
         // Force limit and offset to null
@@ -500,7 +500,7 @@ class Manager implements EventManagerAwareInterface
         foreach ($related as $name => $relations) {
             // Check this is a relationship on the given model.
             if (!$relationship = $metadata->getRelationship($name)) {
-                throw new \UnexpectedValueException(sprintf('Invalid relationship of "%s" defined to persist', $name));
+                throw new \UnexpectedValueException(sprintf('Invalid relationship of "%s" defined to persist.', $name));
             }
 
             // Attach each related model to model container, if not
