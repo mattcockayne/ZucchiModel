@@ -21,4 +21,4 @@ before_script:
    - pwd
    - ls -al
 
-script: "`pwd`/vendor/Codeception/Codeception/codecept run -c `pwd`/codeception.travis.yml"
+script: "`pwd`/vendor/bin/codecept run -c `pwd`/codeception.travis.yml"
