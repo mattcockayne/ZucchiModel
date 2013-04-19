@@ -294,18 +294,36 @@ class Manager implements EventManagerAwareInterface
      */
     public function getRelationship($relationship, $model, $paginatedPageSize = 0)
     {
+        // Check relationship is a string.
+        if (!is_string($relationship) || empty($relationship)) {
+            throw new \InvalidArgumentException(sprintf('Relationship must be a non empty string. Given: %s', var_export($relationship, true)));
+        }
+
+        // Check model is an object.
+        if (!is_object($model)) {
+            throw new \InvalidArgumentException(sprintf('Models must be an object. Given: %s', var_export($model, true)));
+        }
+
+        // Check paginatedPageSize is an integer.
+        if (!is_int($paginatedPageSize) || $paginatedPageSize < 0) {
+            throw new \InvalidArgumentException(sprintf('Paginated Page Size must be a positive integer. Given: %s', var_export($paginatedPageSize, true)));
+        }
+
         $metadata = $this->getMetadata(get_class($model));
         $relationship = $metadata->getRelationships()->getRelationship($relationship);
 
+        // Create Criteria for the find.
         $criteria = new Criteria(array(
             'model' => $relationship['model'],
         ));
+        // Add relationship details to criteria.
         $criteria = $metadata->getAdapter()->addRelationship(
             $model,
             $criteria,
             $relationship
         );
 
+        // Find related models by join type.
         switch ($relationship['type']) {
             case 'toOne':
                 return $this->findOne($criteria);
@@ -316,6 +334,7 @@ class Manager implements EventManagerAwareInterface
                 break;
         }
 
+        // Nothing found.
         return false;
     }
 
