@@ -502,7 +502,7 @@ class ZendDbTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('\ZucchiModel\ResultSet\HydratingResultSet', $results);
 
         foreach ($results as $result) {
-            $roles = $this->modelManager->getRelationship($result, 'Roles', 10);
+            $roles = $this->modelManager->getRelationship('Roles', $result, 10);
             $this->assertInstanceOf('\ZucchiModel\ResultSet\PaginatedResultSet', $roles);
             foreach ($roles as $role) {
                 $this->assertInstanceOf('\ZucchiModelTest\Adapter\TestAsset\Role', $role);
@@ -527,7 +527,7 @@ class ZendDbTest extends \Codeception\TestCase\Test
         $this->assertInstanceOf('\ZucchiModel\ResultSet\HydratingResultSet', $results);
 
         foreach ($results as $result) {
-            $roles = $this->modelManager->getRelationship($result, 'Roles');
+            $roles = $this->modelManager->getRelationship('Roles', $result);
             $this->assertInstanceOf('\ZucchiModel\ResultSet\HydratingResultSet', $roles);
             foreach ($roles as $role) {
                 $this->assertInstanceOf('\ZucchiModelTest\Adapter\TestAsset\Role', $role);
