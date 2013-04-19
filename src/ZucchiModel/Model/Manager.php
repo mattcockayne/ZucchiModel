@@ -229,15 +229,19 @@ class Manager implements EventManagerAwareInterface
     }
 
     /**
-        $criteria = $metadata->getAdapter()->addRelationship(
-     * Get Metadata for a specified class.
+     * Get Metadata for a specified given class name.
      *
      * @param string $class
      * @return mixed
-     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function getMetadata($class)
     {
+        // Class name must be a string
+        if (!is_string($class)) {
+            throw new \InvalidArgumentException(sprintf('Class must be a string. Given: %s.', var_export($class, true)));
+        }
+
         if (!array_key_exists($class, $this->modelMetadata)) {
             // Add class to cache
             $this->modelMetadata[$class] = $md = new Metadata\MetaDataContainer();
